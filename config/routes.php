@@ -101,6 +101,8 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->post('/admin/settings/gallery/{id}/delete', [Admin\SettingsController::class, 'destroyGalleryPhoto']);
             $router->post('/admin/settings/test-email', [Admin\SettingsController::class, 'testEmail']);
 
+            $router->get('/admin/activity-log', [Admin\ActivityLogController::class, 'index']);
+
             $router->get('/admin/backups', [Admin\BackupController::class, 'index']);
             $router->post('/admin/backups', [Admin\BackupController::class, 'store']);
             $router->get('/admin/backups/{filename}/download', [Admin\BackupController::class, 'download']);

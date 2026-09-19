@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Admin;
 
+use App\Core\ActivityLog;
 use App\Core\Auth;
 use App\Core\Flash;
 use App\Core\Request;
@@ -147,7 +148,14 @@ class EventController
 
     public function destroy(Request $request, string $id): void
     {
+        $event = Event::find((int) $id);
+
         Event::softDelete((int) $id);
+
+        if ($event) {
+            ActivityLog::record('event.delete', 'event', (int) $id, __('activity.event_deleted', ['name' => $event['name_th']]));
+        }
+
         Flash::success(__('event.deleted_success'));
         redirect('admin/events');
     }

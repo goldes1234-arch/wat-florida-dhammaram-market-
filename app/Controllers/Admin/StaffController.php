@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Admin;
 
+use App\Core\ActivityLog;
 use App\Core\Auth;
 use App\Core\Flash;
 use App\Core\Request;
@@ -48,12 +49,14 @@ class StaffController
             redirect('admin/staff');
         }
 
-        AdminUser::create([
+        $newId = AdminUser::create([
             'name' => $name,
             'email' => $email,
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
             'role' => $role,
         ]);
+
+        ActivityLog::record('staff.create', 'admin_user', $newId, __('activity.staff_created', ['name' => $name, 'role' => $role]));
 
         Flash::success(__('staff.created_success'));
         redirect('admin/staff');
@@ -71,7 +74,16 @@ class StaffController
             redirect('admin/staff');
         }
 
-        AdminUser::setActive((int) $id, !$user['is_active']);
+        $activating = !$user['is_active'];
+        AdminUser::setActive((int) $id, $activating);
+
+        ActivityLog::record(
+            $activating ? 'staff.activate' : 'staff.deactivate',
+            'admin_user',
+            (int) $id,
+            __($activating ? 'activity.staff_activated' : 'activity.staff_deactivated', ['name' => $user['name']])
+        );
+
         Flash::success(__('staff.updated_success'));
         redirect('admin/staff');
     }

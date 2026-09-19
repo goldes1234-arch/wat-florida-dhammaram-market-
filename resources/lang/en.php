@@ -45,6 +45,7 @@ return [
     'nav.contact' => 'Contact us',
     'nav.contacts' => 'Contact messages',
     'nav.backups' => 'Backups',
+    'nav.activity_log' => 'Activity log',
 
     // auth
     'auth.login_title' => 'Admin Login',
@@ -85,6 +86,24 @@ return [
     'backup.download' => 'Download',
     'backup.cron_not_configured' => 'Scheduled automatic backups aren\'t set up yet — use "Back up now" in the meantime, or see the README for how to schedule one via a cron job.',
     'backup.cron_setup_hint' => 'Add this URL as a scheduled cron job on your hosting (e.g. cPanel → Cron Jobs) so backups run automatically on a schedule (keep this URL secret — don\'t share it):',
+
+    'activity.title' => 'Activity log',
+    'activity.hint' => 'Records consequential admin actions — deleting events/lots, managing staff accounts. Booking status changes are tracked separately on each booking\'s own detail page.',
+    'activity.none' => 'No activity recorded yet',
+    'activity.when' => 'When',
+    'activity.who' => 'Who',
+    'activity.what' => 'What',
+    'activity.ip' => 'IP',
+    'activity.unknown_admin' => 'Unknown admin',
+    'activity.event_deleted' => 'Deleted event ":name"',
+    'activity.zone_deleted' => 'Deleted zone ":name"',
+    'activity.lot_deleted' => 'Deleted lot :code',
+    'activity.lots_deleted_selected' => 'Deleted :count selected lot(s) in event ":event"',
+    'activity.lots_deleted_all' => 'Deleted all :count lot(s) in event ":event"',
+    'activity.staff_created' => 'Created staff account ":name" (role: :role)',
+    'activity.staff_activated' => 'Activated account ":name"',
+    'activity.staff_deactivated' => 'Deactivated account ":name"',
+    'activity.backup_deleted' => 'Deleted backup file :filename',
 
     // dashboard
     'dashboard.title' => 'Overview',

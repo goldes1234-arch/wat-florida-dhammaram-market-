@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Admin;
 
+use App\Core\ActivityLog;
 use App\Core\Flash;
 use App\Core\Request;
 use App\Core\View;
@@ -47,6 +48,7 @@ class BackupController
     public function destroy(Request $request, string $filename): void
     {
         BackupService::delete($filename);
+        ActivityLog::record('backup.delete', 'backup', null, __('activity.backup_deleted', ['filename' => $filename]));
         Flash::success(__('backup.deleted_success'));
         redirect('admin/backups');
     }

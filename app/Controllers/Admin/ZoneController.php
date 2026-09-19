@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Admin;
 
+use App\Core\ActivityLog;
 use App\Core\Flash;
 use App\Core\Request;
 use App\Core\View;
@@ -103,6 +104,7 @@ class ZoneController
             redirect('admin/events');
         }
         Zone::delete((int) $id);
+        ActivityLog::record('zone.delete', 'zone', (int) $id, __('activity.zone_deleted', ['name' => $zone['name']]));
         Flash::success(__('zone.deleted_success'));
         redirect('admin/events/' . $zone['event_id'] . '/zones');
     }

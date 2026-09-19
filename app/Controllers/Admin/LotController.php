@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Admin;
 
+use App\Core\ActivityLog;
 use App\Core\Flash;
 use App\Core\Request;
 use App\Core\Upload;
@@ -238,6 +239,7 @@ class LotController
         }
 
         Lot::softDelete((int) $id);
+        ActivityLog::record('lot.delete', 'lot', (int) $id, __('activity.lot_deleted', ['code' => $lot['code']]));
         Flash::success(__('lot.deleted_success'));
         redirect('admin/events/' . $lot['event_id'] . '/lots');
     }
@@ -263,6 +265,13 @@ class LotController
             Flash::success(__('lot.deleted_selected_success', ['count' => $result['deleted']]));
         }
 
+        if ($result['deleted'] > 0) {
+            ActivityLog::record('lot.delete_selected', 'event', (int) $eventId, __('activity.lots_deleted_selected', [
+                'count' => $result['deleted'],
+                'event' => $event['name_th'],
+            ]));
+        }
+
         redirect('admin/events/' . $eventId . '/lots');
     }
 
@@ -284,6 +293,13 @@ class LotController
             ]));
         } else {
             Flash::success(__('lot.deleted_all_success', ['count' => $result['deleted']]));
+        }
+
+        if ($result['deleted'] > 0) {
+            ActivityLog::record('lot.delete_all', 'event', (int) $eventId, __('activity.lots_deleted_all', [
+                'count' => $result['deleted'],
+                'event' => $event['name_th'],
+            ]));
         }
 
         redirect('admin/events/' . $eventId . '/lots');

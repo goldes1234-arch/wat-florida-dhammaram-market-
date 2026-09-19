@@ -45,6 +45,7 @@ return [
     'nav.contact' => 'ติดต่อเรา',
     'nav.contacts' => 'ข้อความติดต่อ',
     'nav.backups' => 'สำรองข้อมูล',
+    'nav.activity_log' => 'ประวัติการใช้งาน',
 
     // auth
     'auth.login_title' => 'เข้าสู่ระบบแอดมิน',
@@ -85,6 +86,24 @@ return [
     'backup.download' => 'ดาวน์โหลด',
     'backup.cron_not_configured' => 'ยังไม่ได้ตั้งค่าให้สำรองข้อมูลอัตโนมัติตามตารางเวลา — กดปุ่ม "สำรองข้อมูลตอนนี้" เพื่อสำรองด้วยตัวเองได้ก่อน หรือดูวิธีตั้งเวลาอัตโนมัติผ่าน cron job ได้ใน README',
     'backup.cron_setup_hint' => 'นำ URL นี้ไปตั้งเป็น cron job บนโฮสติ้งของคุณ (เช่นใน cPanel → Cron Jobs) เพื่อให้สำรองข้อมูลอัตโนมัติตามตารางเวลาที่ตั้งไว้ (เก็บ URL นี้เป็นความลับ ห้ามเผยแพร่):',
+
+    'activity.title' => 'ประวัติการใช้งาน',
+    'activity.hint' => 'บันทึกการกระทำสำคัญของแอดมิน เช่น การลบงาน/ลบล็อก และการจัดการบัญชีผู้ใช้งาน (ไม่รวมการเปลี่ยนสถานะการจอง ซึ่งดูได้จากประวัติในหน้ารายละเอียดการจองแต่ละรายการ)',
+    'activity.none' => 'ยังไม่มีประวัติการใช้งาน',
+    'activity.when' => 'เวลา',
+    'activity.who' => 'ผู้ทำรายการ',
+    'activity.what' => 'รายละเอียด',
+    'activity.ip' => 'IP',
+    'activity.unknown_admin' => 'ไม่ทราบผู้ทำรายการ',
+    'activity.event_deleted' => 'ลบงาน ":name"',
+    'activity.zone_deleted' => 'ลบโซน ":name"',
+    'activity.lot_deleted' => 'ลบล็อก :code',
+    'activity.lots_deleted_selected' => 'ลบล็อกที่เลือก :count ล็อก ในงาน ":event"',
+    'activity.lots_deleted_all' => 'ลบล็อกทั้งหมด :count ล็อก ในงาน ":event"',
+    'activity.staff_created' => 'สร้างบัญชีผู้ใช้งาน ":name" (สิทธิ์ :role)',
+    'activity.staff_activated' => 'เปิดใช้งานบัญชี ":name"',
+    'activity.staff_deactivated' => 'ปิดใช้งานบัญชี ":name"',
+    'activity.backup_deleted' => 'ลบไฟล์สำรองข้อมูล :filename',
 
     // dashboard
     'dashboard.title' => 'ภาพรวมระบบ',

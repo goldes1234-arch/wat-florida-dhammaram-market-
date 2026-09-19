@@ -97,6 +97,22 @@ CREATE TABLE event_photos (
   INDEX idx_event_photos_event (event_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Audit trail for consequential admin actions (deletions, account changes) —
+-- separate from booking_status_logs, which only covers booking transitions.
+CREATE TABLE admin_activity_logs (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  admin_id INT UNSIGNED NULL,
+  admin_name VARCHAR(100) NULL,
+  action VARCHAR(50) NOT NULL,
+  subject_type VARCHAR(50) NOT NULL,
+  subject_id INT UNSIGNED NULL,
+  description VARCHAR(500) NOT NULL,
+  ip_address VARCHAR(45) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_activity_log_admin FOREIGN KEY (admin_id) REFERENCES admin_users(id) ON DELETE SET NULL,
+  INDEX idx_activity_log_created (created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Admin/staff back-office accounts.
 CREATE TABLE admin_users (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

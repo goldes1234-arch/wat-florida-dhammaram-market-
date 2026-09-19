@@ -35,6 +35,7 @@ $locale = \App\Core\Lang::locale();
         <?php if (\App\Core\Auth::isSuperAdmin()): ?>
         <li><a href="<?= base_url('admin/staff') ?>" class="<?= $active === 'staff' ? 'is-active' : '' ?>"><span class="nav-icon icon-blue"><?= icon('users') ?></span> <?= __('nav.staff') ?></a></li>
         <li><a href="<?= base_url('admin/backups') ?>" class="<?= $active === 'backups' ? 'is-active' : '' ?>"><span class="nav-icon icon-amber"><?= icon('download') ?></span> <?= __('nav.backups') ?></a></li>
+        <li><a href="<?= base_url('admin/activity-log') ?>" class="<?= $active === 'activity_log' ? 'is-active' : '' ?>"><span class="nav-icon icon-magenta"><?= icon('clock') ?></span> <?= __('nav.activity_log') ?></a></li>
         <li><a href="<?= base_url('admin/settings') ?>" class="<?= $active === 'settings' ? 'is-active' : '' ?>"><span class="nav-icon icon-teal"><?= icon('settings') ?></span> <?= __('nav.settings') ?></a></li>
         <?php endif; ?>
       <?php endif; ?>

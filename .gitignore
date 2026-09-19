@@ -1,0 +1,13 @@
+# Local environment (holds DB/mail credentials) — copy from .env.example instead
+.env
+
+# Runtime-generated content: uploaded images and dev email logs, not source code
+uploads/**/*.jpg
+uploads/**/*.jpeg
+uploads/**/*.png
+uploads/**/*.webp
+uploads/**/*.gif
+storage/logs/emails/*.html
+
+# OS/editor cruft
+.DS_Store

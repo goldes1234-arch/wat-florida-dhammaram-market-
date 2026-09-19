@@ -1,0 +1,18 @@
+RewriteEngine On
+RewriteBase /ProjectWFD/Temple_Market/
+
+# Block any dotfile (.env, .git, .htaccess itself, etc.) at any depth
+RewriteRule "(^|/)\." - [F]
+
+<FilesMatch "\.(sql|log|md|lock|json|env)$">
+    Require all denied
+</FilesMatch>
+
+# Let real files/directories through untouched (assets/, uploads/, this file's
+# own siblings). Non-public folders each carry their own Require-all-denied.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Everything else -> front controller
+RewriteRule ^ index.php [L]

@@ -34,6 +34,9 @@ Lang::setLocale($locale);
 
 $debug = App::config('app.debug');
 
+ini_set('display_errors', $debug ? '1' : '0');
+error_reporting($debug ? E_ALL : E_ALL & ~E_DEPRECATED & ~E_NOTICE);
+
 set_exception_handler(function (\Throwable $e) use ($debug) {
     error_log($e->getMessage() . "\n" . $e->getTraceAsString());
     http_response_code(500);

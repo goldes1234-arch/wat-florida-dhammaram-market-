@@ -44,6 +44,7 @@ return [
     'nav.staff' => 'Manage users',
     'nav.contact' => 'Contact us',
     'nav.contacts' => 'Contact messages',
+    'nav.backups' => 'Backups',
 
     // auth
     'auth.login_title' => 'Admin Login',
@@ -69,6 +70,21 @@ return [
     'auth.reset_password_too_short' => 'Password must be at least 8 characters.',
     'auth.reset_password_mismatch' => 'The two passwords do not match.',
     'auth.reset_password_success' => 'Your password has been reset. Please sign in with your new password.',
+
+    'backup.title' => 'Database backups',
+    'backup.hint' => 'Dumps the whole database to a .sql.gz file. Keeps the last :retention backups (older ones are deleted automatically).',
+    'backup.create_button' => 'Back up now',
+    'backup.created_success' => 'Backup created: :filename',
+    'backup.created_failed' => 'Backup failed: :error',
+    'backup.not_found' => 'Backup file not found',
+    'backup.deleted_success' => 'Backup deleted',
+    'backup.none' => 'No backups yet',
+    'backup.filename' => 'Filename',
+    'backup.size' => 'Size',
+    'backup.created_at' => 'Created',
+    'backup.download' => 'Download',
+    'backup.cron_not_configured' => 'Scheduled automatic backups aren\'t set up yet — use "Back up now" in the meantime, or see the README for how to schedule one via a cron job.',
+    'backup.cron_setup_hint' => 'Add this URL as a scheduled cron job on your hosting (e.g. cPanel → Cron Jobs) so backups run automatically on a schedule (keep this URL secret — don\'t share it):',
 
     // dashboard
     'dashboard.title' => 'Overview',

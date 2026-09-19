@@ -44,6 +44,7 @@ return [
     'nav.staff' => 'จัดการผู้ใช้งาน',
     'nav.contact' => 'ติดต่อเรา',
     'nav.contacts' => 'ข้อความติดต่อ',
+    'nav.backups' => 'สำรองข้อมูล',
 
     // auth
     'auth.login_title' => 'เข้าสู่ระบบแอดมิน',
@@ -69,6 +70,21 @@ return [
     'auth.reset_password_too_short' => 'รหัสผ่านต้องมีอย่างน้อย 8 ตัวอักษร',
     'auth.reset_password_mismatch' => 'รหัสผ่านทั้งสองช่องไม่ตรงกัน',
     'auth.reset_password_success' => 'ตั้งรหัสผ่านใหม่เรียบร้อยแล้ว กรุณาเข้าสู่ระบบด้วยรหัสผ่านใหม่',
+
+    'backup.title' => 'สำรองฐานข้อมูล',
+    'backup.hint' => 'สำรองฐานข้อมูลทั้งหมดเป็นไฟล์ .sql.gz เก็บไว้ล่าสุด :retention ไฟล์ (ไฟล์เก่ากว่านั้นจะถูกลบอัตโนมัติ)',
+    'backup.create_button' => 'สำรองข้อมูลตอนนี้',
+    'backup.created_success' => 'สำรองข้อมูลสำเร็จ: :filename',
+    'backup.created_failed' => 'สำรองข้อมูลไม่สำเร็จ: :error',
+    'backup.not_found' => 'ไม่พบไฟล์สำรองนี้',
+    'backup.deleted_success' => 'ลบไฟล์สำรองแล้ว',
+    'backup.none' => 'ยังไม่มีไฟล์สำรองข้อมูล',
+    'backup.filename' => 'ชื่อไฟล์',
+    'backup.size' => 'ขนาด',
+    'backup.created_at' => 'วันที่สร้าง',
+    'backup.download' => 'ดาวน์โหลด',
+    'backup.cron_not_configured' => 'ยังไม่ได้ตั้งค่าให้สำรองข้อมูลอัตโนมัติตามตารางเวลา — กดปุ่ม "สำรองข้อมูลตอนนี้" เพื่อสำรองด้วยตัวเองได้ก่อน หรือดูวิธีตั้งเวลาอัตโนมัติผ่าน cron job ได้ใน README',
+    'backup.cron_setup_hint' => 'นำ URL นี้ไปตั้งเป็น cron job บนโฮสติ้งของคุณ (เช่นใน cPanel → Cron Jobs) เพื่อให้สำรองข้อมูลอัตโนมัติตามตารางเวลาที่ตั้งไว้ (เก็บ URL นี้เป็นความลับ ห้ามเผยแพร่):',
 
     // dashboard
     'dashboard.title' => 'ภาพรวมระบบ',

@@ -8,6 +8,7 @@ uploads/**/*.png
 uploads/**/*.webp
 uploads/**/*.gif
 storage/logs/emails/*.html
+storage/backups/*.sql.gz
 
 # OS/editor cruft
 .DS_Store

@@ -25,6 +25,7 @@ $router->get('/my-booking/{code}', [Public\MyBookingController::class, 'show']);
 $router->post('/my-booking/{code}/cancel', [Public\MyBookingController::class, 'cancel']);
 $router->get('/contact', [Public\ContactController::class, 'form']);
 $router->post('/contact', [Public\ContactController::class, 'store']);
+$router->get('/cron/backup', [Public\CronController::class, 'backup']);
 
 // ---------------------------------------------------------------- Admin
 $router->group(['middleware' => ['guest']], function ($router) {
@@ -99,6 +100,11 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->post('/admin/settings/gallery', [Admin\SettingsController::class, 'storeGalleryPhoto']);
             $router->post('/admin/settings/gallery/{id}/delete', [Admin\SettingsController::class, 'destroyGalleryPhoto']);
             $router->post('/admin/settings/test-email', [Admin\SettingsController::class, 'testEmail']);
+
+            $router->get('/admin/backups', [Admin\BackupController::class, 'index']);
+            $router->post('/admin/backups', [Admin\BackupController::class, 'store']);
+            $router->get('/admin/backups/{filename}/download', [Admin\BackupController::class, 'download']);
+            $router->post('/admin/backups/{filename}/delete', [Admin\BackupController::class, 'destroy']);
             $router->get('/admin/staff', [Admin\StaffController::class, 'index']);
             $router->post('/admin/staff', [Admin\StaffController::class, 'store']);
             $router->post('/admin/staff/{id}/toggle-active', [Admin\StaffController::class, 'toggleActive']);

@@ -20,4 +20,9 @@ return [
         'from_address' => Env::get('MAIL_FROM_ADDRESS', 'no-reply@example.com'),
         'from_name' => Env::get('MAIL_FROM_NAME', 'Temple Market'),
     ],
+    'backup' => [
+        'mysqldump_path' => Env::get('MYSQLDUMP_PATH', ''),
+        'retention' => (int) Env::get('BACKUP_RETENTION', 14),
+        'cron_secret' => Env::get('BACKUP_CRON_SECRET', ''),
+    ],
 ];

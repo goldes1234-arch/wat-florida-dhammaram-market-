@@ -30,6 +30,10 @@ $router->post('/contact', [Public\ContactController::class, 'store']);
 $router->group(['middleware' => ['guest']], function ($router) {
     $router->get('/admin/login', [Admin\AuthController::class, 'loginForm']);
     $router->post('/admin/login', [Admin\AuthController::class, 'login']);
+    $router->get('/admin/forgot-password', [Admin\AuthController::class, 'forgotPasswordForm']);
+    $router->post('/admin/forgot-password', [Admin\AuthController::class, 'sendResetLink']);
+    $router->get('/admin/reset-password/{token}', [Admin\AuthController::class, 'resetPasswordForm']);
+    $router->post('/admin/reset-password/{token}', [Admin\AuthController::class, 'resetPassword']);
 });
 
 $router->group(['middleware' => ['auth']], function ($router) {

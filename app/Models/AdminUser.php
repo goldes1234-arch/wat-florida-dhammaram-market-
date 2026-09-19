@@ -57,4 +57,29 @@ class AdminUser extends Model
         $stmt = self::db()->prepare('UPDATE admin_users SET is_active = :active WHERE id = :id');
         $stmt->execute(['active' => $active ? 1 : 0, 'id' => $id]);
     }
+
+    public static function setResetToken(int $id, string $tokenHash, string $expiresAt): void
+    {
+        $stmt = self::db()->prepare(
+            'UPDATE admin_users SET reset_token_hash = :hash, reset_token_expires_at = :expires WHERE id = :id'
+        );
+        $stmt->execute(['hash' => $tokenHash, 'expires' => $expiresAt, 'id' => $id]);
+    }
+
+    public static function findByValidResetTokenHash(string $tokenHash): ?array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT * FROM admin_users WHERE reset_token_hash = :hash AND reset_token_expires_at > NOW()'
+        );
+        $stmt->execute(['hash' => $tokenHash]);
+        return $stmt->fetch() ?: null;
+    }
+
+    public static function resetPassword(int $id, string $passwordHash): void
+    {
+        $stmt = self::db()->prepare(
+            'UPDATE admin_users SET password_hash = :hash, reset_token_hash = NULL, reset_token_expires_at = NULL WHERE id = :id'
+        );
+        $stmt->execute(['hash' => $passwordHash, 'id' => $id]);
+    }
 }

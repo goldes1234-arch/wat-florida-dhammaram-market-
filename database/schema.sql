@@ -106,6 +106,8 @@ CREATE TABLE admin_users (
   role ENUM('super_admin','staff','checkin') NOT NULL DEFAULT 'staff',
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   last_login_at DATETIME NULL,
+  reset_token_hash VARCHAR(64) NULL,
+  reset_token_expires_at DATETIME NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

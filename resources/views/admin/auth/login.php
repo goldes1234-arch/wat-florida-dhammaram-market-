@@ -11,3 +11,4 @@
   </div>
   <button type="submit" class="btn btn-primary btn-block btn-lg"><?= __('auth.login_button') ?></button>
 </form>
+<p class="text-center text-sm mt-4"><a href="<?= base_url('admin/forgot-password') ?>"><?= __('auth.forgot_password_link') ?></a></p>

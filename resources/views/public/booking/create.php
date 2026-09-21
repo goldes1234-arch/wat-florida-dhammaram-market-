@@ -58,6 +58,15 @@
             <div>
               <div class="option-title"><?= __('booking.method_stripe') ?></div>
               <div class="option-desc"><?= __('public.pay_stripe_desc') ?></div>
+              <?php if ($stripeFeePassThrough && $stripeFeeAmount > 0): ?>
+                <div class="option-desc text-sm mt-1">
+                  <?= __('public.stripe_fee_breakdown', [
+                      'lot' => number_format((float) $lot['price'], 2),
+                      'fee' => number_format($stripeFeeAmount, 2),
+                      'total' => number_format((float) $lot['price'] + $stripeFeeAmount, 2),
+                  ]) ?>
+                </div>
+              <?php endif; ?>
             </div>
           </label>
         <?php endif; ?>

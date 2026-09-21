@@ -17,6 +17,26 @@ class StripeService
         return !empty(Setting::get()['stripe_secret_key']);
     }
 
+    public static function passesFeeToCustomer(): bool
+    {
+        return !empty(Setting::get()['stripe_pass_fee_to_customer']);
+    }
+
+    /**
+     * The surcharge to add on top of $basePrice so that, after Stripe's own cut of
+     * the *total* charged, the org still nets exactly $basePrice. Shared by the
+     * checkout session builder and the public booking form's price preview so the
+     * customer sees the real total before ever reaching Stripe.
+     */
+    public static function calculatePassThroughFee(float $basePrice): float
+    {
+        $settings = Setting::get();
+        $feePercent = ((float) $settings['stripe_fee_percent']) / 100;
+        $feeFixed = (float) $settings['stripe_fee_fixed'];
+        $totalCharged = ($basePrice + $feeFixed) / (1 - $feePercent);
+        return round($totalCharged - $basePrice, 2);
+    }
+
     public static function createCheckoutSession(array $booking, array $lot, array $event): ?array
     {
         $secretKey = Setting::get()['stripe_secret_key'] ?? '';
@@ -24,25 +44,49 @@ class StripeService
             return null;
         }
 
+        $settings = Setting::get();
         $currency = $booking['currency_code'];
-        $unitAmount = (int) round($booking['price_at_booking'] * CurrencyService::smallestUnitMultiplier($currency));
+        $multiplier = CurrencyService::smallestUnitMultiplier($currency);
+        $unitAmount = (int) round($booking['price_at_booking'] * $multiplier);
         $eventName = $event['name_th'] ?: $event['name_en'];
+
+        $lineItems = [[
+            'quantity' => 1,
+            'price_data' => [
+                'currency' => strtolower($currency),
+                'unit_amount' => $unitAmount,
+                'product_data' => [
+                    'name' => $eventName . ' — ' . __('booking.lot_label') . ' ' . $lot['code'],
+                ],
+            ],
+        ]];
+
+        // Gross up so that after Stripe's own cut, the org still nets the full lot
+        // price — the fee shows as its own transparent line item rather than being
+        // silently folded into the lot's price.
+        if (!empty($settings['stripe_pass_fee_to_customer'])) {
+            $feeAmount = self::calculatePassThroughFee((float) $booking['price_at_booking']);
+
+            if ($feeAmount > 0) {
+                $lineItems[] = [
+                    'quantity' => 1,
+                    'price_data' => [
+                        'currency' => strtolower($currency),
+                        'unit_amount' => (int) round($feeAmount * $multiplier),
+                        'product_data' => [
+                            'name' => __('booking.stripe_fee_line_item'),
+                        ],
+                    ],
+                ];
+            }
+        }
 
         $params = [
             'mode' => 'payment',
             'success_url' => full_url("booking/{$booking['booking_code']}/stripe-return") . '?session_id={CHECKOUT_SESSION_ID}',
             'cancel_url' => full_url("booking/{$booking['booking_code']}/stripe-cancelled"),
             'client_reference_id' => $booking['booking_code'],
-            'line_items' => [[
-                'quantity' => 1,
-                'price_data' => [
-                    'currency' => strtolower($currency),
-                    'unit_amount' => $unitAmount,
-                    'product_data' => [
-                        'name' => $eventName . ' — ' . __('booking.lot_label') . ' ' . $lot['code'],
-                    ],
-                ],
-            ]],
+            'line_items' => $lineItems,
             'metadata' => [
                 'booking_id' => (string) $booking['id'],
                 'booking_code' => $booking['booking_code'],

@@ -188,6 +188,22 @@
       <label><?= __('settings.stripe_webhook_secret') ?></label>
       <input type="text" name="stripe_webhook_secret" class="form-control" value="<?= e($settings['stripe_webhook_secret'] ?? '') ?>" placeholder="whsec_...">
     </div>
+
+    <div class="checkbox-row mb-2">
+      <input type="checkbox" id="stripe_pass_fee_to_customer" name="stripe_pass_fee_to_customer" value="1" <?= !empty($settings['stripe_pass_fee_to_customer']) ? 'checked' : '' ?>>
+      <label for="stripe_pass_fee_to_customer" style="margin:0;"><?= __('settings.stripe_pass_fee_label') ?></label>
+    </div>
+    <p class="form-hint mb-4"><?= __('settings.stripe_pass_fee_hint') ?></p>
+    <div class="form-row">
+      <div class="form-group">
+        <label><?= __('settings.stripe_fee_percent') ?></label>
+        <input type="number" step="0.01" min="0" max="100" name="stripe_fee_percent" class="form-control" value="<?= e((string) ($settings['stripe_fee_percent'] ?? '2.90')) ?>">
+      </div>
+      <div class="form-group">
+        <label><?= __('settings.stripe_fee_fixed') ?></label>
+        <input type="number" step="0.01" min="0" name="stripe_fee_fixed" class="form-control" value="<?= e((string) ($settings['stripe_fee_fixed'] ?? '0.30')) ?>">
+      </div>
+    </div>
   </div>
 
   <div class="card">

@@ -40,11 +40,15 @@ class BookingController
             redirect('events/' . $slug);
         }
 
+        $stripeFeePassThrough = StripeService::isEnabled() && StripeService::passesFeeToCustomer();
+
         View::render('public/booking/create', [
             'title' => __('public.book_this_lot'),
             'event' => $event,
             'lot' => $lot,
             'stripeEnabled' => StripeService::isEnabled(),
+            'stripeFeePassThrough' => $stripeFeePassThrough,
+            'stripeFeeAmount' => $stripeFeePassThrough ? StripeService::calculatePassThroughFee((float) $lot['price']) : 0,
         ], 'public');
     }
 

@@ -4,16 +4,22 @@
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS booking_rate_limits;
-DROP TABLE IF EXISTS interest_subscribers;
 DROP TABLE IF EXISTS booking_status_logs;
 DROP TABLE IF EXISTS bookings;
 DROP TABLE IF EXISTS lots;
+DROP TABLE IF EXISTS interest_subscribers;
+DROP TABLE IF EXISTS event_photos;
+DROP TABLE IF EXISTS waitlist_entries;
+DROP TABLE IF EXISTS event_contacts;
 DROP TABLE IF EXISTS zones;
 DROP TABLE IF EXISTS events;
+DROP TABLE IF EXISTS admin_activity_logs;
 DROP TABLE IF EXISTS admin_users;
-DROP TABLE IF EXISTS settings;
+DROP TABLE IF EXISTS contact_messages;
+DROP TABLE IF EXISTS booking_rate_limits;
+DROP TABLE IF EXISTS gallery_photos;
 DROP TABLE IF EXISTS social_links;
+DROP TABLE IF EXISTS settings;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -66,19 +72,6 @@ CREATE TABLE social_links (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- "Notify me if a lot opens up" signups for events that are fully booked out.
-CREATE TABLE waitlist_entries (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  event_id INT UNSIGNED NOT NULL,
-  name VARCHAR(150) NOT NULL,
-  phone VARCHAR(30) NOT NULL,
-  email VARCHAR(150) NULL,
-  notified_at DATETIME NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_waitlist_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-  INDEX idx_waitlist_event (event_id, notified_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 -- Standalone photos for the public home page's "our event atmosphere" gallery,
 -- shown alongside (not instead of) each published event's own banner image.
 CREATE TABLE gallery_photos (
@@ -89,15 +82,41 @@ CREATE TABLE gallery_photos (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Extra promotional photos attached to a single event (up to 6, managed from the event edit page).
-CREATE TABLE event_photos (
+-- Simple insert-per-attempt anti-spam log for guest-facing forms.
+CREATE TABLE booking_rate_limits (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  event_id INT UNSIGNED NOT NULL,
-  image_path VARCHAR(255) NOT NULL,
-  sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  ip_address VARCHAR(45) NOT NULL,
+  action VARCHAR(30) NOT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_event_photos_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-  INDEX idx_event_photos_event (event_id)
+  INDEX idx_rate_limit_lookup (ip_address, action, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Public "contact us" inquiries (email / phone / LINE), reviewable by staff in the admin panel.
+CREATE TABLE contact_messages (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  email VARCHAR(150) NULL,
+  phone VARCHAR(30) NULL,
+  message TEXT NOT NULL,
+  is_read TINYINT(1) NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT chk_contact_has_reach CHECK (email IS NOT NULL OR phone IS NOT NULL),
+  INDEX idx_contact_messages_read (is_read, created_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Admin/staff back-office accounts.
+CREATE TABLE admin_users (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  password_hash VARCHAR(255) NOT NULL,
+  role ENUM('super_admin','staff','checkin') NOT NULL DEFAULT 'staff',
+  is_active TINYINT(1) NOT NULL DEFAULT 1,
+  last_login_at DATETIME NULL,
+  reset_token_hash VARCHAR(64) NULL,
+  reset_token_expires_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Audit trail for consequential admin actions (deletions, account changes) —
@@ -114,21 +133,6 @@ CREATE TABLE admin_activity_logs (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_activity_log_admin FOREIGN KEY (admin_id) REFERENCES admin_users(id) ON DELETE SET NULL,
   INDEX idx_activity_log_created (created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Admin/staff back-office accounts.
-CREATE TABLE admin_users (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100) NOT NULL,
-  email VARCHAR(150) NOT NULL UNIQUE,
-  password_hash VARCHAR(255) NOT NULL,
-  role ENUM('super_admin','staff','checkin') NOT NULL DEFAULT 'staff',
-  is_active TINYINT(1) NOT NULL DEFAULT 1,
-  last_login_at DATETIME NULL,
-  reset_token_hash VARCHAR(64) NULL,
-  reset_token_expires_at DATETIME NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Events / fairs that lots are booked under.
@@ -183,6 +187,43 @@ CREATE TABLE event_contacts (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CONSTRAINT fk_event_contacts_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
   INDEX idx_event_contacts_event (event_id, sort_order)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- "Notify me if a lot opens up" signups for events that are fully booked out.
+CREATE TABLE waitlist_entries (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  event_id INT UNSIGNED NOT NULL,
+  name VARCHAR(150) NOT NULL,
+  phone VARCHAR(30) NOT NULL,
+  email VARCHAR(150) NULL,
+  notified_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_waitlist_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+  INDEX idx_waitlist_event (event_id, notified_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Extra promotional photos attached to a single event (up to 6, managed from the event edit page).
+CREATE TABLE event_photos (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  event_id INT UNSIGNED NOT NULL,
+  image_path VARCHAR(255) NOT NULL,
+  sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_event_photos_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+  INDEX idx_event_photos_event (event_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- "Notify me" waiting list for not-yet-open events.
+CREATE TABLE interest_subscribers (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  event_id INT UNSIGNED NOT NULL,
+  email VARCHAR(150) NULL,
+  phone VARCHAR(30) NULL,
+  notified_at DATETIME NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_subscribers_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+  CONSTRAINT chk_subscriber_contact CHECK (email IS NOT NULL OR phone IS NOT NULL),
+  INDEX idx_subscribers_event (event_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Individual sellable stalls within an event.
@@ -249,39 +290,4 @@ CREATE TABLE booking_status_logs (
   CONSTRAINT fk_logs_booking FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
   CONSTRAINT fk_logs_admin FOREIGN KEY (changed_by_admin_id) REFERENCES admin_users(id) ON DELETE SET NULL,
   INDEX idx_logs_booking (booking_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- "Notify me" waiting list for not-yet-open events.
-CREATE TABLE interest_subscribers (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  event_id INT UNSIGNED NOT NULL,
-  email VARCHAR(150) NULL,
-  phone VARCHAR(30) NULL,
-  notified_at DATETIME NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT fk_subscribers_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
-  CONSTRAINT chk_subscriber_contact CHECK (email IS NOT NULL OR phone IS NOT NULL),
-  INDEX idx_subscribers_event (event_id)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Simple insert-per-attempt anti-spam log for guest-facing forms.
-CREATE TABLE booking_rate_limits (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  ip_address VARCHAR(45) NOT NULL,
-  action VARCHAR(30) NOT NULL,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_rate_limit_lookup (ip_address, action, created_at)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Public "contact us" inquiries (email / phone / LINE), reviewable by staff in the admin panel.
-CREATE TABLE contact_messages (
-  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(150) NOT NULL,
-  email VARCHAR(150) NULL,
-  phone VARCHAR(30) NULL,
-  message TEXT NOT NULL,
-  is_read TINYINT(1) NOT NULL DEFAULT 0,
-  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  CONSTRAINT chk_contact_has_reach CHECK (email IS NOT NULL OR phone IS NOT NULL),
-  INDEX idx_contact_messages_read (is_read, created_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

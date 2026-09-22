@@ -1,5 +1,4 @@
 RewriteEngine On
-RewriteBase /ProjectWFD/Temple_Market/
 
 # Block any dotfile (.env, .git, .htaccess itself, etc.) at any depth
 RewriteRule "(^|/)\." - [F]

@@ -35,7 +35,10 @@ class SmtpMailer
                 return [false, "Greeting failed: {$error}"];
             }
 
-            $localhost = 'localhost';
+            // Greet with the sender's own domain — "EHLO localhost" is a common
+            // spam-filter signal and ends up in the Received header.
+            $senderDomain = self::domainOf($fromEmail) ?: $host;
+            $localhost = $senderDomain;
 
             self::command($socket, 'EHLO ' . $localhost);
             [$ok, $error] = self::expect($socket, '250');
@@ -95,19 +98,7 @@ class SmtpMailer
                 return [false, "DATA rejected: {$error}"];
             }
 
-            $headers = [
-                'Date: ' . date('r'),
-                'Message-ID: <' . bin2hex(random_bytes(12)) . '@' . $host . '>',
-                'From: ' . $fromName . ' <' . $fromEmail . '>',
-                'To: <' . $to . '>',
-                'Subject: =?UTF-8?B?' . base64_encode($subject) . '?=',
-                'MIME-Version: 1.0',
-                'Content-Type: text/html; charset=UTF-8',
-                'Content-Transfer-Encoding: 8bit',
-            ];
-
-            $body = str_replace("\r\n.\r\n", "\r\n..\r\n", $html);
-            $message = implode("\r\n", $headers) . "\r\n\r\n" . $body . "\r\n.";
+            $message = self::buildMessage($to, $fromEmail, $fromName, $subject, $html, $senderDomain) . "\r\n.";
 
             self::command($socket, $message);
             [$ok, $error] = self::expect($socket, '250');
@@ -121,6 +112,78 @@ class SmtpMailer
         } finally {
             fclose($socket);
         }
+    }
+
+    /**
+     * multipart/alternative (plain text + HTML) — HTML-only mail scores worse
+     * with spam filters. Both parts are base64 so no line exceeds SMTP's 998
+     * char limit and no line can start with "." (no dot-stuffing needed).
+     */
+    private static function buildMessage(string $to, string $fromEmail, string $fromName, string $subject, string $html, string $senderDomain): string
+    {
+        $boundary = 'b_' . bin2hex(random_bytes(12));
+
+        $headers = [
+            'Date: ' . date('r'),
+            'Message-ID: <' . bin2hex(random_bytes(12)) . '@' . $senderDomain . '>',
+            'From: ' . self::encodeName($fromName) . ' <' . $fromEmail . '>',
+            'Reply-To: <' . $fromEmail . '>',
+            'To: <' . $to . '>',
+            'Subject: ' . self::encodeHeader($subject),
+            'MIME-Version: 1.0',
+            'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
+        ];
+
+        $parts = [
+            ['text/plain', self::htmlToText($html)],
+            ['text/html', $html],
+        ];
+
+        $body = '';
+        foreach ($parts as [$type, $content]) {
+            $body .= '--' . $boundary . "\r\n"
+                . 'Content-Type: ' . $type . "; charset=UTF-8\r\n"
+                . "Content-Transfer-Encoding: base64\r\n\r\n"
+                . rtrim(chunk_split(base64_encode($content), 76, "\r\n")) . "\r\n";
+        }
+        $body .= '--' . $boundary . '--';
+
+        return implode("\r\n", $headers) . "\r\n\r\n" . $body;
+    }
+
+    private static function htmlToText(string $html): string
+    {
+        $text = preg_replace('#<(br|/p|/div|/h[1-6]|/li|/tr)\b[^>]*>#i', "\n", $html);
+        $text = preg_replace('#<a\b[^>]*href="([^"]+)"[^>]*>(.*?)</a>#is', '$2 ($1)', $text);
+        $text = preg_replace('#<(style|script)\b.*?</\1>#is', '', $text);
+        $text = html_entity_decode(strip_tags($text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace("/[ \t]+/", ' ', $text);
+        $text = preg_replace("/\n\s*\n\s*\n+/", "\n\n", $text);
+
+        return trim($text);
+    }
+
+    /** Display name for From: — RFC 2047-encoded when it has non-ASCII (e.g. Thai), quoted otherwise. */
+    private static function encodeName(string $name): string
+    {
+        $name = trim(str_replace(["\r", "\n"], '', $name));
+        if (preg_match('/[^\x20-\x7E]/', $name)) {
+            return self::encodeHeader($name);
+        }
+
+        return '"' . addcslashes($name, '"\\') . '"';
+    }
+
+    private static function encodeHeader(string $value): string
+    {
+        return '=?UTF-8?B?' . base64_encode(str_replace(["\r", "\n"], '', $value)) . '?=';
+    }
+
+    private static function domainOf(string $email): string
+    {
+        $at = strrpos($email, '@');
+
+        return $at === false ? '' : strtolower(substr($email, $at + 1));
     }
 
     private static function command($socket, string $line): void

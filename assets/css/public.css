@@ -477,6 +477,8 @@
 .photo-pin.status-pending_payment { background: #FEF9C3; border-color: #EAB308; color: #854D0E; cursor: not-allowed; pointer-events: none; }
 .photo-pin.status-booked { background: #DBEAFE; border-color: #2563EB; color: #1E3A8A; cursor: not-allowed; pointer-events: none; }
 .photo-pin.status-disabled { background: #FEE2E2; border-color: #DC2626; color: #991B1B; cursor: not-allowed; pointer-events: none; opacity: .75; }
+.photo-pin.size-small { min-width: 24px; height: 24px; font-size: 9px; border-radius: 12px; }
+.photo-pin.size-large { min-width: 46px; height: 46px; font-size: 13px; border-radius: 23px; }
 
 .legend-dot.dot-available { color: #16A34A; }
 .legend-dot.dot-pending { color: #EAB308; }

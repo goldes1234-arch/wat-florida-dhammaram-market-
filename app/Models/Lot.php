@@ -98,6 +98,13 @@ class Lot extends Model
         $stmt->execute(['map_x' => $x, 'map_y' => $y, 'id' => $id]);
     }
 
+    /** Sets the display size of a lot's pin on the photo-coordinate map. */
+    public static function setMapSize(int $id, string $size): void
+    {
+        $stmt = self::db()->prepare('UPDATE lots SET map_size = :map_size WHERE id = :id');
+        $stmt->execute(['map_size' => $size, 'id' => $id]);
+    }
+
     /** Lightweight id => status map, used by the public "live" map polling endpoint. */
     public static function statusMapForEvent(int $eventId): array
     {

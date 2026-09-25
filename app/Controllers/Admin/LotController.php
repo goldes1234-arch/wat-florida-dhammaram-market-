@@ -182,6 +182,25 @@ class LotController
         echo json_encode(['ok' => true]);
     }
 
+    public function saveSize(Request $request, string $eventId): void
+    {
+        header('Content-Type: application/json');
+
+        $event = Event::find((int) $eventId);
+        $lot = Lot::find((int) $request->input('lot_id'));
+        $size = $request->input('map_size');
+
+        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId
+            || !in_array($size, ['small', 'medium', 'large'], true)) {
+            http_response_code(422);
+            echo json_encode(['ok' => false]);
+            return;
+        }
+
+        Lot::setMapSize((int) $lot['id'], $size);
+        echo json_encode(['ok' => true]);
+    }
+
     public function edit(Request $request, string $id): void
     {
         $lot = Lot::find((int) $id);

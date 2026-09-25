@@ -27,7 +27,7 @@
       <div class="map-editor-pins" id="mapEditorPins">
         <?php foreach ($lots as $lot): ?>
           <?php if ($lot['map_x'] !== null && $lot['map_y'] !== null): ?>
-            <div class="map-editor-pin" data-lot-id="<?= (int) $lot['id'] ?>"
+            <div class="map-editor-pin size-<?= e($lot['map_size']) ?>" data-lot-id="<?= (int) $lot['id'] ?>"
                  style="left: <?= e($lot['map_x']) ?>%; top: <?= e($lot['map_y']) ?>%;"><?= e($lot['code']) ?></div>
           <?php endif; ?>
         <?php endforeach; ?>
@@ -37,11 +37,21 @@
     <div class="map-editor-list">
       <?php foreach ($lots as $lot): ?>
         <?php $placed = $lot['map_x'] !== null && $lot['map_y'] !== null; ?>
-        <button type="button" class="map-editor-lot-btn<?= $placed ? ' is-placed' : '' ?>"
-                data-lot-id="<?= (int) $lot['id'] ?>" data-lot-code="<?= e($lot['code']) ?>">
-          <span class="lot-code"><?= e($lot['code']) ?></span>
-          <span class="lot-map-status text-sm text-muted"><?= $placed ? __('lot.map_placed') : __('lot.map_unplaced') ?></span>
-        </button>
+        <div class="map-editor-lot-row<?= $placed ? ' is-placed' : '' ?>"
+             data-lot-id="<?= (int) $lot['id'] ?>" data-map-size="<?= e($lot['map_size']) ?>">
+          <button type="button" class="map-editor-lot-btn"
+                  data-lot-id="<?= (int) $lot['id'] ?>" data-lot-code="<?= e($lot['code']) ?>">
+            <span class="lot-code"><?= e($lot['code']) ?></span>
+            <span class="lot-map-status text-sm text-muted"><?= $placed ? __('lot.map_placed') : __('lot.map_unplaced') ?></span>
+          </button>
+          <div class="map-editor-size-group" role="group">
+            <?php foreach (['small' => 'S', 'medium' => 'M', 'large' => 'L'] as $sizeValue => $sizeLetter): ?>
+              <button type="button" class="map-editor-size-btn<?= $lot['map_size'] === $sizeValue ? ' is-active' : '' ?>"
+                      data-lot-id="<?= (int) $lot['id'] ?>" data-size="<?= $sizeValue ?>"
+                      title="<?= __('lot.map_size_' . $sizeValue) ?>"><?= $sizeLetter ?></button>
+            <?php endforeach; ?>
+          </div>
+        </div>
       <?php endforeach; ?>
     </div>
   </div>
@@ -52,6 +62,7 @@
     var pinsLayer = document.getElementById('mapEditorPins');
     var statusEl = document.getElementById('mapEditorStatus');
     var saveUrl = <?= json_encode(base_url('admin/events/' . $event['id'] . '/lots/map-position')) ?>;
+    var sizeUrl = <?= json_encode(base_url('admin/events/' . $event['id'] . '/lots/map-size')) ?>;
     var csrfToken = <?= json_encode(\App\Core\Csrf::token()) ?>;
     var msgSaved = <?= json_encode(__('lot.map_saved'), JSON_UNESCAPED_UNICODE) ?>;
     var msgError = <?= json_encode(__('lot.map_save_error'), JSON_UNESCAPED_UNICODE) ?>;
@@ -84,8 +95,10 @@
     function placePin(lotId, code, xPct, yPct) {
       var pin = pinsLayer.querySelector('[data-lot-id="' + lotId + '"]');
       if (!pin) {
+        var row = document.querySelector('.map-editor-lot-row[data-lot-id="' + lotId + '"]');
+        var size = row ? row.getAttribute('data-map-size') : 'medium';
         pin = document.createElement('div');
-        pin.className = 'map-editor-pin';
+        pin.className = 'map-editor-pin size-' + size;
         pin.setAttribute('data-lot-id', lotId);
         pin.textContent = code;
         pinsLayer.appendChild(pin);
@@ -95,12 +108,45 @@
       return pin;
     }
 
-    function markButtonPlaced(lotId) {
-      var btn = document.querySelector('.map-editor-lot-btn[data-lot-id="' + lotId + '"]');
-      if (!btn) return;
-      btn.classList.add('is-placed');
-      var statusSpan = btn.querySelector('.lot-map-status');
+    function markRowPlaced(lotId) {
+      var row = document.querySelector('.map-editor-lot-row[data-lot-id="' + lotId + '"]');
+      if (!row) return;
+      row.classList.add('is-placed');
+      var statusSpan = row.querySelector('.lot-map-status');
       if (statusSpan) statusSpan.textContent = lblPlaced;
+    }
+
+    function applyPinSize(lotId, size) {
+      var row = document.querySelector('.map-editor-lot-row[data-lot-id="' + lotId + '"]');
+      if (row) row.setAttribute('data-map-size', size);
+
+      var pin = pinsLayer.querySelector('[data-lot-id="' + lotId + '"]');
+      if (pin) {
+        pin.className = pin.className.replace(/\bsize-[a-z]+\b/, 'size-' + size);
+      }
+
+      document.querySelectorAll('.map-editor-size-btn[data-lot-id="' + lotId + '"]').forEach(function (b) {
+        b.classList.toggle('is-active', b.getAttribute('data-size') === size);
+      });
+    }
+
+    function saveSize(lotId, size) {
+      var body = new URLSearchParams();
+      body.set('lot_id', lotId);
+      body.set('map_size', size);
+      body.set('_csrf', csrfToken);
+
+      fetch(sizeUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          statusEl.textContent = data.ok ? msgSaved : msgError;
+          if (data.ok) applyPinSize(lotId, size);
+        })
+        .catch(function () { statusEl.textContent = msgError; });
     }
 
     function savePosition(lotId, xPct, yPct) {
@@ -118,17 +164,24 @@
         .then(function (r) { return r.json(); })
         .then(function (data) {
           statusEl.textContent = data.ok ? msgSaved : msgError;
-          if (data.ok) markButtonPlaced(lotId);
+          if (data.ok) markRowPlaced(lotId);
         })
         .catch(function () { statusEl.textContent = msgError; });
     }
 
     document.querySelectorAll('.map-editor-lot-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        document.querySelectorAll('.map-editor-lot-btn').forEach(function (b) { b.classList.remove('is-armed'); });
-        btn.classList.add('is-armed');
+        var row = btn.closest('.map-editor-lot-row');
+        document.querySelectorAll('.map-editor-lot-row').forEach(function (r) { r.classList.remove('is-armed'); });
+        row.classList.add('is-armed');
         armedLotId = btn.getAttribute('data-lot-id');
         armedLotCode = btn.getAttribute('data-lot-code');
+      });
+    });
+
+    document.querySelectorAll('.map-editor-size-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        saveSize(btn.getAttribute('data-lot-id'), btn.getAttribute('data-size'));
       });
     });
 

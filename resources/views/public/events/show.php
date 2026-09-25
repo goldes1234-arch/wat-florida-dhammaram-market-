@@ -103,7 +103,7 @@ if (\App\Core\Lang::locale() === 'en') {
             <?php foreach ($photoLots as $lot): ?>
               <?php ['clickable' => $clickable, 'href' => $href, 'tag' => $tag, 'title' => $title] = $lotClickInfo($lot); ?>
               <<?= $tag ?> <?= $clickable ? 'href="' . $href . '"' : '' ?>
-                class="photo-pin status-<?= e($lot['status']) ?>"
+                class="photo-pin status-<?= e($lot['status']) ?> size-<?= e($lot['map_size']) ?>"
                 data-lot-id="<?= (int) $lot['id'] ?>"
                 style="left: <?= e($lot['map_x']) ?>%; top: <?= e($lot['map_y']) ?>%;"
                 title="<?= $title ?>"><?= e($lot['code']) ?></<?= $tag ?>>

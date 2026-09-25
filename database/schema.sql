@@ -237,6 +237,7 @@ CREATE TABLE lots (
   grid_col SMALLINT UNSIGNED NULL,
   map_x DECIMAL(5,2) NULL,
   map_y DECIMAL(5,2) NULL,
+  map_size ENUM('small','medium','large') NOT NULL DEFAULT 'medium',
   photo VARCHAR(255) NULL,
   price DECIMAL(10,2) NOT NULL,
   status ENUM('available','pending_payment','booked','disabled') NOT NULL DEFAULT 'available',

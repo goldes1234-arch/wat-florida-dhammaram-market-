@@ -64,11 +64,20 @@
       return Math.max(0, Math.min(100, value));
     }
 
+    // Mouse events carry clientX/Y directly; touch events carry them on each Touch in
+    // `touches` (finger still down) or `changedTouches` (touchend, finger just lifted).
+    function clientPoint(evt) {
+      if (evt.touches && evt.touches.length) return evt.touches[0];
+      if (evt.changedTouches && evt.changedTouches.length) return evt.changedTouches[0];
+      return evt;
+    }
+
     function pointFromEvent(evt) {
+      var p = clientPoint(evt);
       var rect = photo.getBoundingClientRect();
       return {
-        x: clampPct(((evt.clientX - rect.left) / rect.width) * 100),
-        y: clampPct(((evt.clientY - rect.top) / rect.height) * 100),
+        x: clampPct(((p.clientX - rect.left) / rect.width) * 100),
+        y: clampPct(((p.clientY - rect.top) / rect.height) * 100),
       };
     }
 
@@ -130,29 +139,46 @@
       savePosition(armedLotId, point.x, point.y);
     });
 
-    // Dragging an existing pin re-positions and re-saves it without needing to re-arm it.
-    pinsLayer.addEventListener('mousedown', function (e) {
-      var pin = e.target.closest('.map-editor-pin');
-      if (!pin) return;
-      e.preventDefault();
-      var lotId = pin.getAttribute('data-lot-id');
+    // Dragging an existing pin (mouse or a finger on a touchscreen) re-positions and
+    // re-saves it without needing to re-arm it first.
+    function beginPinDrag(pin, lotId, startEvt) {
+      if (startEvt.cancelable) startEvt.preventDefault();
 
       function onMove(moveEvt) {
+        if (moveEvt.cancelable) moveEvt.preventDefault();
         var point = pointFromEvent(moveEvt);
         pin.style.left = point.x + '%';
         pin.style.top = point.y + '%';
       }
 
-      function onUp(upEvt) {
+      function onEnd(endEvt) {
         document.removeEventListener('mousemove', onMove);
-        document.removeEventListener('mouseup', onUp);
-        var point = pointFromEvent(upEvt);
+        document.removeEventListener('mouseup', onEnd);
+        document.removeEventListener('touchmove', onMove);
+        document.removeEventListener('touchend', onEnd);
+        document.removeEventListener('touchcancel', onEnd);
+        var point = pointFromEvent(endEvt);
         savePosition(lotId, point.x, point.y);
       }
 
       document.addEventListener('mousemove', onMove);
-      document.addEventListener('mouseup', onUp);
+      document.addEventListener('mouseup', onEnd);
+      document.addEventListener('touchmove', onMove, { passive: false });
+      document.addEventListener('touchend', onEnd);
+      document.addEventListener('touchcancel', onEnd);
+    }
+
+    pinsLayer.addEventListener('mousedown', function (e) {
+      var pin = e.target.closest('.map-editor-pin');
+      if (!pin) return;
+      beginPinDrag(pin, pin.getAttribute('data-lot-id'), e);
     });
+
+    pinsLayer.addEventListener('touchstart', function (e) {
+      var pin = e.target.closest('.map-editor-pin');
+      if (!pin) return;
+      beginPinDrag(pin, pin.getAttribute('data-lot-id'), e);
+    }, { passive: false });
   })();
   </script>
 <?php endif; ?>

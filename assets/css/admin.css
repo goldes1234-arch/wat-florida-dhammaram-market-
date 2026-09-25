@@ -199,6 +199,7 @@
   box-shadow: 0 2px 6px rgba(20,21,43,.35);
   cursor: grab;
   pointer-events: auto;
+  touch-action: none;
 }
 .map-editor-pin:active { cursor: grabbing; }
 .map-editor-list {

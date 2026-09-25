@@ -28,6 +28,38 @@
     });
   }
 
+  // Home page "our event atmosphere" carousel: auto-advancing slides + dot navigation.
+  var galleryCarousel = document.getElementById('galleryCarousel');
+  if (galleryCarousel) {
+    var galleryTrack = galleryCarousel.querySelector('.gallery-carousel-track');
+    var galleryDots = Array.prototype.slice.call(galleryCarousel.querySelectorAll('.gallery-carousel-dot'));
+    var galleryCount = galleryTrack.children.length;
+    var galleryIndex = 0;
+    var galleryTimer = null;
+
+    var galleryGoTo = function (index) {
+      galleryIndex = (index + galleryCount) % galleryCount;
+      galleryTrack.style.transform = 'translateX(-' + (galleryIndex * 100) + '%)';
+      galleryDots.forEach(function (dot, i) { dot.classList.toggle('is-active', i === galleryIndex); });
+    };
+
+    var galleryStartAutoplay = function () {
+      if (galleryTimer) clearInterval(galleryTimer);
+      if (galleryCount > 1) {
+        galleryTimer = setInterval(function () { galleryGoTo(galleryIndex + 1); }, 5000);
+      }
+    };
+
+    galleryDots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        galleryGoTo(parseInt(dot.getAttribute('data-index'), 10));
+        galleryStartAutoplay();
+      });
+    });
+
+    galleryStartAutoplay();
+  }
+
   // Interactive booth/photo map: zoom controls + live status polling.
   // Only one of the two canvases exists per page, depending on the event's layout mode.
   var canvas = document.getElementById('boothMapCanvas') || document.getElementById('photoMapCanvas');

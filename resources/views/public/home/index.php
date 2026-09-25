@@ -172,14 +172,32 @@ $galleryItems = array_slice($galleryItems, 0, 12);
 ?>
 <?php if ($galleryItems): ?>
   <h2 class="section-title"><?= __('public.gallery_title') ?></h2>
-  <div class="event-gallery">
-    <?php foreach ($galleryItems as $gi): ?>
-      <?php $tag = $gi['url'] ? 'a' : 'div'; ?>
-      <<?= $tag ?> <?= $gi['url'] ? 'href="' . e($gi['url']) . '"' : '' ?> class="event-gallery-item">
-        <img src="<?= e($gi['src']) ?>" alt="<?= e($gi['caption']) ?>" loading="lazy">
-        <?php if ($gi['caption']): ?><span class="gallery-caption"><?= e($gi['caption']) ?></span><?php endif; ?>
-      </<?= $tag ?>>
-    <?php endforeach; ?>
+  <div class="gallery-carousel" id="galleryCarousel">
+    <div class="gallery-carousel-viewport">
+      <div class="gallery-carousel-track">
+        <?php foreach ($galleryItems as $gi): ?>
+          <div class="gallery-carousel-slide">
+            <a href="#" class="gallery-carousel-media" data-lightbox-src="<?= e($gi['src']) ?>">
+              <img src="<?= e($gi['src']) ?>" alt="<?= e($gi['caption']) ?>" loading="lazy">
+            </a>
+            <?php if ($gi['caption']): ?>
+              <?php if ($gi['url']): ?>
+                <a href="<?= e($gi['url']) ?>" class="gallery-caption"><?= e($gi['caption']) ?></a>
+              <?php else: ?>
+                <span class="gallery-caption"><?= e($gi['caption']) ?></span>
+              <?php endif; ?>
+            <?php endif; ?>
+          </div>
+        <?php endforeach; ?>
+      </div>
+    </div>
+    <?php if (count($galleryItems) > 1): ?>
+      <div class="gallery-carousel-dots">
+        <?php foreach ($galleryItems as $i => $gi): ?>
+          <button type="button" class="gallery-carousel-dot<?= $i === 0 ? ' is-active' : '' ?>" data-index="<?= $i ?>" aria-label="<?= (int) $i + 1 ?>"></button>
+        <?php endforeach; ?>
+      </div>
+    <?php endif; ?>
   </div>
 <?php endif; ?>
 

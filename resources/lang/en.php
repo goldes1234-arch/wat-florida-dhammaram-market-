@@ -44,6 +44,7 @@ return [
     'nav.staff' => 'Manage users',
     'nav.contact' => 'Contact us',
     'nav.contacts' => 'Contact messages',
+    'nav.advertisements' => 'Featured shops',
     'nav.backups' => 'Backups',
     'nav.activity_log' => 'Activity log',
 
@@ -404,6 +405,7 @@ return [
     'settings.ads_added' => 'Shop added successfully',
     'settings.ads_removed' => 'Shop removed successfully',
     'settings.ads_invalid_link' => 'Invalid link. Please enter a full URL, e.g. https://facebook.com/...',
+    'settings.ads_none' => 'No shops added yet.',
     'settings.bank_info' => 'Payment details (bank transfer)',
     'settings.bank_name' => 'Bank name',
     'settings.bank_account_name' => 'Account name',

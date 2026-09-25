@@ -32,6 +32,7 @@ $locale = \App\Core\Lang::locale();
             <?php if ($unreadContacts > 0): ?><span class="nav-badge"><?= $unreadContacts ?></span><?php endif; ?>
           </a>
         </li>
+        <li><a href="<?= base_url('admin/advertisements') ?>" class="<?= $active === 'advertisements' ? 'is-active' : '' ?>"><span class="nav-icon icon-teal"><?= icon('store') ?></span> <?= __('nav.advertisements') ?></a></li>
         <?php if (\App\Core\Auth::isSuperAdmin()): ?>
         <li><a href="<?= base_url('admin/staff') ?>" class="<?= $active === 'staff' ? 'is-active' : '' ?>"><span class="nav-icon icon-blue"><?= icon('users') ?></span> <?= __('nav.staff') ?></a></li>
         <li><a href="<?= base_url('admin/backups') ?>" class="<?= $active === 'backups' ? 'is-active' : '' ?>"><span class="nav-icon icon-amber"><?= icon('download') ?></span> <?= __('nav.backups') ?></a></li>

@@ -44,6 +44,7 @@ return [
     'nav.staff' => 'จัดการผู้ใช้งาน',
     'nav.contact' => 'ติดต่อเรา',
     'nav.contacts' => 'ข้อความติดต่อ',
+    'nav.advertisements' => 'ร้านค้าแนะนำ',
     'nav.backups' => 'สำรองข้อมูล',
     'nav.activity_log' => 'ประวัติการใช้งาน',
 
@@ -404,6 +405,7 @@ return [
     'settings.ads_added' => 'เพิ่มร้านค้าเรียบร้อยแล้ว',
     'settings.ads_removed' => 'ลบร้านค้าเรียบร้อยแล้ว',
     'settings.ads_invalid_link' => 'ลิงก์ไม่ถูกต้อง กรุณาใส่ลิงก์แบบเต็ม เช่น https://facebook.com/...',
+    'settings.ads_none' => 'ยังไม่มีร้านค้าที่เพิ่มไว้',
     'settings.bank_info' => 'ข้อมูลรับชำระเงิน (โอนเงิน)',
     'settings.bank_name' => 'ธนาคาร',
     'settings.bank_account_name' => 'ชื่อบัญชี',

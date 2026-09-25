@@ -94,6 +94,10 @@ $router->group(['middleware' => ['auth']], function ($router) {
         $router->get('/admin/contacts', [Admin\ContactController::class, 'index']);
         $router->post('/admin/contacts/{id}/read', [Admin\ContactController::class, 'markRead']);
 
+        $router->get('/admin/advertisements', [Admin\AdvertisementController::class, 'index']);
+        $router->post('/admin/advertisements', [Admin\AdvertisementController::class, 'store']);
+        $router->post('/admin/advertisements/{id}/delete', [Admin\AdvertisementController::class, 'destroy']);
+
         $router->group(['middleware' => ['super_admin']], function ($router) {
             $router->get('/admin/settings', [Admin\SettingsController::class, 'edit']);
             $router->post('/admin/settings', [Admin\SettingsController::class, 'update']);
@@ -102,8 +106,6 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->post('/admin/settings/social-links/{id}/delete', [Admin\SettingsController::class, 'destroySocialLink']);
             $router->post('/admin/settings/gallery', [Admin\SettingsController::class, 'storeGalleryPhoto']);
             $router->post('/admin/settings/gallery/{id}/delete', [Admin\SettingsController::class, 'destroyGalleryPhoto']);
-            $router->post('/admin/settings/advertisements', [Admin\SettingsController::class, 'storeAdvertisement']);
-            $router->post('/admin/settings/advertisements/{id}/delete', [Admin\SettingsController::class, 'destroyAdvertisement']);
             $router->post('/admin/settings/test-email', [Admin\SettingsController::class, 'testEmail']);
 
             $router->get('/admin/activity-log', [Admin\ActivityLogController::class, 'index']);

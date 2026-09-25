@@ -39,12 +39,25 @@ if (\App\Core\Lang::locale() === 'en') {
     <?php if (!empty($eventPhotos)): ?>
       <div class="card mb-6">
         <div class="card-header"><h3><?= __('public.event_photos_title') ?></h3></div>
-        <div class="event-photo-grid">
-          <?php foreach ($eventPhotos as $photo): ?>
-            <a href="#" data-lightbox-src="<?= upload_url($photo['image_path']) ?>" class="event-photo-thumb">
-              <img src="<?= upload_url($photo['image_path']) ?>" alt="<?= e($eventName) ?>" loading="lazy">
-            </a>
-          <?php endforeach; ?>
+        <div class="gallery-carousel" id="galleryCarousel">
+          <div class="gallery-carousel-viewport">
+            <div class="gallery-carousel-track">
+              <?php foreach ($eventPhotos as $photo): ?>
+                <div class="gallery-carousel-slide">
+                  <a href="#" class="gallery-carousel-media" data-lightbox-src="<?= upload_url($photo['image_path']) ?>">
+                    <img src="<?= upload_url($photo['image_path']) ?>" alt="<?= e($eventName) ?>" loading="lazy">
+                  </a>
+                </div>
+              <?php endforeach; ?>
+            </div>
+          </div>
+          <?php if (count($eventPhotos) > 1): ?>
+            <div class="gallery-carousel-dots">
+              <?php foreach ($eventPhotos as $i => $photo): ?>
+                <button type="button" class="gallery-carousel-dot<?= $i === 0 ? ' is-active' : '' ?>" data-index="<?= $i ?>" aria-label="<?= (int) $i + 1 ?>"></button>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
         </div>
       </div>
     <?php endif; ?>

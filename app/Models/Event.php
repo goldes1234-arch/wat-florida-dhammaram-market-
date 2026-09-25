@@ -59,11 +59,11 @@ class Event extends Model
             'INSERT INTO events
                 (slug, name_th, name_en, description_th, description_en, venue_name,
                  start_date, end_date, booking_open_at, booking_close_at,
-                 banner_image, floorplan_image, is_published, created_by)
+                 banner_image, floorplan_image, layout_mode, is_published, created_by)
              VALUES
                 (:slug, :name_th, :name_en, :description_th, :description_en, :venue_name,
                  :start_date, :end_date, :booking_open_at, :booking_close_at,
-                 :banner_image, :floorplan_image, :is_published, :created_by)'
+                 :banner_image, :floorplan_image, :layout_mode, :is_published, :created_by)'
         );
         $stmt->execute([
             'slug' => $data['slug'],
@@ -78,6 +78,7 @@ class Event extends Model
             'booking_close_at' => $data['booking_close_at'],
             'banner_image' => $data['banner_image'] ?? null,
             'floorplan_image' => $data['floorplan_image'] ?? null,
+            'layout_mode' => $data['layout_mode'] ?? 'grid',
             'is_published' => $data['is_published'] ?? 0,
             'created_by' => $data['created_by'] ?? null,
         ]);
@@ -88,7 +89,7 @@ class Event extends Model
     {
         $fields = [
             'slug', 'name_th', 'name_en', 'description_th', 'description_en', 'venue_name',
-            'start_date', 'end_date', 'booking_open_at', 'booking_close_at', 'is_published',
+            'start_date', 'end_date', 'booking_open_at', 'booking_close_at', 'layout_mode', 'is_published',
         ];
         $set = [];
         $params = ['id' => $id];

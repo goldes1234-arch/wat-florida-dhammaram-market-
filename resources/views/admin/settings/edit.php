@@ -27,8 +27,13 @@
       <label><?= __('settings.logo') ?></label>
       <?php if (!empty($settings['logo_path'])): ?>
         <img src="<?= upload_url($settings['logo_path']) ?>" class="thumb-sm mb-2" alt="">
+        <div class="checkbox-row mb-2">
+          <input type="checkbox" id="remove_logo" name="remove_logo" value="1">
+          <label for="remove_logo" style="margin:0;"><?= __('event.remove_image') ?></label>
+        </div>
       <?php endif; ?>
       <input type="file" name="logo" class="form-control" accept="image/jpeg,image/png,image/webp">
+      <p class="form-hint"><?= __('settings.logo_hint') ?></p>
     </div>
     <div class="form-group">
       <label><?= __('settings.hero_banner') ?></label>
@@ -140,6 +145,7 @@
         <button type="submit" form="gallery-add-form" class="btn btn-primary"><?= __('settings.gallery_add_button') ?></button>
       </div>
     </div>
+    <p class="form-hint"><?= __('settings.gallery_size_hint') ?></p>
   </div>
 
   <div class="card">

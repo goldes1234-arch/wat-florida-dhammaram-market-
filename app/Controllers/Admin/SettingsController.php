@@ -71,6 +71,9 @@ class SettingsController
             } else {
                 Flash::error($error);
             }
+        } elseif ($request->input('remove_logo')) {
+            Upload::delete(Setting::get()['logo_path'] ?? null);
+            $data['logo_path'] = null;
         }
 
         $heroFile = $request->file('hero_banner_image');

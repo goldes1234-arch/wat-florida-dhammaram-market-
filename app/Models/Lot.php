@@ -91,6 +91,13 @@ class Lot extends Model
         $stmt->execute(['status' => $status, 'id' => $id]);
     }
 
+    /** Saves a lot's position on its event's floorplan photo, as a percentage of image width/height. */
+    public static function setMapPosition(int $id, float $x, float $y): void
+    {
+        $stmt = self::db()->prepare('UPDATE lots SET map_x = :map_x, map_y = :map_y WHERE id = :id');
+        $stmt->execute(['map_x' => $x, 'map_y' => $y, 'id' => $id]);
+    }
+
     /** Lightweight id => status map, used by the public "live" map polling endpoint. */
     public static function statusMapForEvent(int $eventId): array
     {

@@ -161,6 +161,7 @@ $contactRows = $contacts ?? [];
           </div>
         <?php endif; ?>
         <input type="file" name="banner_image" class="form-control" accept="image/jpeg,image/png,image/webp">
+        <p class="form-hint"><?= __('event.banner_image_hint') ?></p>
       </div>
       <div class="form-group">
         <label><?= __('event.floorplan_image') ?></label>
@@ -172,7 +173,16 @@ $contactRows = $contacts ?? [];
           </div>
         <?php endif; ?>
         <input type="file" name="floorplan_image" class="form-control" accept="image/jpeg,image/png,image/webp">
+        <p class="form-hint"><?= __('event.floorplan_image_hint') ?></p>
       </div>
+    </div>
+    <div class="form-group">
+      <label><?= __('event.layout_mode') ?></label>
+      <select name="layout_mode" class="form-control">
+        <option value="grid" <?= ($e['layout_mode'] ?? 'grid') === 'grid' ? 'selected' : '' ?>><?= __('event.layout_mode_grid') ?></option>
+        <option value="photo" <?= ($e['layout_mode'] ?? 'grid') === 'photo' ? 'selected' : '' ?>><?= __('event.layout_mode_photo') ?></option>
+      </select>
+      <p class="form-hint"><?= __('event.layout_mode_hint') ?></p>
     </div>
   </div>
 

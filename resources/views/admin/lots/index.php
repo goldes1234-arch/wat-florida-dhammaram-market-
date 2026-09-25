@@ -4,6 +4,7 @@
   <div class="header-actions">
     <a href="<?= base_url('admin/events/' . $event['id'] . '/edit') ?>" class="btn btn-secondary">&larr; <?= __('common.back') ?></a>
     <a href="<?= base_url('admin/events/' . $event['id'] . '/zones') ?>" class="btn btn-secondary">🏷️ <?= __('zone.list_title') ?></a>
+    <a href="<?= base_url('admin/events/' . $event['id'] . '/lots/map') ?>" class="btn btn-secondary">📍 <?= __('lot.position_on_map') ?></a>
     <?php if ($lots): ?>
       <form method="post" action="<?= base_url('admin/events/' . $event['id'] . '/lots/delete-all') ?>" data-confirm="<?= e(__('lot.delete_all_confirm')) ?>" style="margin:0;">
         <?= csrf_field() ?>
@@ -63,6 +64,7 @@
       <div class="form-group">
         <label><?= __('lot.photo') ?> <span class="optional-tag">(<?= __('common.optional') ?>)</span></label>
         <input type="file" name="photo" class="form-control" accept="image/jpeg,image/png,image/webp">
+        <p class="form-hint"><?= __('lot.photo_hint') ?></p>
       </div>
       <button type="submit" class="btn btn-primary"><?= __('lot.add') ?></button>
     </form>

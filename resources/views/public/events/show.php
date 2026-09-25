@@ -64,33 +64,59 @@ if (\App\Core\Lang::locale() === 'en') {
         </div>
       </div>
 
-      <?php if (!$mappedLots && !$groupedLots): ?>
+      <?php if (!$mappedLots && !$photoLots && !$groupedLots): ?>
         <p class="text-muted"><?= __('lot.none') ?></p>
       <?php endif; ?>
 
-      <?php if ($mappedLots): ?>
+      <?php
+      // Shared status/clickability/title computation for a lot cell, used by both the
+      // CSS-grid booth map and the photo-coordinate map below so the booking/status logic
+      // isn't duplicated between the two render branches.
+      $lotClickInfo = function (array $lot) use ($event, $status) {
+          $clickable = $lot['status'] === 'available' && $status === EventStatusService::OPEN;
+          $href = $clickable ? base_url('events/' . $event['slug'] . '/book/' . $lot['id']) : '#';
+          $tag = $clickable ? 'a' : 'div';
+          $occupied = in_array($lot['status'], ['pending_payment', 'booked'], true) && !empty($lot['booker_name']);
+          $displayPhoto = $lot['shop_photo'] ?? $lot['photo'] ?? null;
+          $title = e($lot['code']) . ' · ' . money((float) $lot['price']);
+          if ($occupied) {
+              $title .= ' · ' . e(__('public.booked_by', ['name' => mask_booker_name($lot['booker_name'])]));
+          }
+          return compact('clickable', 'href', 'tag', 'displayPhoto', 'title');
+      };
+      ?>
+
+      <?php if ($mappedLots || $photoLots): ?>
         <div class="map-toolbar">
           <button type="button" class="btn btn-secondary btn-sm" id="mapZoomOut" title="<?= e(__('public.map_zoom_out')) ?>">&minus;</button>
           <span id="mapZoomLabel">100%</span>
           <button type="button" class="btn btn-secondary btn-sm" id="mapZoomIn" title="<?= e(__('public.map_zoom_in')) ?>">+</button>
           <button type="button" class="btn btn-secondary btn-sm" id="mapZoomReset"><?= __('public.map_zoom_reset') ?></button>
         </div>
+      <?php endif; ?>
+
+      <?php if ($layoutMode === 'photo' && $photoLots): ?>
+        <div class="photo-map-viewport">
+          <div class="photo-map-canvas" id="photoMapCanvas"
+               data-poll-url="<?= base_url('events/' . $event['slug'] . '/lot-status') ?>">
+            <img src="<?= upload_url($event['floorplan_image']) ?>" class="photo-map-image" alt="">
+            <?php foreach ($photoLots as $lot): ?>
+              <?php ['clickable' => $clickable, 'href' => $href, 'tag' => $tag, 'title' => $title] = $lotClickInfo($lot); ?>
+              <<?= $tag ?> <?= $clickable ? 'href="' . $href . '"' : '' ?>
+                class="photo-pin status-<?= e($lot['status']) ?>"
+                data-lot-id="<?= (int) $lot['id'] ?>"
+                style="left: <?= e($lot['map_x']) ?>%; top: <?= e($lot['map_y']) ?>%;"
+                title="<?= $title ?>"><?= e($lot['code']) ?></<?= $tag ?>>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      <?php elseif ($mappedLots): ?>
         <div class="booth-map-viewport">
           <div class="booth-map-canvas" id="boothMapCanvas"
                data-poll-url="<?= base_url('events/' . $event['slug'] . '/lot-status') ?>"
                style="--map-cols: <?= (int) $maxCol ?>; --map-rows: <?= (int) $maxRow ?>;">
             <?php foreach ($mappedLots as $lot): ?>
-              <?php
-              $clickable = $lot['status'] === 'available' && $status === EventStatusService::OPEN;
-              $href = $clickable ? base_url('events/' . $event['slug'] . '/book/' . $lot['id']) : '#';
-              $tag = $clickable ? 'a' : 'div';
-              $occupied = in_array($lot['status'], ['pending_payment', 'booked'], true) && !empty($lot['booker_name']);
-              $displayPhoto = $lot['shop_photo'] ?? $lot['photo'] ?? null;
-              $title = e($lot['code']) . ' · ' . money((float) $lot['price']);
-              if ($occupied) {
-                  $title .= ' · ' . e(__('public.booked_by', ['name' => mask_booker_name($lot['booker_name'])]));
-              }
-              ?>
+              <?php ['clickable' => $clickable, 'href' => $href, 'tag' => $tag, 'displayPhoto' => $displayPhoto, 'title' => $title] = $lotClickInfo($lot); ?>
               <<?= $tag ?> <?= $clickable ? 'href="' . $href . '"' : '' ?>
                 class="booth-cell status-<?= e($lot['status']) ?><?= $displayPhoto ? ' has-photo' : '' ?>"
                 data-lot-id="<?= (int) $lot['id'] ?>"
@@ -103,7 +129,7 @@ if (\App\Core\Lang::locale() === 'en') {
 
       <?php foreach ($groupedLots as $group): ?>
         <div class="lot-zone-group">
-          <h4><?= $group['zone_name'] ? e($group['zone_name']) : ($mappedLots ? e(__('public.other_lots_title')) : '') ?></h4>
+          <h4><?= $group['zone_name'] ? e($group['zone_name']) : (($mappedLots || $photoLots) ? e(__('public.other_lots_title')) : '') ?></h4>
           <div class="lot-grid">
             <?php foreach ($group['lots'] as $lot): ?>
               <?php

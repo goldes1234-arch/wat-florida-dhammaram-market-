@@ -441,6 +441,43 @@
 .booth-cell.status-booked { background: #DBEAFE; border-color: #2563EB; color: #1E3A8A; cursor: not-allowed; pointer-events: none; }
 .booth-cell.status-disabled { background: #FEE2E2; border-color: #DC2626; color: #991B1B; cursor: not-allowed; pointer-events: none; opacity: .75; }
 
+/* Photo-coordinate lot map: lot numbers pinned by % position over the floorplan photo. */
+.photo-map-viewport {
+  overflow: auto;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-slate-light);
+  padding: 20px;
+  max-height: 560px;
+  margin-bottom: 20px;
+}
+.photo-map-canvas {
+  position: relative;
+  display: inline-block;
+  transform-origin: top left;
+  transition: transform .15s ease;
+}
+.photo-map-image { display: block; max-width: 100%; height: auto; }
+.photo-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  min-width: 34px; height: 34px; padding: 0 6px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 17px;
+  border: 1.5px solid transparent;
+  font-size: 11px;
+  font-weight: 800;
+  text-decoration: none;
+  user-select: none;
+  box-shadow: 0 2px 6px rgba(20,21,43,.28);
+  transition: transform .12s ease, box-shadow .12s ease, background-color .12s ease;
+}
+.photo-pin.status-available { background: #DCFCE7; border-color: #16A34A; color: #166534; cursor: pointer; }
+.photo-pin.status-available:hover { background: #BBF7D0; text-decoration: none; transform: translate(-50%, -50%) scale(1.12); box-shadow: 0 6px 14px rgba(22,163,74,.28); z-index: 1; }
+.photo-pin.status-pending_payment { background: #FEF9C3; border-color: #EAB308; color: #854D0E; cursor: not-allowed; pointer-events: none; }
+.photo-pin.status-booked { background: #DBEAFE; border-color: #2563EB; color: #1E3A8A; cursor: not-allowed; pointer-events: none; }
+.photo-pin.status-disabled { background: #FEE2E2; border-color: #DC2626; color: #991B1B; cursor: not-allowed; pointer-events: none; opacity: .75; }
+
 .legend-dot.dot-available { color: #16A34A; }
 .legend-dot.dot-pending { color: #EAB308; }
 .legend-dot.dot-booked { color: #2563EB; }

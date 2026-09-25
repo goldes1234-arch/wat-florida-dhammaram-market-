@@ -28,8 +28,9 @@
     });
   }
 
-  // Interactive booth map: zoom controls + live status polling.
-  var canvas = document.getElementById('boothMapCanvas');
+  // Interactive booth/photo map: zoom controls + live status polling.
+  // Only one of the two canvases exists per page, depending on the event's layout mode.
+  var canvas = document.getElementById('boothMapCanvas') || document.getElementById('photoMapCanvas');
   if (canvas) {
     var zoom = 1;
     var zoomLabel = document.getElementById('mapZoomLabel');

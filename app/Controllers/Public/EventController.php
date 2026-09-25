@@ -33,18 +33,30 @@ class EventController
         }
 
         $lots = Lot::forEvent((int) $event['id']);
+        $layoutMode = $event['layout_mode'] ?? 'grid';
 
         $mappedLots = [];
+        $photoLots = [];
         $unmappedLots = [];
         $maxRow = 0;
         $maxCol = 0;
-        foreach ($lots as $lot) {
-            if ($lot['grid_row'] !== null && $lot['grid_col'] !== null) {
-                $mappedLots[] = $lot;
-                $maxRow = max($maxRow, (int) $lot['grid_row']);
-                $maxCol = max($maxCol, (int) $lot['grid_col']);
-            } else {
-                $unmappedLots[] = $lot;
+        if ($layoutMode === 'photo') {
+            foreach ($lots as $lot) {
+                if ($lot['map_x'] !== null && $lot['map_y'] !== null) {
+                    $photoLots[] = $lot;
+                } else {
+                    $unmappedLots[] = $lot;
+                }
+            }
+        } else {
+            foreach ($lots as $lot) {
+                if ($lot['grid_row'] !== null && $lot['grid_col'] !== null) {
+                    $mappedLots[] = $lot;
+                    $maxRow = max($maxRow, (int) $lot['grid_row']);
+                    $maxCol = max($maxCol, (int) $lot['grid_col']);
+                } else {
+                    $unmappedLots[] = $lot;
+                }
             }
         }
 
@@ -67,6 +79,8 @@ class EventController
             'status' => $status,
             'groupedLots' => $grouped,
             'mappedLots' => $mappedLots,
+            'photoLots' => $photoLots,
+            'layoutMode' => $layoutMode,
             'maxRow' => $maxRow,
             'maxCol' => $maxCol,
             'eventContacts' => EventContact::forEvent((int) $event['id']),

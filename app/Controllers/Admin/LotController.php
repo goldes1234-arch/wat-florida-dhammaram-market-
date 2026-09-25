@@ -147,6 +147,41 @@ class LotController
         redirect('admin/events/' . $eventId . '/lots');
     }
 
+    public function mapEditor(Request $request, string $eventId): void
+    {
+        $event = Event::find((int) $eventId);
+        if (!$event) {
+            redirect('admin/events');
+        }
+
+        View::render('admin/lots/map', [
+            'title' => __('lot.map_editor_title'),
+            'active' => 'events',
+            'event' => $event,
+            'lots' => Lot::forEvent((int) $eventId),
+        ], 'admin');
+    }
+
+    public function savePosition(Request $request, string $eventId): void
+    {
+        header('Content-Type: application/json');
+
+        $event = Event::find((int) $eventId);
+        $lot = Lot::find((int) $request->input('lot_id'));
+        $x = $request->input('map_x');
+        $y = $request->input('map_y');
+
+        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId
+            || !is_numeric($x) || !is_numeric($y) || $x < 0 || $x > 100 || $y < 0 || $y > 100) {
+            http_response_code(422);
+            echo json_encode(['ok' => false]);
+            return;
+        }
+
+        Lot::setMapPosition((int) $lot['id'], (float) $x, (float) $y);
+        echo json_encode(['ok' => true]);
+    }
+
     public function edit(Request $request, string $id): void
     {
         $lot = Lot::find((int) $id);

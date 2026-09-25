@@ -163,3 +163,54 @@
   .admin-content { padding: 18px; }
   .admin-topbar { padding: 0 16px; }
 }
+
+/* Lot photo-map position editor */
+.map-editor-toolbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin-bottom: 14px; flex-wrap: wrap;
+}
+.map-editor-layout {
+  display: grid; grid-template-columns: minmax(0, 2.2fr) minmax(220px, 1fr);
+  gap: 20px; align-items: start;
+}
+@media (max-width: 900px) {
+  .map-editor-layout { grid-template-columns: 1fr; }
+}
+.map-editor-photo-wrap {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--color-slate-light);
+}
+.map-editor-photo { display: block; max-width: 100%; height: auto; cursor: crosshair; user-select: none; }
+.map-editor-pins { position: absolute; inset: 0; pointer-events: none; }
+.map-editor-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  min-width: 28px; height: 28px; padding: 0 6px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 14px;
+  background: var(--color-primary); color: #fff;
+  font-size: 11px; font-weight: 800;
+  border: 2px solid #fff;
+  box-shadow: 0 2px 6px rgba(20,21,43,.35);
+  cursor: grab;
+  pointer-events: auto;
+}
+.map-editor-pin:active { cursor: grabbing; }
+.map-editor-list {
+  display: flex; flex-direction: column; gap: 8px;
+  max-height: 560px; overflow-y: auto;
+}
+.map-editor-lot-btn {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 12px;
+  border: 1.5px solid var(--color-border); border-radius: var(--radius-sm);
+  background: #fff; cursor: pointer; text-align: left; font: inherit;
+}
+.map-editor-lot-btn .lot-code { font-weight: 700; }
+.map-editor-lot-btn.is-placed { border-color: #86EFAC; background: #F0FDF4; }
+.map-editor-lot-btn.is-armed { border-color: var(--color-primary); box-shadow: 0 0 0 2px rgba(37,99,235,.18); }

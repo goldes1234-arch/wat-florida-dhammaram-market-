@@ -209,6 +209,7 @@ class EventController
             'end_date' => $request->trimmed('end_date'),
             'booking_open_at' => str_replace('T', ' ', $request->trimmed('booking_open_at')),
             'booking_close_at' => str_replace('T', ' ', $request->trimmed('booking_close_at')),
+            'layout_mode' => $request->input('layout_mode') === 'photo' ? 'photo' : 'grid',
             'is_published' => $request->input('is_published') ? 1 : 0,
         ];
 

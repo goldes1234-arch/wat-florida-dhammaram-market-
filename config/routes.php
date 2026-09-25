@@ -102,6 +102,8 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->post('/admin/settings/social-links/{id}/delete', [Admin\SettingsController::class, 'destroySocialLink']);
             $router->post('/admin/settings/gallery', [Admin\SettingsController::class, 'storeGalleryPhoto']);
             $router->post('/admin/settings/gallery/{id}/delete', [Admin\SettingsController::class, 'destroyGalleryPhoto']);
+            $router->post('/admin/settings/advertisements', [Admin\SettingsController::class, 'storeAdvertisement']);
+            $router->post('/admin/settings/advertisements/{id}/delete', [Admin\SettingsController::class, 'destroyAdvertisement']);
             $router->post('/admin/settings/test-email', [Admin\SettingsController::class, 'testEmail']);
 
             $router->get('/admin/activity-log', [Admin\ActivityLogController::class, 'index']);

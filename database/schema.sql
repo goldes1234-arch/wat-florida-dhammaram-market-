@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS admin_users;
 DROP TABLE IF EXISTS contact_messages;
 DROP TABLE IF EXISTS booking_rate_limits;
 DROP TABLE IF EXISTS gallery_photos;
+DROP TABLE IF EXISTS advertisements;
 DROP TABLE IF EXISTS social_links;
 DROP TABLE IF EXISTS settings;
 
@@ -78,6 +79,17 @@ CREATE TABLE gallery_photos (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   image_path VARCHAR(255) NOT NULL,
   caption VARCHAR(150) NULL,
+  sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Site-wide vendor/business promotional listings ("ร้านค้าแนะนำ"), shown on the home
+-- page and every event detail page. Admin-managed, not tied to a specific event.
+CREATE TABLE advertisements (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  business_name VARCHAR(150) NOT NULL,
+  image_path VARCHAR(255) NOT NULL,
+  link_url VARCHAR(255) NULL,
   sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

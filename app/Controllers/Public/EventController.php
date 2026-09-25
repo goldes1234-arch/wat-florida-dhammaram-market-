@@ -4,6 +4,7 @@ namespace App\Controllers\Public;
 
 use App\Core\Request;
 use App\Core\View;
+use App\Models\Advertisement;
 use App\Models\Event;
 use App\Models\EventContact;
 use App\Models\EventPhoto;
@@ -85,6 +86,7 @@ class EventController
             'maxCol' => $maxCol,
             'eventContacts' => EventContact::forEvent((int) $event['id']),
             'eventPhotos' => EventPhoto::forEvent((int) $event['id']),
+            'advertisements' => Advertisement::all(),
             'isSoldOut' => $isSoldOut,
             'waitlistCount' => $isSoldOut ? count(WaitlistEntry::notNotifiedForEvent((int) $event['id'])) : 0,
             'metaTitle' => $eventName,

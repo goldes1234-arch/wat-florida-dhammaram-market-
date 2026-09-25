@@ -161,6 +161,29 @@
 }
 @media (max-width: 768px) { .event-gallery { grid-template-columns: repeat(2, 1fr); } }
 
+/* Featured shops / advertisements — same blurred-backdrop + object-fit:contain trick as
+   the event hero banner, so portrait and landscape ad images both display in full. */
+.ads-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 40px; }
+.ad-card {
+  display: block; text-decoration: none; color: inherit;
+  border-radius: var(--radius-md); overflow: hidden;
+  border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);
+  background: #fff; transition: transform .15s ease, box-shadow .15s ease;
+}
+.ad-card:hover { text-decoration: none; transform: translateY(-2px); box-shadow: var(--shadow-md); }
+.ad-card-media {
+  position: relative; display: block; aspect-ratio: 4/3;
+  background-size: cover; background-position: center;
+}
+.ad-card-media::before {
+  content: ''; position: absolute; inset: -12px;
+  background: inherit; background-size: cover; background-position: center;
+  filter: blur(18px) brightness(.85);
+}
+.ad-card-media img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; }
+.ad-card-name { display: block; padding: 10px 12px; font-size: 13px; font-weight: 700; }
+@media (max-width: 768px) { .ads-grid { grid-template-columns: repeat(2, 1fr); } }
+
 /* FAQ */
 .faq-section { margin-bottom: 40px; }
 .faq-item {

@@ -228,3 +228,5 @@ if (\App\Core\Lang::locale() === 'en') {
     <?php endif; ?>
   </div>
 </div>
+
+<?= partial('ads_section', ['advertisements' => $advertisements]) ?>

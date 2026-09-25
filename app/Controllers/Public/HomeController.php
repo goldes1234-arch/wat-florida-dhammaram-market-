@@ -4,6 +4,7 @@ namespace App\Controllers\Public;
 
 use App\Core\Request;
 use App\Core\View;
+use App\Models\Advertisement;
 use App\Models\Booking;
 use App\Models\Event;
 use App\Models\GalleryPhoto;
@@ -47,6 +48,7 @@ class HomeController
             'gridEvents' => $gridEvents,
             'featuredEvent' => $featuredEvent,
             'galleryPhotos' => GalleryPhoto::all(),
+            'advertisements' => Advertisement::all(),
             'lotCounts' => $lotCounts,
             'statEventsCount' => count($events),
             'statAvailableLots' => array_sum(array_column($lotCounts, 'available')),

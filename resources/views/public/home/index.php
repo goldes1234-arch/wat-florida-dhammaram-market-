@@ -156,6 +156,8 @@ $heroBannerUrl = !empty($settings['hero_banner_image']) ? upload_url($settings['
   </div>
 <?php endif; ?>
 
+<?= partial('ads_section', ['advertisements' => $advertisements]) ?>
+
 <?php
 $galleryItems = [];
 foreach ($galleryPhotos as $gp) {

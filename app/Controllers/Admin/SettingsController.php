@@ -7,6 +7,7 @@ use App\Core\Mailer;
 use App\Core\Request;
 use App\Core\Upload;
 use App\Core\View;
+use App\Models\Advertisement;
 use App\Models\GalleryPhoto;
 use App\Models\Setting;
 use App\Models\SocialLink;
@@ -23,6 +24,7 @@ class SettingsController
             'currencies' => CurrencyService::options(),
             'socialLinks' => SocialLink::all(),
             'galleryPhotos' => GalleryPhoto::all(),
+            'advertisements' => Advertisement::all(),
         ], 'admin');
     }
 
@@ -183,6 +185,45 @@ class SettingsController
             Upload::delete($photo['image_path']);
             GalleryPhoto::delete((int) $id);
             Flash::success(__('settings.gallery_photo_removed'));
+        }
+        redirect('admin/settings');
+    }
+
+    public function storeAdvertisement(Request $request): void
+    {
+        $businessName = $request->trimmed('business_name');
+        $linkUrl = $request->trimmed('link_url');
+        $photoFile = $request->file('image');
+
+        if ($businessName === '' || !$photoFile) {
+            Flash::error(__('validation.generic_error'));
+            redirect('admin/settings');
+        }
+
+        if ($linkUrl !== '' && !filter_var($linkUrl, FILTER_VALIDATE_URL)) {
+            Flash::error(__('settings.ads_invalid_link'));
+            redirect('admin/settings');
+        }
+
+        $error = null;
+        $path = Upload::storeImage($photoFile, 'ads', $error);
+        if (!$path) {
+            Flash::error($error);
+            redirect('admin/settings');
+        }
+
+        Advertisement::create($businessName, $path, $linkUrl ?: null);
+        Flash::success(__('settings.ads_added'));
+        redirect('admin/settings');
+    }
+
+    public function destroyAdvertisement(Request $request, string $id): void
+    {
+        $ad = Advertisement::find((int) $id);
+        if ($ad) {
+            Upload::delete($ad['image_path']);
+            Advertisement::delete((int) $id);
+            Flash::success(__('settings.ads_removed'));
         }
         redirect('admin/settings');
     }

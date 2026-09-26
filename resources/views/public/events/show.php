@@ -26,16 +26,6 @@ if (\App\Core\Lang::locale() === 'en') {
       <div class="card mb-6"><p class="mb-0"><?= nl2br(e($description)) ?></p></div>
     <?php endif; ?>
 
-    <?php if (!empty($event['floorplan_image'])): ?>
-      <div class="card mb-6">
-        <div class="card-header"><h3><?= __('public.floorplan_title') ?></h3></div>
-        <a href="#" data-lightbox-src="<?= upload_url($event['floorplan_image']) ?>" class="floorplan-thumb">
-          <img src="<?= upload_url($event['floorplan_image']) ?>" alt="<?= __('public.floorplan_title') ?>">
-          <span class="zoom-hint">🔍 <?= __('public.floorplan_hint') ?></span>
-        </a>
-      </div>
-    <?php endif; ?>
-
     <?php if (!empty($eventPhotos)): ?>
       <div class="card mb-6">
         <div class="card-header"><h3><?= __('public.event_photos_title') ?></h3></div>
@@ -59,6 +49,16 @@ if (\App\Core\Lang::locale() === 'en') {
             </div>
           <?php endif; ?>
         </div>
+      </div>
+    <?php endif; ?>
+
+    <?php if (!empty($event['floorplan_image'])): ?>
+      <div class="card mb-6">
+        <div class="card-header"><h3><?= __('public.floorplan_title') ?></h3></div>
+        <a href="#" data-lightbox-src="<?= upload_url($event['floorplan_image']) ?>" class="floorplan-thumb">
+          <img src="<?= upload_url($event['floorplan_image']) ?>" alt="<?= __('public.floorplan_title') ?>">
+          <span class="zoom-hint">🔍 <?= __('public.floorplan_hint') ?></span>
+        </a>
       </div>
     <?php endif; ?>
 

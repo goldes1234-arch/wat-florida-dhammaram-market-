@@ -1,9 +1,40 @@
 <?php
 /** @var array $advertisements */
+/** @var array $pendingAdvertisements */
 ?>
 <div class="page-header">
   <h1><?= __('nav.advertisements') ?></h1>
 </div>
+
+<?php if ($pendingAdvertisements): ?>
+  <div class="card mb-6">
+    <div class="card-header"><h3>⏳ <?= __('settings.ads_pending_section') ?> (<?= count($pendingAdvertisements) ?>)</h3></div>
+    <p class="form-hint mb-4"><?= __('settings.ads_pending_hint') ?></p>
+    <div class="grid grid-cols-4">
+      <?php foreach ($pendingAdvertisements as $ad): ?>
+        <div class="card" style="padding:10px;border-color:#EAB308;">
+          <img src="<?= upload_url($ad['image_path']) ?>" class="thumb-sm mb-2" style="width:100%;height:120px;object-fit:contain;background:var(--color-slate-light);" alt="">
+          <div class="text-sm mb-2"><strong><?= e($ad['business_name']) ?></strong></div>
+          <?php if (!empty($ad['description'])): ?><div class="text-sm text-muted mb-2"><?= e($ad['description']) ?></div><?php endif; ?>
+          <?php if (!empty($ad['contact_name']) || !empty($ad['contact_phone'])): ?>
+            <div class="text-sm text-muted mb-2"><?= __('settings.ads_pending_contact') ?>: <?= e($ad['contact_name']) ?> <?= e($ad['contact_phone']) ?></div>
+          <?php endif; ?>
+          <?php if (!empty($ad['link_url'])): ?><div class="text-sm text-muted mb-2" style="word-break:break-all;"><?= e($ad['link_url']) ?></div><?php endif; ?>
+          <div style="display:flex;gap:8px;">
+            <form method="post" action="<?= base_url('admin/advertisements/' . $ad['id'] . '/approve') ?>" style="margin:0;flex:1;">
+              <?= csrf_field() ?>
+              <button type="submit" class="btn btn-primary btn-sm" style="width:100%;"><?= __('settings.ads_approve_button') ?></button>
+            </form>
+            <form method="post" action="<?= base_url('admin/advertisements/' . $ad['id'] . '/delete') ?>" data-confirm="<?= e(__('zone.delete_confirm')) ?>" style="margin:0;flex:1;">
+              <?= csrf_field() ?>
+              <button type="submit" class="btn btn-danger btn-sm" style="width:100%;"><?= __('common.delete') ?></button>
+            </form>
+          </div>
+        </div>
+      <?php endforeach; ?>
+    </div>
+  </div>
+<?php endif; ?>
 
 <div class="card mb-6">
   <div class="card-header"><h3><?= __('settings.ads_add_button') ?></h3></div>
@@ -21,6 +52,10 @@
       </div>
     </div>
     <p class="form-hint mb-4"><?= __('settings.ads_link_url_hint') ?></p>
+    <div class="form-group">
+      <label><?= __('settings.ads_description') ?></label>
+      <textarea name="description" class="form-control" rows="2"></textarea>
+    </div>
     <div class="form-row" style="align-items:flex-end;">
       <div class="form-group">
         <label><?= __('settings.ads_image') ?></label>
@@ -42,6 +77,7 @@
       <div class="card" style="padding:10px;">
         <img src="<?= upload_url($ad['image_path']) ?>" class="thumb-sm mb-2" style="width:100%;height:120px;object-fit:contain;background:var(--color-slate-light);" alt="">
         <div class="text-sm mb-2"><strong><?= e($ad['business_name']) ?></strong></div>
+        <?php if (!empty($ad['description'])): ?><div class="text-sm text-muted mb-2"><?= e($ad['description']) ?></div><?php endif; ?>
         <?php if (!empty($ad['link_url'])): ?><div class="text-sm text-muted mb-2" style="word-break:break-all;"><?= e($ad['link_url']) ?></div><?php endif; ?>
         <form method="post" action="<?= base_url('admin/advertisements/' . $ad['id'] . '/delete') ?>" data-confirm="<?= e(__('zone.delete_confirm')) ?>" style="margin:0;">
           <?= csrf_field() ?>

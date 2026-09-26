@@ -15,13 +15,15 @@ class AdvertisementController
         View::render('admin/advertisements/index', [
             'title' => __('nav.advertisements'),
             'active' => 'advertisements',
-            'advertisements' => Advertisement::all(),
+            'advertisements' => Advertisement::approved(),
+            'pendingAdvertisements' => Advertisement::pending(),
         ], 'admin');
     }
 
     public function store(Request $request): void
     {
         $businessName = $request->trimmed('business_name');
+        $description = $request->trimmed('description');
         $linkUrl = $request->trimmed('link_url');
         $photoFile = $request->file('image');
 
@@ -42,8 +44,18 @@ class AdvertisementController
             redirect('admin/advertisements');
         }
 
-        Advertisement::create($businessName, $path, $linkUrl ?: null);
+        Advertisement::create($businessName, $path, $linkUrl ?: null, $description ?: null, 'approved');
         Flash::success(__('settings.ads_added'));
+        redirect('admin/advertisements');
+    }
+
+    public function approve(Request $request, string $id): void
+    {
+        $ad = Advertisement::find((int) $id);
+        if ($ad) {
+            Advertisement::approve((int) $id);
+            Flash::success(__('settings.ads_approved'));
+        }
         redirect('admin/advertisements');
     }
 

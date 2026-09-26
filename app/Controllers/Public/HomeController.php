@@ -48,7 +48,7 @@ class HomeController
             'gridEvents' => $gridEvents,
             'featuredEvent' => $featuredEvent,
             'galleryPhotos' => GalleryPhoto::all(),
-            'advertisements' => Advertisement::all(),
+            'advertisements' => Advertisement::approved(),
             'lotCounts' => $lotCounts,
             'statEventsCount' => count($events),
             'statAvailableLots' => array_sum(array_column($lotCounts, 'available')),

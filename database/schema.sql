@@ -84,12 +84,18 @@ CREATE TABLE gallery_photos (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Site-wide vendor/business promotional listings ("ร้านค้าแนะนำ"), shown on the home
--- page and every event detail page. Admin-managed, not tied to a specific event.
+-- page and every event detail page. Admin-added rows are 'approved' immediately;
+-- rows submitted by the public via the "list your shop" form start 'pending' and
+-- only appear on the public site once an admin approves them.
 CREATE TABLE advertisements (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   business_name VARCHAR(150) NOT NULL,
+  description TEXT NULL,
   image_path VARCHAR(255) NOT NULL,
   link_url VARCHAR(255) NULL,
+  status ENUM('pending','approved') NOT NULL DEFAULT 'approved',
+  contact_name VARCHAR(150) NULL,
+  contact_phone VARCHAR(30) NULL,
   sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

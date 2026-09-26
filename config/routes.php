@@ -25,6 +25,8 @@ $router->get('/my-booking/{code}', [Public\MyBookingController::class, 'show']);
 $router->post('/my-booking/{code}/cancel', [Public\MyBookingController::class, 'cancel']);
 $router->get('/contact', [Public\ContactController::class, 'form']);
 $router->post('/contact', [Public\ContactController::class, 'store']);
+$router->get('/advertise', [Public\AdvertisementController::class, 'form']);
+$router->post('/advertise', [Public\AdvertisementController::class, 'store']);
 $router->get('/cron/backup', [Public\CronController::class, 'backup']);
 
 // ---------------------------------------------------------------- Admin
@@ -96,6 +98,7 @@ $router->group(['middleware' => ['auth']], function ($router) {
 
         $router->get('/admin/advertisements', [Admin\AdvertisementController::class, 'index']);
         $router->post('/admin/advertisements', [Admin\AdvertisementController::class, 'store']);
+        $router->post('/admin/advertisements/{id}/approve', [Admin\AdvertisementController::class, 'approve']);
         $router->post('/admin/advertisements/{id}/delete', [Admin\AdvertisementController::class, 'destroy']);
 
         $router->group(['middleware' => ['super_admin']], function ($router) {

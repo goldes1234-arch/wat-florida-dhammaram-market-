@@ -61,6 +61,36 @@ class NotificationService
         }
     }
 
+    /** Lets the temple's own staff know a shop submitted an ad for review — email + LINE broadcast. */
+    public static function sendAdminAdSubmissionAlert(?array $ad): void
+    {
+        if (!$ad) {
+            return;
+        }
+
+        $settings = Setting::get();
+
+        if (!empty($settings['org_email'])) {
+            $html = View::renderToString('emails/admin_ad_submission_alert', [
+                'ad' => $ad,
+                'settings' => $settings,
+            ]);
+            Mailer::send(
+                $settings['org_email'],
+                __('email.admin_ad_submission_alert_subject', ['name' => $ad['business_name']]),
+                $html
+            );
+        }
+
+        if (LineService::isEnabled()) {
+            LineService::broadcast(__('line.new_ad_submission_alert', [
+                'name' => $ad['business_name'],
+                'contact_name' => $ad['contact_name'] ?? '',
+                'contact_phone' => $ad['contact_phone'] ?? '',
+            ]));
+        }
+    }
+
     /** Lets waitlisted vendors know a lot just freed up on an event they're waiting for. */
     public static function sendWaitlistAlert(array $entry, array $event): void
     {

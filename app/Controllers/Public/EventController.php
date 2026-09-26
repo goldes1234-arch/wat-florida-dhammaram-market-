@@ -86,7 +86,7 @@ class EventController
             'maxCol' => $maxCol,
             'eventContacts' => EventContact::forEvent((int) $event['id']),
             'eventPhotos' => EventPhoto::forEvent((int) $event['id']),
-            'advertisements' => Advertisement::all(),
+            'advertisements' => Advertisement::approved(),
             'isSoldOut' => $isSoldOut,
             'waitlistCount' => $isSoldOut ? count(WaitlistEntry::notNotifiedForEvent((int) $event['id'])) : 0,
             'metaTitle' => $eventName,

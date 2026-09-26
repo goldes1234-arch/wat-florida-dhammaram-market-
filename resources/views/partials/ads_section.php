@@ -2,7 +2,10 @@
 /** @var array $advertisements */
 ?>
 <?php if ($advertisements): ?>
-  <h2 class="section-title"><?= __('public.ads_section_title') ?></h2>
+  <div class="ads-section-header">
+    <h2 class="section-title" style="margin-bottom:0;"><?= __('public.ads_section_title') ?></h2>
+    <a href="<?= base_url('advertise') ?>" class="ads-list-shop-link"><?= __('ads.list_your_shop_prompt') ?> <?= __('ads.list_your_shop_link') ?></a>
+  </div>
   <div class="ads-grid">
     <?php foreach ($advertisements as $ad): ?>
       <?php $tag = $ad['link_url'] ? 'a' : 'div'; ?>
@@ -11,6 +14,9 @@
           <img src="<?= upload_url($ad['image_path']) ?>" alt="<?= e($ad['business_name']) ?>" loading="lazy">
         </span>
         <span class="ad-card-name"><?= e($ad['business_name']) ?></span>
+        <?php if (!empty($ad['description'])): ?>
+          <span class="ad-card-desc"><?= e($ad['description']) ?></span>
+        <?php endif; ?>
       </<?= $tag ?>>
     <?php endforeach; ?>
   </div>

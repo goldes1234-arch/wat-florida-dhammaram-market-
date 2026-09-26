@@ -338,6 +338,78 @@ class LotController
         redirect('admin/lots/' . $id . '/edit');
     }
 
+    // Lets the lot list table save a single cell (code / zone / price) in place —
+    // fetches the current row and re-saves it through the same Lot::update() the
+    // full edit form uses, only swapping in the one changed field, so validation
+    // and the code-uniqueness check stay identical either way.
+    public function inlineUpdate(Request $request, string $id): void
+    {
+        header('Content-Type: application/json');
+
+        $lot = Lot::find((int) $id);
+        if (!$lot) {
+            http_response_code(422);
+            echo json_encode(['ok' => false]);
+            return;
+        }
+
+        $field = $request->input('field');
+        $value = $request->trimmed('value');
+
+        $code = $lot['code'];
+        $price = (float) $lot['price'];
+        $zoneId = $lot['zone_id'] !== null ? (int) $lot['zone_id'] : null;
+
+        if ($field === 'code') {
+            if (!Validator::required($value)) {
+                http_response_code(422);
+                echo json_encode(['ok' => false, 'error' => __('validation.generic_error')]);
+                return;
+            }
+            if (Lot::codeExists((int) $lot['event_id'], $value, (int) $id)) {
+                http_response_code(422);
+                echo json_encode(['ok' => false, 'error' => __('lot.code_taken')]);
+                return;
+            }
+            $code = $value;
+        } elseif ($field === 'price') {
+            if (!Validator::positiveNumber($value)) {
+                http_response_code(422);
+                echo json_encode(['ok' => false, 'error' => __('validation.generic_error')]);
+                return;
+            }
+            $price = (float) $value;
+        } elseif ($field === 'zone_id') {
+            if ($value === '') {
+                $zoneId = null;
+            } elseif (Zone::belongsToEvent((int) $value, (int) $lot['event_id'])) {
+                $zoneId = (int) $value;
+            } else {
+                http_response_code(422);
+                echo json_encode(['ok' => false]);
+                return;
+            }
+        } else {
+            http_response_code(422);
+            echo json_encode(['ok' => false]);
+            return;
+        }
+
+        $gridRow = $lot['grid_row'] !== null ? (int) $lot['grid_row'] : null;
+        $gridCol = $lot['grid_col'] !== null ? (int) $lot['grid_col'] : null;
+        Lot::update((int) $id, $zoneId, $code, $price, $gridRow, $gridCol);
+
+        $updated = Lot::find((int) $id);
+        echo json_encode([
+            'ok' => true,
+            'display' => [
+                'code' => $updated['code'],
+                'zone_name' => $updated['zone_name'] ?? __('lot.no_zone'),
+                'price' => money((float) $updated['price']),
+            ],
+        ]);
+    }
+
     public function toggleDisable(Request $request, string $id): void
     {
         $lot = Lot::find((int) $id);

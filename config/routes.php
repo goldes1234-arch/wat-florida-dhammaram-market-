@@ -80,6 +80,7 @@ $router->group(['middleware' => ['auth']], function ($router) {
         $router->post('/admin/events/{eventId}/lots/map-quick-add', [Admin\LotController::class, 'mapQuickAdd']);
         $router->get('/admin/lots/{id}/edit', [Admin\LotController::class, 'edit']);
         $router->post('/admin/lots/{id}', [Admin\LotController::class, 'update']);
+        $router->post('/admin/lots/{id}/inline-update', [Admin\LotController::class, 'inlineUpdate']);
         $router->post('/admin/lots/{id}/toggle-disable', [Admin\LotController::class, 'toggleDisable']);
         $router->post('/admin/lots/{id}/delete', [Admin\LotController::class, 'destroy']);
         $router->post('/admin/events/{eventId}/lots/delete-all', [Admin\LotController::class, 'destroyAll']);

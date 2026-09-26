@@ -147,6 +147,26 @@
 .thumb-sm { width: 48px; height: 48px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--color-border); }
 .thumb-md { width: 100%; max-width: 320px; aspect-ratio: 16/9; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
 
+/* Click-to-edit table cells (lot list: code / zone / price) */
+.inline-edit-cell {
+  cursor: pointer;
+  display: inline-block;
+  border-radius: 6px;
+  padding: 3px 6px;
+  margin: -3px -6px;
+  transition: background-color .15s ease;
+}
+.inline-edit-cell:hover { background: var(--color-primary-light); }
+.inline-edit-input {
+  width: 100%;
+  min-width: 90px;
+  padding: 5px 8px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1.5px solid var(--color-primary);
+  border-radius: 6px;
+}
+
 .status-log-item {
   display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--color-border-light);
 }

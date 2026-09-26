@@ -22,7 +22,7 @@ class Setting extends Model
             'facebook_url', 'line_oa_id', 'google_maps_url', 'website_url', 'youtube_url',
             'bank_name', 'bank_account_name', 'bank_account_number', 'promptpay_id',
             'currency_code', 'default_locale', 'cancellation_cutoff_days', 'booking_rate_limit_per_hour',
-            'stripe_publishable_key', 'stripe_secret_key', 'stripe_webhook_secret',
+            'stripe_publishable_key', 'stripe_secret_key', 'stripe_webhook_secret', 'stripe_suspended',
             'stripe_pass_fee_to_customer', 'stripe_fee_percent', 'stripe_fee_fixed',
             'line_oa_channel_access_token',
             'smtp_host', 'smtp_port', 'smtp_encryption', 'smtp_username', 'smtp_password',

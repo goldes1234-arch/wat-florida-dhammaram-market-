@@ -14,7 +14,8 @@ class StripeService
 {
     public static function isEnabled(): bool
     {
-        return !empty(Setting::get()['stripe_secret_key']);
+        $settings = Setting::get();
+        return !empty($settings['stripe_secret_key']) && empty($settings['stripe_suspended']);
     }
 
     public static function passesFeeToCustomer(): bool

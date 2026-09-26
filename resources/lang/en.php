@@ -426,6 +426,8 @@ return [
     'settings.rate_limit' => 'Booking rate limit per IP per hour',
     'settings.stripe_section' => 'Stripe settings (online payment)',
     'settings.stripe_hint' => 'Enter a Secret Key to enable the online payment option on the public site. Leave blank to only offer on-site/bank-transfer payment.',
+    'settings.stripe_suspended_label' => 'Temporarily suspend online payment',
+    'settings.stripe_suspended_hint' => 'While suspended, the "Pay online" option is hidden from the public site (on-site/bank-transfer stays available) — your keys stay saved so you can re-enable it anytime.',
     'settings.stripe_publishable_key' => 'Publishable Key',
     'settings.stripe_secret_key' => 'Secret Key',
     'settings.stripe_webhook_secret' => 'Webhook Signing Secret',

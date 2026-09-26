@@ -182,6 +182,13 @@
   <div class="card">
     <div class="card-header"><h3><?= __('settings.stripe_section') ?></h3></div>
     <p class="form-hint mb-4"><?= __('settings.stripe_hint') ?></p>
+
+    <div class="checkbox-row mb-2">
+      <input type="checkbox" id="stripe_suspended" name="stripe_suspended" value="1" <?= !empty($settings['stripe_suspended']) ? 'checked' : '' ?>>
+      <label for="stripe_suspended" style="margin:0;"><?= __('settings.stripe_suspended_label') ?></label>
+    </div>
+    <p class="form-hint mb-4"><?= __('settings.stripe_suspended_hint') ?></p>
+
     <div class="form-group">
       <label><?= __('settings.stripe_publishable_key') ?></label>
       <input type="text" name="stripe_publishable_key" class="form-control" value="<?= e($settings['stripe_publishable_key'] ?? '') ?>" placeholder="pk_test_...">

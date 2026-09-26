@@ -49,6 +49,7 @@ CREATE TABLE settings (
   stripe_publishable_key VARCHAR(255) NULL,
   stripe_secret_key VARCHAR(255) NULL,
   stripe_webhook_secret VARCHAR(255) NULL,
+  stripe_suspended TINYINT(1) NOT NULL DEFAULT 0,
   stripe_pass_fee_to_customer TINYINT(1) NOT NULL DEFAULT 0,
   stripe_fee_percent DECIMAL(5,2) NOT NULL DEFAULT 2.90,
   stripe_fee_fixed DECIMAL(10,2) NOT NULL DEFAULT 0.30,

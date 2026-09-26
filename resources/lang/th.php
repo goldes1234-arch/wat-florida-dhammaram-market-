@@ -426,6 +426,8 @@ return [
     'settings.rate_limit' => 'จำกัดจำนวนการจองต่อ IP ต่อชั่วโมง',
     'settings.stripe_section' => 'ตั้งค่า Stripe (ชำระเงินออนไลน์)',
     'settings.stripe_hint' => 'กรอก Secret Key เพื่อเปิดใช้งานช่องทางชำระเงินออนไลน์บนหน้าเว็บสาธารณะ หากเว้นว่างไว้ ระบบจะแสดงเฉพาะช่องทางจ่ายหน้างาน/โอนเงิน',
+    'settings.stripe_suspended_label' => 'ระงับการชำระเงินออนไลน์ชั่วคราว',
+    'settings.stripe_suspended_hint' => 'เมื่อระงับ ช่องทาง "ชำระเงินออนไลน์" จะไม่แสดงในหน้าเว็บสาธารณะ (ยังจ่ายหน้างาน/โอนเงินได้ตามปกติ) — ค่าที่ตั้งไว้จะยังถูกบันทึกไว้ สามารถเปิดใช้งานกลับมาได้ทุกเมื่อ',
     'settings.stripe_publishable_key' => 'Publishable Key',
     'settings.stripe_secret_key' => 'Secret Key',
     'settings.stripe_webhook_secret' => 'Webhook Signing Secret',

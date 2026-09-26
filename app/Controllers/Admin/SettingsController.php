@@ -46,6 +46,7 @@ class SettingsController
             'stripe_publishable_key' => $request->trimmed('stripe_publishable_key'),
             'stripe_secret_key' => $request->trimmed('stripe_secret_key'),
             'stripe_webhook_secret' => $request->trimmed('stripe_webhook_secret'),
+            'stripe_suspended' => $request->input('stripe_suspended') ? 1 : 0,
             'stripe_pass_fee_to_customer' => $request->input('stripe_pass_fee_to_customer') ? 1 : 0,
             'stripe_fee_percent' => max(0, (float) $request->input('stripe_fee_percent', 2.9)),
             'stripe_fee_fixed' => max(0, (float) $request->input('stripe_fee_fixed', 0.30)),

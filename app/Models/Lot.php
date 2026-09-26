@@ -105,6 +105,20 @@ class Lot extends Model
         $stmt->execute(['map_size' => $size, 'id' => $id]);
     }
 
+    /** Switches a lot's map marker between a round pin and a rotatable rectangle. */
+    public static function setMapShape(int $id, string $shape): void
+    {
+        $stmt = self::db()->prepare('UPDATE lots SET map_shape = :map_shape WHERE id = :id');
+        $stmt->execute(['map_shape' => $shape, 'id' => $id]);
+    }
+
+    /** Sets a box-shaped marker's tilt, in degrees. */
+    public static function setMapRotation(int $id, float $rotation): void
+    {
+        $stmt = self::db()->prepare('UPDATE lots SET map_rotation = :map_rotation WHERE id = :id');
+        $stmt->execute(['map_rotation' => $rotation, 'id' => $id]);
+    }
+
     /** Lightweight id => status map, used by the public "live" map polling endpoint. */
     public static function statusMapForEvent(int $eventId): array
     {

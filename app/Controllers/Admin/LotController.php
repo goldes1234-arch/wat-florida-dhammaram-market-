@@ -201,6 +201,44 @@ class LotController
         echo json_encode(['ok' => true]);
     }
 
+    public function saveShape(Request $request, string $eventId): void
+    {
+        header('Content-Type: application/json');
+
+        $event = Event::find((int) $eventId);
+        $lot = Lot::find((int) $request->input('lot_id'));
+        $shape = $request->input('map_shape');
+
+        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId
+            || !in_array($shape, ['pin', 'box'], true)) {
+            http_response_code(422);
+            echo json_encode(['ok' => false]);
+            return;
+        }
+
+        Lot::setMapShape((int) $lot['id'], $shape);
+        echo json_encode(['ok' => true]);
+    }
+
+    public function saveRotation(Request $request, string $eventId): void
+    {
+        header('Content-Type: application/json');
+
+        $event = Event::find((int) $eventId);
+        $lot = Lot::find((int) $request->input('lot_id'));
+        $rotation = $request->input('map_rotation');
+
+        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId
+            || !is_numeric($rotation) || $rotation < -180 || $rotation > 180) {
+            http_response_code(422);
+            echo json_encode(['ok' => false]);
+            return;
+        }
+
+        Lot::setMapRotation((int) $lot['id'], (float) $rotation);
+        echo json_encode(['ok' => true]);
+    }
+
     public function edit(Request $request, string $id): void
     {
         $lot = Lot::find((int) $id);

@@ -272,6 +272,8 @@ return [
     'lot.map_size_small' => 'เล็ก',
     'lot.map_size_medium' => 'กลาง',
     'lot.map_size_large' => 'ใหญ่',
+    'lot.map_shape_pin' => 'จุดกลม',
+    'lot.map_shape_box' => 'กรอบสี่เหลี่ยม (หมุนได้)',
     'lot.map_saved' => 'บันทึกตำแหน่งแล้ว',
     'lot.map_save_error' => 'บันทึกตำแหน่งไม่สำเร็จ กรุณาลองใหม่',
     'lot.disable_action' => 'ปิดใช้งานล็อกนี้ชั่วคราว',

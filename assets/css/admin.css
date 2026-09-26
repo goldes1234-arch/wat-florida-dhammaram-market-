@@ -206,6 +206,26 @@
 .map-editor-pin:active { cursor: grabbing; }
 .map-editor-pin.size-small { min-width: 20px; height: 20px; font-size: 9px; border-radius: 10px; }
 .map-editor-pin.size-large { min-width: 38px; height: 38px; font-size: 13px; border-radius: 19px; }
+
+/* Box shape — a rotatable rectangle instead of a round pin, for lots whose real
+   footprint sits at an angle (e.g. angled parking bays) that a circle can't show. */
+.map-editor-pin.shape-box { width: 28px; min-width: 0; border-radius: 4px; }
+.map-editor-pin.shape-box.size-small { width: 20px; height: 12px; }
+.map-editor-pin.shape-box.size-medium { width: 28px; height: 17px; }
+.map-editor-pin.shape-box.size-large { width: 38px; height: 24px; }
+.map-editor-rotate-handle {
+  position: absolute; left: 50%; top: -20px;
+  width: 12px; height: 12px; margin-left: -6px;
+  border-radius: 50%; background: #fff; border: 2px solid var(--color-primary);
+  cursor: grab; pointer-events: auto; touch-action: none;
+  box-shadow: 0 1px 4px rgba(20,21,43,.3);
+}
+.map-editor-rotate-handle:active { cursor: grabbing; }
+.map-editor-rotate-handle::before {
+  content: ''; position: absolute; left: 50%; top: 100%;
+  width: 1px; height: 8px; margin-left: -.5px;
+  background: var(--color-primary);
+}
 .map-editor-list {
   display: flex; flex-direction: column; gap: 8px;
   max-height: 560px; overflow-y: auto;
@@ -234,3 +254,12 @@
   display: flex; align-items: center; justify-content: center;
 }
 .map-editor-size-btn.is-active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.map-editor-shape-group { display: flex; gap: 2px; flex-shrink: 0; }
+.map-editor-shape-btn {
+  width: 22px; height: 22px; padding: 0;
+  border: 1px solid var(--color-border); border-radius: 6px;
+  background: #fff; color: var(--color-text-muted);
+  font-size: 12px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.map-editor-shape-btn.is-active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }

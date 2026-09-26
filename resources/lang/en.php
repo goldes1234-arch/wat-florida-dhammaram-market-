@@ -272,6 +272,8 @@ return [
     'lot.map_size_small' => 'Small',
     'lot.map_size_medium' => 'Medium',
     'lot.map_size_large' => 'Large',
+    'lot.map_shape_pin' => 'Round pin',
+    'lot.map_shape_box' => 'Rectangle (rotatable)',
     'lot.map_saved' => 'Position saved',
     'lot.map_save_error' => 'Could not save the position. Please try again.',
     'lot.disable_action' => 'Temporarily disable this lot',

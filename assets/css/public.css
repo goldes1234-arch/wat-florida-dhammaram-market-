@@ -544,6 +544,13 @@
 .photo-pin.size-small { min-width: 24px; height: 24px; font-size: 9px; border-radius: 12px; }
 .photo-pin.size-large { min-width: 46px; height: 46px; font-size: 13px; border-radius: 23px; }
 
+/* Box shape — a tilted rectangle for lots whose real footprint sits at an angle
+   (e.g. angled parking bays) that a round pin can't represent. */
+.photo-pin.shape-box { width: 34px; min-width: 0; border-radius: 5px; }
+.photo-pin.shape-box.size-small { width: 24px; height: 15px; }
+.photo-pin.shape-box.size-medium { width: 34px; height: 21px; }
+.photo-pin.shape-box.size-large { width: 46px; height: 29px; }
+
 .legend-dot.dot-available { color: #16A34A; }
 .legend-dot.dot-pending { color: #EAB308; }
 .legend-dot.dot-booked { color: #2563EB; }

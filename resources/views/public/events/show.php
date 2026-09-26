@@ -114,11 +114,15 @@ if (\App\Core\Lang::locale() === 'en') {
                data-poll-url="<?= base_url('events/' . $event['slug'] . '/lot-status') ?>">
             <img src="<?= upload_url($event['floorplan_image']) ?>" class="photo-map-image" alt="">
             <?php foreach ($photoLots as $lot): ?>
-              <?php ['clickable' => $clickable, 'href' => $href, 'tag' => $tag, 'title' => $title] = $lotClickInfo($lot); ?>
+              <?php
+              ['clickable' => $clickable, 'href' => $href, 'tag' => $tag, 'title' => $title] = $lotClickInfo($lot);
+              $isBox = $lot['map_shape'] === 'box';
+              $rotateStyle = $isBox ? ' transform: translate(-50%, -50%) rotate(' . e((string) (float) $lot['map_rotation']) . 'deg);' : '';
+              ?>
               <<?= $tag ?> <?= $clickable ? 'href="' . $href . '"' : '' ?>
-                class="photo-pin status-<?= e($lot['status']) ?> size-<?= e($lot['map_size']) ?>"
+                class="photo-pin status-<?= e($lot['status']) ?> size-<?= e($lot['map_size']) ?> shape-<?= e($lot['map_shape']) ?>"
                 data-lot-id="<?= (int) $lot['id'] ?>"
-                style="left: <?= e($lot['map_x']) ?>%; top: <?= e($lot['map_y']) ?>%;"
+                style="left: <?= e($lot['map_x']) ?>%; top: <?= e($lot['map_y']) ?>%;<?= $rotateStyle ?>"
                 title="<?= $title ?>"><?= e($lot['code']) ?></<?= $tag ?>>
             <?php endforeach; ?>
           </div>

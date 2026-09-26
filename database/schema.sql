@@ -256,6 +256,8 @@ CREATE TABLE lots (
   map_x DECIMAL(5,2) NULL,
   map_y DECIMAL(5,2) NULL,
   map_size ENUM('small','medium','large') NOT NULL DEFAULT 'medium',
+  map_shape ENUM('pin','box') NOT NULL DEFAULT 'pin',
+  map_rotation DECIMAL(5,1) NOT NULL DEFAULT 0,
   photo VARCHAR(255) NULL,
   price DECIMAL(10,2) NOT NULL,
   status ENUM('available','pending_payment','booked','disabled') NOT NULL DEFAULT 'available',

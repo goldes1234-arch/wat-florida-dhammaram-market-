@@ -36,7 +36,18 @@
       </div>
     </div>
 
-    <div class="map-editor-list">
+    <div class="map-editor-sidebar">
+      <div class="map-editor-quick-add">
+        <div class="map-editor-quick-add-title"><?= __('lot.map_quick_add_title') ?></div>
+        <div class="map-editor-quick-add-row">
+          <input type="text" id="quickAddCode" class="form-control" placeholder="<?= __('lot.map_quick_add_code_placeholder') ?>">
+          <input type="number" step="0.01" min="0" id="quickAddPrice" class="form-control" placeholder="<?= __('lot.map_quick_add_price_placeholder') ?>">
+          <button type="button" id="quickAddBtn" class="btn btn-primary btn-sm"><?= __('lot.map_quick_add_button') ?></button>
+        </div>
+        <p id="quickAddError" class="form-hint mb-0" style="color:var(--color-danger); display:none;"></p>
+      </div>
+
+      <div class="map-editor-list" id="mapEditorList">
       <?php foreach ($lots as $lot): ?>
         <?php $placed = $lot['map_x'] !== null && $lot['map_y'] !== null; ?>
         <div class="map-editor-lot-row<?= $placed ? ' is-placed' : '' ?>"
@@ -61,6 +72,7 @@
           </div>
         </div>
       <?php endforeach; ?>
+      </div>
     </div>
   </div>
 
@@ -73,10 +85,19 @@
     var sizeUrl = <?= json_encode(base_url('admin/events/' . $event['id'] . '/lots/map-size')) ?>;
     var shapeUrl = <?= json_encode(base_url('admin/events/' . $event['id'] . '/lots/map-shape')) ?>;
     var rotationUrl = <?= json_encode(base_url('admin/events/' . $event['id'] . '/lots/map-rotation')) ?>;
+    var quickAddUrl = <?= json_encode(base_url('admin/events/' . $event['id'] . '/lots/map-quick-add')) ?>;
     var csrfToken = <?= json_encode(\App\Core\Csrf::token()) ?>;
     var msgSaved = <?= json_encode(__('lot.map_saved'), JSON_UNESCAPED_UNICODE) ?>;
     var msgError = <?= json_encode(__('lot.map_save_error'), JSON_UNESCAPED_UNICODE) ?>;
+    var msgQuickAddSuccess = <?= json_encode(__('lot.map_quick_add_success'), JSON_UNESCAPED_UNICODE) ?>;
     var lblPlaced = <?= json_encode(__('lot.map_placed'), JSON_UNESCAPED_UNICODE) ?>;
+    var lblUnplaced = <?= json_encode(__('lot.map_unplaced'), JSON_UNESCAPED_UNICODE) ?>;
+    var lblShapePin = <?= json_encode(__('lot.map_shape_pin'), JSON_UNESCAPED_UNICODE) ?>;
+    var lblShapeBox = <?= json_encode(__('lot.map_shape_box'), JSON_UNESCAPED_UNICODE) ?>;
+    var lblSizeSmall = <?= json_encode(__('lot.map_size_small'), JSON_UNESCAPED_UNICODE) ?>;
+    var lblSizeMedium = <?= json_encode(__('lot.map_size_medium'), JSON_UNESCAPED_UNICODE) ?>;
+    var lblSizeLarge = <?= json_encode(__('lot.map_size_large'), JSON_UNESCAPED_UNICODE) ?>;
+    var lotListEl = document.getElementById('mapEditorList');
 
     var armedLotId = null;
     var armedLotCode = null;
@@ -252,21 +273,133 @@
       refreshRotateHandle();
     }
 
-    document.querySelectorAll('.map-editor-lot-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        armLot(btn.getAttribute('data-lot-id'), btn.getAttribute('data-lot-code'));
-      });
+    // Delegated so buttons on lot rows added later by quick-add work with no extra
+    // wiring — the list only ever needs this one listener, bound once.
+    lotListEl.addEventListener('click', function (e) {
+      var lotBtn = e.target.closest('.map-editor-lot-btn');
+      if (lotBtn) {
+        armLot(lotBtn.getAttribute('data-lot-id'), lotBtn.getAttribute('data-lot-code'));
+        return;
+      }
+      var shapeBtn = e.target.closest('.map-editor-shape-btn');
+      if (shapeBtn) {
+        saveShape(shapeBtn.getAttribute('data-lot-id'), shapeBtn.getAttribute('data-shape'));
+        return;
+      }
+      var sizeBtn = e.target.closest('.map-editor-size-btn');
+      if (sizeBtn) {
+        saveSize(sizeBtn.getAttribute('data-lot-id'), sizeBtn.getAttribute('data-size'));
+      }
     });
 
-    document.querySelectorAll('.map-editor-size-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        saveSize(btn.getAttribute('data-lot-id'), btn.getAttribute('data-size'));
-      });
-    });
+    // Builds a sidebar row for a lot the quick-add form just created, matching the
+    // server-rendered markup exactly so the delegated listener above handles it too.
+    function addLotRow(lot) {
+      var row = document.createElement('div');
+      row.className = 'map-editor-lot-row';
+      row.setAttribute('data-lot-id', lot.id);
+      row.setAttribute('data-map-size', lot.map_size);
+      row.setAttribute('data-map-shape', lot.map_shape);
 
-    document.querySelectorAll('.map-editor-shape-btn').forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        saveShape(btn.getAttribute('data-lot-id'), btn.getAttribute('data-shape'));
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'map-editor-lot-btn';
+      btn.setAttribute('data-lot-id', lot.id);
+      btn.setAttribute('data-lot-code', lot.code);
+
+      var codeSpan = document.createElement('span');
+      codeSpan.className = 'lot-code';
+      codeSpan.textContent = lot.code;
+      var statusSpan = document.createElement('span');
+      statusSpan.className = 'lot-map-status text-sm text-muted';
+      statusSpan.textContent = lblUnplaced;
+      btn.appendChild(codeSpan);
+      btn.appendChild(statusSpan);
+
+      var shapeGroup = document.createElement('div');
+      shapeGroup.className = 'map-editor-shape-group';
+      shapeGroup.setAttribute('role', 'group');
+      [['pin', '●', lblShapePin], ['box', '▭', lblShapeBox]].forEach(function (s) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'map-editor-shape-btn' + (lot.map_shape === s[0] ? ' is-active' : '');
+        b.setAttribute('data-lot-id', lot.id);
+        b.setAttribute('data-shape', s[0]);
+        b.title = s[2];
+        b.textContent = s[1];
+        shapeGroup.appendChild(b);
+      });
+
+      var sizeGroup = document.createElement('div');
+      sizeGroup.className = 'map-editor-size-group';
+      sizeGroup.setAttribute('role', 'group');
+      [['small', 'S', lblSizeSmall], ['medium', 'M', lblSizeMedium], ['large', 'L', lblSizeLarge]].forEach(function (s) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'map-editor-size-btn' + (lot.map_size === s[0] ? ' is-active' : '');
+        b.setAttribute('data-lot-id', lot.id);
+        b.setAttribute('data-size', s[0]);
+        b.title = s[2];
+        b.textContent = s[1];
+        sizeGroup.appendChild(b);
+      });
+
+      row.appendChild(btn);
+      row.appendChild(shapeGroup);
+      row.appendChild(sizeGroup);
+      lotListEl.appendChild(row);
+      return row;
+    }
+
+    var quickAddBtn = document.getElementById('quickAddBtn');
+    var quickAddCode = document.getElementById('quickAddCode');
+    var quickAddPrice = document.getElementById('quickAddPrice');
+    var quickAddError = document.getElementById('quickAddError');
+
+    function submitQuickAdd() {
+      var code = quickAddCode.value.trim();
+      quickAddError.style.display = 'none';
+      if (!code) return;
+
+      var body = new URLSearchParams();
+      body.set('code', code);
+      body.set('price', quickAddPrice.value || '0');
+      body.set('_csrf', csrfToken);
+
+      quickAddBtn.disabled = true;
+      fetch(quickAddUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: body.toString(),
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (data) {
+          quickAddBtn.disabled = false;
+          if (!data.ok) {
+            quickAddError.textContent = data.error || msgError;
+            quickAddError.style.display = '';
+            return;
+          }
+          addLotRow(data.lot);
+          quickAddCode.value = '';
+          quickAddPrice.value = '';
+          quickAddCode.focus();
+          statusEl.textContent = msgQuickAddSuccess;
+        })
+        .catch(function () {
+          quickAddBtn.disabled = false;
+          quickAddError.textContent = msgError;
+          quickAddError.style.display = '';
+        });
+    }
+
+    quickAddBtn.addEventListener('click', submitQuickAdd);
+    [quickAddCode, quickAddPrice].forEach(function (input) {
+      input.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitQuickAdd();
+        }
       });
     });
 

@@ -77,6 +77,7 @@ $router->group(['middleware' => ['auth']], function ($router) {
         $router->post('/admin/events/{eventId}/lots/map-size', [Admin\LotController::class, 'saveSize']);
         $router->post('/admin/events/{eventId}/lots/map-shape', [Admin\LotController::class, 'saveShape']);
         $router->post('/admin/events/{eventId}/lots/map-rotation', [Admin\LotController::class, 'saveRotation']);
+        $router->post('/admin/events/{eventId}/lots/map-quick-add', [Admin\LotController::class, 'mapQuickAdd']);
         $router->get('/admin/lots/{id}/edit', [Admin\LotController::class, 'edit']);
         $router->post('/admin/lots/{id}', [Admin\LotController::class, 'update']);
         $router->post('/admin/lots/{id}/toggle-disable', [Admin\LotController::class, 'toggleDisable']);

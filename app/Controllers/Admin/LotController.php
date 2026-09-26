@@ -239,6 +239,46 @@ class LotController
         echo json_encode(['ok' => true]);
     }
 
+    public function mapQuickAdd(Request $request, string $eventId): void
+    {
+        header('Content-Type: application/json');
+
+        $event = Event::find((int) $eventId);
+        if (!$event) {
+            http_response_code(422);
+            echo json_encode(['ok' => false]);
+            return;
+        }
+
+        $code = $request->trimmed('code');
+        $price = $request->input('price', 0);
+
+        if (!Validator::required($code) || !Validator::positiveNumber($price)) {
+            http_response_code(422);
+            echo json_encode(['ok' => false, 'error' => __('validation.generic_error')]);
+            return;
+        }
+
+        if (Lot::codeExists((int) $eventId, $code)) {
+            http_response_code(422);
+            echo json_encode(['ok' => false, 'error' => __('lot.code_taken')]);
+            return;
+        }
+
+        $lotId = Lot::create((int) $eventId, null, $code, (float) $price);
+        $lot = Lot::find($lotId);
+
+        echo json_encode([
+            'ok' => true,
+            'lot' => [
+                'id' => $lot['id'],
+                'code' => $lot['code'],
+                'map_size' => $lot['map_size'],
+                'map_shape' => $lot['map_shape'],
+            ],
+        ]);
+    }
+
     public function edit(Request $request, string $id): void
     {
         $lot = Lot::find((int) $id);

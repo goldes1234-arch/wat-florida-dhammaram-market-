@@ -157,8 +157,8 @@
   transition: background-color .15s ease;
 }
 .inline-edit-cell:hover { background: var(--color-primary-light); }
+.inline-edit-wrap { display: inline-flex; align-items: center; gap: 4px; }
 .inline-edit-input {
-  width: 100%;
   min-width: 90px;
   padding: 5px 8px;
   font-size: 14px;
@@ -166,6 +166,14 @@
   border: 1.5px solid var(--color-primary);
   border-radius: 6px;
 }
+.inline-edit-confirm, .inline-edit-cancel {
+  width: 24px; height: 24px; flex-shrink: 0; padding: 0;
+  border: none; border-radius: 6px; cursor: pointer;
+  font-size: 12px; font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.inline-edit-confirm { background: var(--color-success-light); color: var(--color-success); }
+.inline-edit-cancel { background: var(--color-danger-light); color: var(--color-danger); }
 
 .status-log-item {
   display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--color-border-light);

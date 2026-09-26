@@ -226,6 +226,8 @@
     var statusEl = document.getElementById('lotsTableStatus');
     var msgSaved = <?= json_encode(__('lot.inline_saved'), JSON_UNESCAPED_UNICODE) ?>;
     var msgError = <?= json_encode(__('lot.inline_save_error'), JSON_UNESCAPED_UNICODE) ?>;
+    var msgConfirm = <?= json_encode(__('lot.inline_confirm'), JSON_UNESCAPED_UNICODE) ?>;
+    var msgCancel = <?= json_encode(__('lot.inline_cancel'), JSON_UNESCAPED_UNICODE) ?>;
     var lblNoZone = <?= json_encode(__('lot.no_zone'), JSON_UNESCAPED_UNICODE) ?>;
     var zones = <?= json_encode(array_map(function ($z) { return ['id' => (int) $z['id'], 'name' => $z['name']]; }, $zones), JSON_UNESCAPED_UNICODE) ?>;
 
@@ -262,12 +264,38 @@
       if (cell.querySelector('.inline-edit-input')) return;
       var original = cell.innerHTML;
       var input = buildEditor(cell);
+
+      var wrap = document.createElement('span');
+      wrap.className = 'inline-edit-wrap';
+      wrap.appendChild(input);
+
+      var confirmBtn = document.createElement('button');
+      confirmBtn.type = 'button';
+      confirmBtn.className = 'inline-edit-confirm';
+      confirmBtn.title = msgConfirm;
+      confirmBtn.textContent = '✓';
+      wrap.appendChild(confirmBtn);
+
+      var cancelBtn = document.createElement('button');
+      cancelBtn.type = 'button';
+      cancelBtn.className = 'inline-edit-cancel';
+      cancelBtn.title = msgCancel;
+      cancelBtn.textContent = '✕';
+      wrap.appendChild(cancelBtn);
+
       cell.innerHTML = '';
-      cell.appendChild(input);
+      cell.appendChild(wrap);
       input.focus();
       if (input.select) input.select();
 
       var done = false;
+
+      function revert() {
+        if (done) return;
+        done = true;
+        cell.innerHTML = original;
+      }
+
       function commit() {
         if (done) return;
         done = true;
@@ -318,16 +346,23 @@
           });
       }
 
-      input.addEventListener('blur', commit);
+      // Blur alone (clicking elsewhere) only cancels — committing needs an explicit
+      // Enter or a click on the confirm button, so a stray click never silently
+      // saves a half-finished edit. The confirm/cancel buttons use mousedown
+      // preventDefault so clicking them doesn't blur the input first.
+      input.addEventListener('blur', revert);
       input.addEventListener('keydown', function (e) {
         if (e.key === 'Enter') {
           e.preventDefault();
-          input.blur();
+          commit();
         } else if (e.key === 'Escape') {
-          done = true;
-          cell.innerHTML = original;
+          revert();
         }
       });
+      confirmBtn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      confirmBtn.addEventListener('click', commit);
+      cancelBtn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      cancelBtn.addEventListener('click', revert);
     }
 
     document.querySelectorAll('.inline-edit-cell').forEach(function (cell) {

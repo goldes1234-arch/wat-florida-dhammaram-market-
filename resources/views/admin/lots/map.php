@@ -238,14 +238,23 @@
         .catch(function () { statusEl.textContent = msgError; });
     }
 
+    // Arming selects a lot as the active one — its row gets highlighted in the
+    // sidebar and, if it's a box, its rotate handle appears on the map. Reused both
+    // from the sidebar list and from clicking a marker directly on the photo, so
+    // picking up a box to rotate never requires a trip back to the number list.
+    function armLot(lotId, code) {
+      lotId = String(lotId);
+      document.querySelectorAll('.map-editor-lot-row').forEach(function (r) {
+        r.classList.toggle('is-armed', r.getAttribute('data-lot-id') === lotId);
+      });
+      armedLotId = lotId;
+      armedLotCode = code;
+      refreshRotateHandle();
+    }
+
     document.querySelectorAll('.map-editor-lot-btn').forEach(function (btn) {
       btn.addEventListener('click', function () {
-        var row = btn.closest('.map-editor-lot-row');
-        document.querySelectorAll('.map-editor-lot-row').forEach(function (r) { r.classList.remove('is-armed'); });
-        row.classList.add('is-armed');
-        armedLotId = btn.getAttribute('data-lot-id');
-        armedLotCode = btn.getAttribute('data-lot-code');
-        refreshRotateHandle();
+        armLot(btn.getAttribute('data-lot-id'), btn.getAttribute('data-lot-code'));
       });
     });
 
@@ -370,6 +379,7 @@
       }
       var pin = e.target.closest('.map-editor-pin');
       if (!pin) return;
+      armLot(pin.getAttribute('data-lot-id'), pin.textContent);
       beginPinDrag(pin, pin.getAttribute('data-lot-id'), e);
     });
 
@@ -382,6 +392,7 @@
       }
       var pin = e.target.closest('.map-editor-pin');
       if (!pin) return;
+      armLot(pin.getAttribute('data-lot-id'), pin.textContent);
       beginPinDrag(pin, pin.getAttribute('data-lot-id'), e);
     }, { passive: false });
   })();

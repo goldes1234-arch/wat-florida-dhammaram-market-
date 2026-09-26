@@ -23,13 +23,6 @@ $locale = \App\Core\Lang::locale();
       <?php else: ?>
         <li><a href="<?= base_url('admin') ?>" class="<?= $active === 'dashboard' ? 'is-active' : '' ?>"><span class="nav-icon icon-indigo"><?= icon('dashboard') ?></span> <?= __('nav.dashboard') ?></a></li>
         <li><a href="<?= base_url('admin/events') ?>" class="<?= $active === 'events' ? 'is-active' : '' ?>"><span class="nav-icon icon-violet"><?= icon('calendar') ?></span> <?= __('nav.events') ?></a></li>
-        <li>
-          <a href="<?= base_url('admin/advertisements') ?>" class="<?= $active === 'advertisements' ? 'is-active' : '' ?>">
-            <span class="nav-icon icon-teal"><?= icon('store') ?></span> <?= __('nav.advertisements') ?>
-            <?php $pendingAdsCount = \App\Models\Advertisement::pendingCount(); ?>
-            <?php if ($pendingAdsCount > 0): ?><span class="nav-badge"><?= $pendingAdsCount ?></span><?php endif; ?>
-          </a>
-        </li>
         <li><a href="<?= base_url('admin/bookings') ?>" class="<?= $active === 'bookings' ? 'is-active' : '' ?>"><span class="nav-icon icon-magenta"><?= icon('ticket') ?></span> <?= __('nav.bookings') ?></a></li>
         <li><a href="<?= base_url('admin/checkin') ?>" class="<?= $active === 'checkin' ? 'is-active' : '' ?>"><span class="nav-icon icon-green"><?= icon('check-circle') ?></span> <?= __('nav.checkin') ?></a></li>
         <li>
@@ -41,6 +34,15 @@ $locale = \App\Core\Lang::locale();
         </li>
         <?php if (\App\Core\Auth::isSuperAdmin()): ?>
         <li><a href="<?= base_url('admin/staff') ?>" class="<?= $active === 'staff' ? 'is-active' : '' ?>"><span class="nav-icon icon-blue"><?= icon('users') ?></span> <?= __('nav.staff') ?></a></li>
+        <?php endif; ?>
+        <li>
+          <a href="<?= base_url('admin/advertisements') ?>" class="<?= $active === 'advertisements' ? 'is-active' : '' ?>">
+            <span class="nav-icon icon-teal"><?= icon('store') ?></span> <?= __('nav.advertisements') ?>
+            <?php $pendingAdsCount = \App\Models\Advertisement::pendingCount(); ?>
+            <?php if ($pendingAdsCount > 0): ?><span class="nav-badge"><?= $pendingAdsCount ?></span><?php endif; ?>
+          </a>
+        </li>
+        <?php if (\App\Core\Auth::isSuperAdmin()): ?>
         <li><a href="<?= base_url('admin/backups') ?>" class="<?= $active === 'backups' ? 'is-active' : '' ?>"><span class="nav-icon icon-amber"><?= icon('download') ?></span> <?= __('nav.backups') ?></a></li>
         <li><a href="<?= base_url('admin/activity-log') ?>" class="<?= $active === 'activity_log' ? 'is-active' : '' ?>"><span class="nav-icon icon-magenta"><?= icon('clock') ?></span> <?= __('nav.activity_log') ?></a></li>
         <li><a href="<?= base_url('admin/settings') ?>" class="<?= $active === 'settings' ? 'is-active' : '' ?>"><span class="nav-icon icon-teal"><?= icon('settings') ?></span> <?= __('nav.settings') ?></a></li>

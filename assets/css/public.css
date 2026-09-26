@@ -1,10 +1,10 @@
 /* Public-facing site */
 
 .public-nav {
-  background: rgba(255, 255, 255, .82);
-  backdrop-filter: blur(10px) saturate(1.6);
-  -webkit-backdrop-filter: blur(10px) saturate(1.6);
-  border-bottom: 1px solid var(--color-border-light);
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
   position: sticky; top: 0; z-index: 30;
 }
 .public-nav .nav-inner {
@@ -66,8 +66,8 @@
 .hero-band.has-banner::after {
   content: '';
   position: absolute; inset: 0;
-  background: linear-gradient(135deg, rgba(91,79,232,.40) 0%, rgba(139,92,246,.36) 55%, rgba(217,70,168,.32) 100%);
-  background-image: linear-gradient(135deg, rgba(91,79,232,.40) 0%, rgba(139,92,246,.36) 55%, rgba(217,70,168,.32) 100%);
+  background: linear-gradient(135deg, rgba(154,52,18,.44) 0%, rgba(234,179,8,.30) 55%, rgba(249,115,22,.36) 100%);
+  background-image: linear-gradient(135deg, rgba(154,52,18,.44) 0%, rgba(234,179,8,.30) 55%, rgba(249,115,22,.36) 100%);
   mask-image: none;
   pointer-events: none;
 }
@@ -168,7 +168,7 @@
 .gallery-carousel { margin-bottom: 40px; }
 .gallery-carousel-viewport {
   overflow: hidden; border-radius: var(--radius-lg);
-  border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);
+  border: 1px solid var(--glass-border); box-shadow: var(--shadow-sm);
 }
 .gallery-carousel-track { display: flex; transition: transform .5s ease; }
 .gallery-carousel-slide { position: relative; flex: 0 0 100%; }
@@ -209,8 +209,11 @@
 .ad-card {
   display: block; text-decoration: none; color: inherit;
   border-radius: var(--radius-md); overflow: hidden;
-  border: 1px solid var(--color-border); box-shadow: var(--shadow-sm);
-  background: #fff; transition: transform .15s ease, box-shadow .15s ease;
+  border: 1px solid var(--glass-border); box-shadow: var(--shadow-sm);
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
 }
 .ad-card:hover { text-decoration: none; transform: translateY(-2px); box-shadow: var(--shadow-md); }
 .ad-card-media {
@@ -261,16 +264,18 @@
 
 /* Event cards */
 .event-card {
-  background: #fff;
-  border: 1px solid var(--color-border);
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
   border-radius: var(--radius-lg);
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   display: flex;
   flex-direction: column;
-  transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
+  transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease, background-color .25s ease;
 }
-.event-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); border-color: #D8D9F0; }
+.event-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-4px); background: var(--glass-bg-strong); border-color: var(--color-primary-light); }
 .event-card-media {
   position: relative;
   aspect-ratio: 16/9;

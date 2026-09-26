@@ -6,10 +6,12 @@
   width: 252px;
   flex-shrink: 0;
   background:
-    radial-gradient(120% 60px at 20% 0%, rgba(91,79,232,.07) 0%, rgba(91,79,232,0) 100%),
-    #fff;
-  border-right: 1px solid var(--color-border-light);
-  box-shadow: 1px 0 0 var(--color-border-light), 4px 0 24px rgba(20,21,43,.03);
+    radial-gradient(120% 60px at 20% 0%, rgba(234,179,8,.10) 0%, rgba(234,179,8,0) 100%),
+    var(--glass-bg-strong);
+  border-right: 1px solid var(--glass-border);
+  box-shadow: 1px 0 0 var(--color-border-light), 4px 0 24px rgba(90,58,16,.05);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
   padding: 20px 16px;
   position: fixed;
   top: 0; bottom: 0; left: 0;
@@ -94,8 +96,8 @@
 
 /* Per-item colour badges — premium SaaS style, each module gets its own tint. */
 .admin-nav .nav-icon.icon-indigo  { background: var(--color-primary-light); color: var(--color-primary); }
-.admin-nav .nav-icon.icon-violet  { background: rgba(139, 92, 246, .14); color: var(--color-violet); }
-.admin-nav .nav-icon.icon-magenta { background: rgba(217, 70, 168, .14); color: var(--color-magenta); }
+.admin-nav .nav-icon.icon-violet  { background: rgba(180, 83, 9, .14); color: var(--color-violet); }
+.admin-nav .nav-icon.icon-magenta { background: rgba(154, 52, 18, .14); color: var(--color-magenta); }
 .admin-nav .nav-icon.icon-green   { background: var(--color-success-light); color: var(--color-success); }
 .admin-nav .nav-icon.icon-amber   { background: var(--color-accent-light); color: var(--color-accent); }
 .admin-nav .nav-icon.icon-blue    { background: var(--color-blue-light); color: var(--color-blue); }
@@ -115,10 +117,10 @@
 
 .admin-topbar {
   height: 66px;
-  background: rgba(255, 255, 255, .82);
-  backdrop-filter: blur(10px) saturate(1.6);
-  -webkit-backdrop-filter: blur(10px) saturate(1.6);
-  border-bottom: 1px solid var(--color-border-light);
+  background: var(--glass-bg-strong);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 1px solid var(--glass-border);
   display: flex; align-items: center; justify-content: space-between;
   padding: 0 28px;
   position: sticky; top: 0; z-index: 30;

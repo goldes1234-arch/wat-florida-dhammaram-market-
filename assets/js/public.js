@@ -73,11 +73,30 @@
     // canvas's actual width instead spreads the percentage-based positions apart in
     // real pixels while the pins keep their fixed size, which is what actually
     // separates a tight cluster of markers as you zoom in.
-    var photoBaseWidth = isPhotoMap ? canvas.getBoundingClientRect().width : null;
+    // Captured after the floorplan photo has actually finished loading, not just when
+    // this script happens to run — on a slower connection (mobile data, in particular)
+    // the <img> often hasn't loaded yet at that point, so getBoundingClientRect()
+    // would measure the collapsed/broken-image box instead of the real rendered
+    // width. Every zoom level is that wrong width times a factor, so the whole photo
+    // map — and every pin's true position within it — renders too small and
+    // misaligned, exactly the kind of thing that shows up on mobile but not on a
+    // fast desktop connection where the image is already cached.
+    var photoBaseWidth = null;
+    var photoImg = isPhotoMap ? canvas.querySelector('.photo-map-image') : null;
+    function capturePhotoBaseWidth() { photoBaseWidth = canvas.getBoundingClientRect().width; }
+    if (photoImg) {
+      if (photoImg.complete && photoImg.naturalWidth > 0) {
+        capturePhotoBaseWidth();
+      } else {
+        photoImg.addEventListener('load', capturePhotoBaseWidth, { once: true });
+      }
+    }
+
     var zoom = 1;
     var zoomLabel = document.getElementById('mapZoomLabel');
     var applyZoom = function () {
-      if (isPhotoMap && photoBaseWidth) {
+      if (isPhotoMap) {
+        if (!photoBaseWidth) capturePhotoBaseWidth();
         canvas.style.width = (photoBaseWidth * zoom) + 'px';
       } else {
         canvas.style.transform = 'scale(' + zoom + ')';

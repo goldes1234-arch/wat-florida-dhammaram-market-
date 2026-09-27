@@ -125,9 +125,16 @@
   padding: 0 28px;
   position: sticky; top: 0; z-index: 30;
 }
-.admin-topbar h1 { font-size: 18px; margin: 0; }
-.topbar-user { display: flex; align-items: center; gap: 14px; font-size: 14px; }
-.topbar-user .user-name { font-weight: 600; }
+.topbar-title-group { display: flex; align-items: center; gap: 12px; min-width: 0; flex: 1 1 auto; }
+.admin-topbar h1 { font-size: 18px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.topbar-user { display: flex; align-items: center; gap: 14px; font-size: 14px; flex-shrink: 0; }
+.topbar-user .user-name { font-weight: 600; white-space: nowrap; }
+.topbar-user .lang-switch { display: flex; gap: 4px; font-size: 13px; flex-shrink: 0; }
+.topbar-user .lang-switch a {
+  display: inline-block; padding: 5px 8px; border-radius: var(--radius-sm);
+  color: var(--color-text-muted); font-weight: 700; white-space: nowrap;
+}
+.topbar-user .lang-switch a.is-active { background: var(--color-primary-light); color: var(--color-primary); }
 .sidebar-toggle {
   display: none;
   background: none; border: 1px solid var(--color-border); border-radius: var(--radius-sm);
@@ -189,9 +196,18 @@
   .admin-sidebar { transform: translateX(-100%); }
   .admin-sidebar.is-open { transform: translateX(0); box-shadow: var(--shadow-md); }
   .admin-main { margin-left: 0; }
-  .sidebar-toggle { display: inline-flex; align-items: center; justify-content: center; }
+  .sidebar-toggle { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
   .admin-content { padding: 18px; }
-  .admin-topbar { padding: 0 16px; }
+  .admin-topbar { padding: 0 16px; gap: 8px; }
+}
+
+@media (max-width: 560px) {
+  .admin-topbar h1 { font-size: 15px; }
+  .topbar-user { gap: 8px; }
+  /* The admin's own name is non-essential at this width — dropping it keeps the
+     language switch and logout button (the actionable items) from being squeezed
+     into wrapping, Thai-script text like "ผู้ดูแล / ระบบ" on separate lines. */
+  .topbar-user .user-name { display: none; }
 }
 
 /* Lot photo-map position editor */

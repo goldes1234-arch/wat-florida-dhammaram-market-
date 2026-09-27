@@ -56,7 +56,7 @@ $locale = \App\Core\Lang::locale();
 
   <div class="admin-main">
     <header class="admin-topbar">
-      <div style="display:flex;align-items:center;gap:12px;">
+      <div class="topbar-title-group">
         <button type="button" class="sidebar-toggle" data-toggle="#adminSidebar"><?= icon('menu') ?></button>
         <h1><?= e($title ?? __('nav.dashboard')) ?></h1>
       </div>

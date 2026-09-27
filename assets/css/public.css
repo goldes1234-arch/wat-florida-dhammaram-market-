@@ -21,19 +21,19 @@
   color: #fff; display: flex; align-items: center; justify-content: center; font-size: 15px;
 }
 .public-brand .brand-mark .icon { width: 17px; height: 17px; }
-.public-nav-links { display: flex; align-items: center; gap: 22px; font-size: 14px; font-weight: 600; }
-.public-nav-links a { color: var(--color-slate-dark); }
+.public-nav-links { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 600; }
+.public-nav-links a { display: inline-block; padding: 10px 4px; color: var(--color-slate-dark); }
 .public-nav-links a:hover { color: var(--color-primary); text-decoration: none; }
 .lang-switch { display: flex; gap: 4px; font-size: 13px; }
 .lang-switch a {
-  padding: 5px 9px; border-radius: var(--radius-sm); color: var(--color-text-muted); font-weight: 700;
+  display: inline-block; padding: 9px 10px; border-radius: var(--radius-sm); color: var(--color-text-muted); font-weight: 700;
 }
 .lang-switch a.is-active { background: var(--color-primary-light); color: var(--color-primary); }
 
 @media (max-width: 640px) {
-  .public-nav .nav-inner { flex-wrap: wrap; padding: 10px 0; row-gap: 8px; }
-  .public-brand { flex: 1 1 100%; font-size: 15px; }
-  .public-nav-links { flex: 1 1 100%; flex-wrap: wrap; justify-content: flex-start; row-gap: 8px; column-gap: 14px; font-size: 13px; }
+  .public-nav .nav-inner { flex-wrap: wrap; padding: 6px 0; row-gap: 0; }
+  .public-brand { flex: 1 1 100%; font-size: 15px; padding: 6px 0; }
+  .public-nav-links { flex: 1 1 100%; flex-wrap: wrap; justify-content: flex-start; row-gap: 0; column-gap: 6px; font-size: 13px; }
 }
 
 .hero-band {
@@ -342,7 +342,11 @@
 }
 .event-hero-media img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; }
 
-.floorplan-thumb { position: relative; cursor: zoom-in; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); }
+/* display:block matters here, not just cosmetic — this <a> wraps a block-level
+   <img>, and an inline element containing a block child breaks the predictable
+   single-fragment containing-block geometry that .zoom-hint's absolute
+   positioning relies on (it was rendering off-screen to the left without this). */
+.floorplan-thumb { position: relative; display: block; cursor: zoom-in; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); }
 .floorplan-thumb img { width: 100%; display: block; }
 .floorplan-thumb .zoom-hint {
   position: absolute; bottom: 10px; right: 10px;
@@ -569,7 +573,7 @@
 .event-contact-row { padding: 12px 0; border-bottom: 1px solid var(--color-border-light); }
 .event-contact-row:last-child { border-bottom: none; }
 .event-contact-name { font-weight: 700; font-size: 14px; margin-bottom: 3px; }
-.event-contact-phone { display: inline-block; font-weight: 600; font-size: 13.5px; color: var(--color-primary); }
+.event-contact-phone { display: inline-block; padding: 7px 0; font-weight: 600; font-size: 13.5px; color: var(--color-primary); }
 .event-contact-phone:hover { text-decoration: underline; }
 .event-contact-channel { font-size: 12.5px; color: var(--color-text-muted); margin-top: 2px; }
 

@@ -193,7 +193,7 @@ $revenueMethodTotal = array_sum($revenueMethodData);
 })();
 </script>
 
-<div class="grid grid-cols-3" style="grid-template-columns:2fr 1fr;">
+<div class="event-info-grid">
   <div class="card">
     <div class="card-header">
       <h3><?= __('dashboard.recent_bookings') ?></h3>

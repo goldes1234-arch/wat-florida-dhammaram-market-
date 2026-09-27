@@ -3,8 +3,12 @@ use App\Services\EventStatusService;
 $heroBannerUrl = !empty($settings['hero_banner_image']) ? upload_url($settings['hero_banner_image']) : null;
 ?>
 
-<div class="hero-band<?= $heroBannerUrl ? ' has-banner' : '' ?>"
-     style="margin:-36px -20px 32px;padding-left:20px;padding-right:20px;<?= $heroBannerUrl ? "background-image:url('" . $heroBannerUrl . "');" : '' ?>">
+<?php if ($heroBannerUrl): ?>
+  <div class="hero-banner-media" style="margin:-36px -20px 0;background-image:url('<?= $heroBannerUrl ?>')">
+    <img src="<?= e($heroBannerUrl) ?>" alt="">
+  </div>
+<?php endif; ?>
+<div class="hero-band" style="margin:<?= $heroBannerUrl ? '0' : '-36px' ?> -20px 32px;padding-left:20px;padding-right:20px;">
   <div class="container" style="padding:0;">
     <span class="hero-eyebrow"><?= icon('sparkle') ?> <?= e(__('common.app_name')) ?></span>
     <h1><?= __('public.upcoming_events') ?></h1>

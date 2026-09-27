@@ -48,21 +48,34 @@
   });
 })();
 
+// Loaded up front (not on click) so that clicking "scan" can call
+// getUserMedia() synchronously within the click itself — some mobile
+// browsers (notably iOS Safari) only honor the camera-permission prompt
+// while still inside the original user-gesture call stack, and an async
+// script fetch in between can make that gesture "expire", surfacing as
+// NotAllowedError even though the user never got asked.
+var qrScript = document.createElement('script');
+qrScript.src = 'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js';
+document.body.appendChild(qrScript);
+
 document.getElementById('qrScanToggle').addEventListener('click', function () {
   var area = document.getElementById('qrScanArea');
   var isOpening = area.style.display === 'none';
   area.style.display = isOpening ? 'block' : 'none';
   if (!isOpening) return;
 
-  var script = document.createElement('script');
-  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js';
-  script.onload = function () {
+  if (typeof Html5QrcodeScanner === 'undefined') {
+    qrScript.addEventListener('load', startScanner, { once: true });
+    return;
+  }
+  startScanner();
+
+  function startScanner() {
     var scanner = new Html5QrcodeScanner('qr-reader', { fps: 10, qrbox: 220 }, false);
     scanner.render(function onScanSuccess(decodedText) {
       scanner.clear();
       window.location.href = <?= json_encode(base_url('admin/checkin/')) ?> + encodeURIComponent(decodedText.trim());
     });
-  };
-  document.body.appendChild(script);
-}, { once: true });
+  }
+});
 </script>

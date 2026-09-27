@@ -529,7 +529,7 @@
   position: relative;
   display: inline-block;
   transform-origin: top left;
-  transition: transform .15s ease;
+  transition: transform .15s ease, width .15s ease;
 }
 .photo-map-image { display: block; max-width: 100%; height: auto; }
 .photo-pin {

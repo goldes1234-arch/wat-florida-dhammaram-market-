@@ -64,10 +64,24 @@
   // Only one of the two canvases exists per page, depending on the event's layout mode.
   var canvas = document.getElementById('boothMapCanvas') || document.getElementById('photoMapCanvas');
   if (canvas) {
+    var isPhotoMap = canvas.id === 'photoMapCanvas';
+    // The grid map's cells are fixed 46px squares that never overlap by design, so a
+    // plain CSS transform:scale() (cosmetic only — doesn't change layout) is fine for
+    // it. The photo map's pins are positioned by percentage but sized in fixed px, so
+    // scale() would enlarge the gaps between them and the pins themselves by the same
+    // factor — nearby pins stay exactly as overlapped at any zoom level. Growing the
+    // canvas's actual width instead spreads the percentage-based positions apart in
+    // real pixels while the pins keep their fixed size, which is what actually
+    // separates a tight cluster of markers as you zoom in.
+    var photoBaseWidth = isPhotoMap ? canvas.getBoundingClientRect().width : null;
     var zoom = 1;
     var zoomLabel = document.getElementById('mapZoomLabel');
     var applyZoom = function () {
-      canvas.style.transform = 'scale(' + zoom + ')';
+      if (isPhotoMap && photoBaseWidth) {
+        canvas.style.width = (photoBaseWidth * zoom) + 'px';
+      } else {
+        canvas.style.transform = 'scale(' + zoom + ')';
+      }
       if (zoomLabel) zoomLabel.textContent = Math.round(zoom * 100) + '%';
     };
     var zoomInBtn = document.getElementById('mapZoomIn');

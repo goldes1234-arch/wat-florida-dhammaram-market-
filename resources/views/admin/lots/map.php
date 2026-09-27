@@ -412,12 +412,28 @@
     });
 
     // Dragging an existing pin (mouse or a finger on a touchscreen) re-positions and
-    // re-saves it without needing to re-arm it first.
+    // re-saves it without needing to re-arm it first. A plain click/tap to arm a
+    // lot (e.g. before grabbing its rotate handle) also fires this same mousedown,
+    // and a fingertip or mouse click is never pixel-perfect on the pin's exact
+    // center — without a drag threshold, that tiny, unintended offset was getting
+    // saved as a real position change on every click, so a lot's marker slowly
+    // crept away from where it was actually placed just from being selected.
+    var DRAG_THRESHOLD_PX = 4;
+
     function beginPinDrag(pin, lotId, startEvt) {
       if (startEvt.cancelable) startEvt.preventDefault();
+      var start = clientPoint(startEvt);
+      var startX = start.clientX;
+      var startY = start.clientY;
+      var moved = false;
 
       function onMove(moveEvt) {
         if (moveEvt.cancelable) moveEvt.preventDefault();
+        var p = clientPoint(moveEvt);
+        if (!moved && (Math.abs(p.clientX - startX) > DRAG_THRESHOLD_PX || Math.abs(p.clientY - startY) > DRAG_THRESHOLD_PX)) {
+          moved = true;
+        }
+        if (!moved) return;
         var point = pointFromEvent(moveEvt);
         pin.style.left = point.x + '%';
         pin.style.top = point.y + '%';
@@ -429,6 +445,7 @@
         document.removeEventListener('touchmove', onMove);
         document.removeEventListener('touchend', onEnd);
         document.removeEventListener('touchcancel', onEnd);
+        if (!moved) return;
         var point = pointFromEvent(endEvt);
         savePosition(lotId, point.x, point.y);
       }
@@ -465,6 +482,10 @@
 
     function beginRotateDrag(pin, lotId, startEvt) {
       if (startEvt.cancelable) startEvt.preventDefault();
+      var start = clientPoint(startEvt);
+      var startX = start.clientX;
+      var startY = start.clientY;
+      var moved = false;
 
       function angleFromEvent(evt) {
         var p = clientPoint(evt);
@@ -479,6 +500,11 @@
 
       function onMove(moveEvt) {
         if (moveEvt.cancelable) moveEvt.preventDefault();
+        var p = clientPoint(moveEvt);
+        if (!moved && (Math.abs(p.clientX - startX) > DRAG_THRESHOLD_PX || Math.abs(p.clientY - startY) > DRAG_THRESHOLD_PX)) {
+          moved = true;
+        }
+        if (!moved) return;
         var deg = angleFromEvent(moveEvt);
         pin.setAttribute('data-rotation', deg.toFixed(1));
         pinTransform(pin);
@@ -490,6 +516,7 @@
         document.removeEventListener('touchmove', onMove);
         document.removeEventListener('touchend', onEnd);
         document.removeEventListener('touchcancel', onEnd);
+        if (!moved) return;
         var deg = angleFromEvent(endEvt);
         pin.setAttribute('data-rotation', deg.toFixed(1));
         pinTransform(pin);

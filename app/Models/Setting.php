@@ -24,7 +24,7 @@ class Setting extends Model
             'currency_code', 'default_locale', 'cancellation_cutoff_days', 'reserved_confirm_deadline_days', 'booking_rate_limit_per_hour',
             'stripe_publishable_key', 'stripe_secret_key', 'stripe_webhook_secret', 'stripe_suspended',
             'stripe_pass_fee_to_customer', 'stripe_fee_percent', 'stripe_fee_fixed',
-            'line_oa_channel_access_token',
+            'line_oa_channel_access_token', 'line_channel_secret',
             'smtp_host', 'smtp_port', 'smtp_encryption', 'smtp_username', 'smtp_password',
             'smtp_from_email', 'smtp_from_name',
         ];

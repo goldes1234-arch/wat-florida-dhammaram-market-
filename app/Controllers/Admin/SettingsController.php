@@ -52,6 +52,7 @@ class SettingsController
             'stripe_fee_percent' => max(0, (float) $request->input('stripe_fee_percent', 2.9)),
             'stripe_fee_fixed' => max(0, (float) $request->input('stripe_fee_fixed', 0.30)),
             'line_oa_channel_access_token' => $request->trimmed('line_oa_channel_access_token'),
+            'line_channel_secret' => $request->trimmed('line_channel_secret'),
             'smtp_host' => $request->trimmed('smtp_host'),
             'smtp_port' => $request->input('smtp_port') !== '' && $request->input('smtp_port') !== null
                 ? (int) $request->input('smtp_port') : null,

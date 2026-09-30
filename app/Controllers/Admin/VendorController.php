@@ -6,6 +6,7 @@ use App\Core\Flash;
 use App\Core\Request;
 use App\Core\View;
 use App\Models\Vendor;
+use App\Services\LineService;
 use App\Support\Validator;
 
 class VendorController
@@ -83,5 +84,24 @@ class VendorController
             Flash::success(__('vendor.deleted_success'));
         }
         redirect('admin/vendors');
+    }
+
+    public function sendLineMessage(Request $request, string $id): void
+    {
+        $vendor = Vendor::find((int) $id);
+        $message = $request->trimmed('message');
+
+        if (!$vendor || !$vendor['line_user_id'] || !Validator::required($message)) {
+            Flash::error(__('vendor.line_send_failed'));
+            redirect('admin/vendors/' . $id);
+        }
+
+        if (LineService::push($vendor['line_user_id'], $message)) {
+            Flash::success(__('vendor.line_send_success'));
+        } else {
+            Flash::error(__('vendor.line_send_failed'));
+        }
+
+        redirect('admin/vendors/' . $id);
     }
 }

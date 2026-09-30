@@ -50,7 +50,7 @@ class Router
 
     public function dispatch(Request $request): void
     {
-        $csrfExempt = ['/stripe/webhook'];
+        $csrfExempt = ['/stripe/webhook', '/line/webhook'];
 
         if ($request->isPost() && !in_array($request->path, $csrfExempt, true)) {
             if (!Csrf::verify($request->post['_csrf'] ?? null)) {

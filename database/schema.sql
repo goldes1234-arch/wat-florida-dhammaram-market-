@@ -55,6 +55,10 @@ CREATE TABLE settings (
   stripe_fee_percent DECIMAL(5,2) NOT NULL DEFAULT 2.90,
   stripe_fee_fixed DECIMAL(10,2) NOT NULL DEFAULT 0.30,
   line_oa_channel_access_token VARCHAR(255) NULL,
+  -- Channel Secret from the SAME Messaging API channel as the access token above —
+  -- used to verify that /line/webhook requests genuinely came from LINE (HMAC-SHA256
+  -- over the raw request body) before trusting them, not a separate LINE Login channel.
+  line_channel_secret VARCHAR(100) NULL,
   smtp_host VARCHAR(150) NULL,
   smtp_port SMALLINT UNSIGNED NULL,
   smtp_encryption ENUM('tls','ssl','none') NOT NULL DEFAULT 'tls',
@@ -279,9 +283,15 @@ CREATE TABLE vendors (
   phone VARCHAR(30) NOT NULL,
   email VARCHAR(150) NULL,
   notes TEXT NULL,
+  -- Set once the vendor links their LINE account by messaging the temple's LINE
+  -- Official Account with their phone number (see LineWebhookController) — lets
+  -- admins push a targeted message to this one vendor instead of only broadcasting
+  -- to every OA follower.
+  line_user_id VARCHAR(64) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  INDEX idx_vendors_phone (phone)
+  INDEX idx_vendors_phone (phone),
+  UNIQUE KEY uq_vendors_line_user_id (line_user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Individual sellable stalls within an event.

@@ -39,6 +39,23 @@
   </form>
 </div>
 
+<div class="card mb-6" style="max-width:520px;">
+  <div class="card-header"><h3><?= __('vendor.line_title') ?></h3></div>
+  <?php if (!empty($vendor['line_user_id'])): ?>
+    <p class="text-sm mb-4">✅ <?= __('vendor.line_connected') ?></p>
+    <form method="post" action="<?= base_url('admin/vendors/' . $vendor['id'] . '/line-message') ?>">
+      <?= csrf_field() ?>
+      <div class="form-group">
+        <label><?= __('vendor.line_message_label') ?></label>
+        <textarea name="message" class="form-control" rows="3" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary"><?= __('vendor.line_send_button') ?></button>
+    </form>
+  <?php else: ?>
+    <p class="form-hint mb-0"><?= __('vendor.line_not_connected') ?></p>
+  <?php endif; ?>
+</div>
+
 <div class="card">
   <div class="card-header"><h3><?= __('vendor.history_title') ?></h3></div>
   <?php if (!$history): ?>

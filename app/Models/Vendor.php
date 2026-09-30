@@ -36,6 +36,22 @@ class Vendor extends Model
         return $stmt->fetch() ?: null;
     }
 
+    /**
+     * Matches by digits only, ignoring dashes/spaces admins may have typed into
+     * the stored phone number — used by the LINE webhook, which only has whatever
+     * digit string a vendor happened to type into the chat.
+     */
+    public static function findByDigitsOnlyPhone(string $digits): ?array
+    {
+        $stmt = self::db()->prepare(
+            "SELECT * FROM vendors
+             WHERE REPLACE(REPLACE(REPLACE(phone, '-', ''), ' ', ''), '+', '') = :digits
+             ORDER BY id LIMIT 1"
+        );
+        $stmt->execute(['digits' => $digits]);
+        return $stmt->fetch() ?: null;
+    }
+
     public static function create(string $name, string $phone, ?string $email, ?string $notes = null): int
     {
         $stmt = self::db()->prepare(
@@ -66,6 +82,33 @@ class Vendor extends Model
     public static function delete(int $id): void
     {
         self::db()->prepare('DELETE FROM vendors WHERE id = :id')->execute(['id' => $id]);
+    }
+
+    public static function findByLineUserId(string $lineUserId): ?array
+    {
+        $stmt = self::db()->prepare('SELECT * FROM vendors WHERE line_user_id = :line_user_id');
+        $stmt->execute(['line_user_id' => $lineUserId]);
+        return $stmt->fetch() ?: null;
+    }
+
+    public static function linkLine(int $id, string $lineUserId): void
+    {
+        self::db()->prepare('UPDATE vendors SET line_user_id = :line_user_id WHERE id = :id')
+            ->execute(['line_user_id' => $lineUserId, 'id' => $id]);
+    }
+
+    public static function unlinkLine(int $id): void
+    {
+        self::db()->prepare('UPDATE vendors SET line_user_id = NULL WHERE id = :id')->execute(['id' => $id]);
+    }
+
+    /** Vendors with a linked LINE account, for the targeted-message page. */
+    public static function linkedToLine(): array
+    {
+        $stmt = self::db()->query(
+            'SELECT id, name, phone FROM vendors WHERE line_user_id IS NOT NULL ORDER BY name'
+        );
+        return $stmt->fetchAll();
     }
 
     /** Ranks vendors by confirmed-booking revenue, for the reports page. */

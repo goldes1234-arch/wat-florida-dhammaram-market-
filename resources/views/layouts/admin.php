@@ -26,6 +26,7 @@ $locale = \App\Core\Lang::locale();
         <li><a href="<?= base_url('admin/events') ?>" class="<?= $active === 'events' ? 'is-active' : '' ?>"><span class="nav-icon icon-violet"><?= icon('calendar') ?></span> <?= __('nav.events') ?></a></li>
         <li><a href="<?= base_url('admin/bookings') ?>" class="<?= $active === 'bookings' ? 'is-active' : '' ?>"><span class="nav-icon icon-magenta"><?= icon('ticket') ?></span> <?= __('nav.bookings') ?></a></li>
         <li><a href="<?= base_url('admin/vendors') ?>" class="<?= $active === 'vendors' ? 'is-active' : '' ?>"><span class="nav-icon icon-green"><?= icon('users') ?></span> <?= __('nav.vendors') ?></a></li>
+        <li><a href="<?= base_url('admin/line-messages') ?>" class="<?= $active === 'line_messages' ? 'is-active' : '' ?>"><span class="nav-icon icon-green"><?= icon('message-circle') ?></span> <?= __('nav.line_messages') ?></a></li>
         <li><a href="<?= base_url('admin/checkin') ?>" class="<?= $active === 'checkin' ? 'is-active' : '' ?>"><span class="nav-icon icon-green"><?= icon('check-circle') ?></span> <?= __('nav.checkin') ?></a></li>
         <li>
           <a href="<?= base_url('admin/contacts') ?>" class="<?= $active === 'contacts' ? 'is-active' : '' ?>">

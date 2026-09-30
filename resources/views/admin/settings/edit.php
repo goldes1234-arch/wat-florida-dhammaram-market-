@@ -231,6 +231,16 @@
       <label><?= __('settings.line_channel_access_token') ?></label>
       <input type="text" name="line_oa_channel_access_token" class="form-control" value="<?= e($settings['line_oa_channel_access_token'] ?? '') ?>" placeholder="•••••••••••••••••••••••••">
     </div>
+    <div class="form-group">
+      <label><?= __('settings.line_channel_secret') ?></label>
+      <input type="text" name="line_channel_secret" class="form-control" value="<?= e($settings['line_channel_secret'] ?? '') ?>" placeholder="•••••••••••••••••••••••••">
+      <p class="form-hint"><?= __('settings.line_channel_secret_hint') ?></p>
+    </div>
+    <div class="form-group mb-0">
+      <label><?= __('settings.line_webhook_url') ?></label>
+      <input type="text" class="form-control" readonly value="<?= e(full_url('line/webhook')) ?>" onclick="this.select()">
+      <p class="form-hint"><?= __('settings.line_webhook_url_hint') ?></p>
+    </div>
   </div>
 
   <div class="card">

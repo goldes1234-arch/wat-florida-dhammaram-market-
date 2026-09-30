@@ -19,6 +19,7 @@ $router->get('/booking/{code}/receipt', [Public\BookingController::class, 'recei
 $router->get('/booking/{code}/stripe-return', [Public\BookingController::class, 'stripeReturn']);
 $router->get('/booking/{code}/stripe-cancelled', [Public\BookingController::class, 'stripeCancelled']);
 $router->post('/stripe/webhook', [Public\StripeWebhookController::class, 'handle']);
+$router->post('/line/webhook', [Public\LineWebhookController::class, 'handle']);
 $router->get('/my-booking', [Public\MyBookingController::class, 'lookupForm']);
 $router->post('/my-booking', [Public\MyBookingController::class, 'search']);
 $router->get('/my-booking/{code}', [Public\MyBookingController::class, 'show']);
@@ -118,6 +119,10 @@ $router->group(['middleware' => ['auth']], function ($router) {
         $router->get('/admin/vendors/{id}', [Admin\VendorController::class, 'show']);
         $router->post('/admin/vendors/{id}', [Admin\VendorController::class, 'update']);
         $router->post('/admin/vendors/{id}/delete', [Admin\VendorController::class, 'destroy']);
+        $router->post('/admin/vendors/{id}/line-message', [Admin\VendorController::class, 'sendLineMessage']);
+
+        $router->get('/admin/line-messages', [Admin\LineMessageController::class, 'index']);
+        $router->post('/admin/line-messages', [Admin\LineMessageController::class, 'send']);
 
         $router->get('/admin/downloads', [Admin\DownloadController::class, 'index']);
         $router->post('/admin/downloads/categories', [Admin\DownloadController::class, 'storeCategory']);

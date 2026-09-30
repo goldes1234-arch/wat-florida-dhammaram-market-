@@ -49,6 +49,7 @@
           <th><?= __('vendor.phone') ?></th>
           <th><?= __('vendor.email') ?></th>
           <th><?= __('vendor.booking_count') ?></th>
+          <th>LINE</th>
           <th><?= __('common.actions') ?></th>
         </tr>
       </thead>
@@ -59,6 +60,7 @@
             <td><?= e($vendor['phone']) ?></td>
             <td><?= e($vendor['email'] ?? '—') ?></td>
             <td><span class="badge badge-indigo"><?= (int) $vendor['booking_count'] ?></span></td>
+            <td><?= !empty($vendor['line_user_id']) ? '<span class="badge badge-green">✓</span>' : '—' ?></td>
             <td><a href="<?= base_url('admin/vendors/' . $vendor['id']) ?>" class="btn btn-secondary btn-sm"><?= __('common.view') ?></a></td>
           </tr>
         <?php endforeach; ?>

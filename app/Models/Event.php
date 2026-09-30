@@ -126,6 +126,25 @@ class Event extends Model
         $stmt->execute(['id' => $id]);
     }
 
+    /** Published events starting within $daysBefore days (and not already past) that haven't been reminded yet. */
+    public static function dueForVendorReminder(int $daysBefore): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT * FROM events
+             WHERE deleted_at IS NULL AND is_published = 1 AND vendor_reminder_sent_at IS NULL
+               AND start_date >= CURDATE() AND start_date <= (CURDATE() + INTERVAL :days DAY)'
+        );
+        $stmt->bindValue('days', $daysBefore, \PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
+    public static function markVendorReminderSent(int $id): void
+    {
+        $stmt = self::db()->prepare('UPDATE events SET vendor_reminder_sent_at = NOW() WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
+
     public static function counts(): array
     {
         return self::db()->query(

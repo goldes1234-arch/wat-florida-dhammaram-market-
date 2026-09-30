@@ -47,6 +47,7 @@ CREATE TABLE settings (
   cancellation_cutoff_days SMALLINT UNSIGNED NOT NULL DEFAULT 3,
   reserved_confirm_deadline_days SMALLINT UNSIGNED NOT NULL DEFAULT 10,
   booking_rate_limit_per_hour SMALLINT UNSIGNED NOT NULL DEFAULT 5,
+  vendor_reminder_days_before SMALLINT UNSIGNED NOT NULL DEFAULT 3,
   stripe_publishable_key VARCHAR(255) NULL,
   stripe_secret_key VARCHAR(255) NULL,
   stripe_webhook_secret VARCHAR(255) NULL,
@@ -206,6 +207,10 @@ CREATE TABLE events (
   layout_mode ENUM('grid','photo') NOT NULL DEFAULT 'grid',
   is_published TINYINT(1) NOT NULL DEFAULT 0,
   open_notified_at DATETIME NULL,
+  -- Set once EventReminderService has sent the "event is coming up" reminder to
+  -- this event's confirmed bookers/vendors, so the daily cron run never sends it
+  -- twice (see settings.vendor_reminder_days_before).
+  vendor_reminder_sent_at DATETIME NULL,
   deleted_at DATETIME NULL,
   created_by INT UNSIGNED NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,

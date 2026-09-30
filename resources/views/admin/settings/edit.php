@@ -181,6 +181,11 @@
         <label><?= __('settings.rate_limit') ?></label>
         <input type="number" min="1" name="booking_rate_limit_per_hour" class="form-control" value="<?= e((string) ($settings['booking_rate_limit_per_hour'] ?? 5)) ?>">
       </div>
+      <div class="form-group">
+        <label><?= __('settings.vendor_reminder_days_before') ?></label>
+        <input type="number" min="0" name="vendor_reminder_days_before" class="form-control" value="<?= e((string) ($settings['vendor_reminder_days_before'] ?? 3)) ?>">
+        <p class="form-hint"><?= __('settings.vendor_reminder_days_before_hint') ?></p>
+      </div>
     </div>
   </div>
 

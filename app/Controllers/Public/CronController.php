@@ -5,6 +5,7 @@ namespace App\Controllers\Public;
 use App\Core\App;
 use App\Core\Request;
 use App\Services\BackupService;
+use App\Services\EventReminderService;
 use App\Services\MigrationService;
 use App\Services\ReservationService;
 
@@ -14,9 +15,9 @@ use App\Services\ReservationService;
  * hosting panel's own "run this after every deploy" hook — can trigger these
  * without a login session. Both share BACKUP_CRON_SECRET from .env.
  *
- * backup() also releases any expired vendor-reservation lots on the same daily
- * run — piggybacking on this existing cron hit means releasing unconfirmed
- * reservations needs no separate hosting cron job of its own.
+ * backup() also releases any expired vendor-reservation lots and sends
+ * upcoming-event reminders on the same daily run — piggybacking on this
+ * existing cron hit means neither needs a separate hosting cron job of its own.
  */
 class CronController
 {
@@ -29,13 +30,14 @@ class CronController
         }
 
         $released = ReservationService::releaseExpired();
+        $reminded = EventReminderService::sendDueReminders();
 
         [$ok, $result] = BackupService::create();
         if ($ok) {
-            echo 'OK: ' . $result . ' | reservations released: ' . $released;
+            echo 'OK: ' . $result . ' | reservations released: ' . $released . ' | events reminded: ' . $reminded;
         } else {
             http_response_code(500);
-            echo 'FAILED: ' . $result . ' | reservations released: ' . $released;
+            echo 'FAILED: ' . $result . ' | reservations released: ' . $released . ' | events reminded: ' . $reminded;
         }
     }
 

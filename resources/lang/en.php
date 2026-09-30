@@ -571,6 +571,8 @@ return [
     'settings.reserved_confirm_deadline_days' => 'Regular vendors must confirm this many days before the event',
     'settings.reserved_confirm_deadline_days_hint' => 'If a regular vendor doesn\'t confirm by this deadline, their reserved lot is released back to the public automatically.',
     'settings.rate_limit' => 'Booking rate limit per IP per hour',
+    'settings.vendor_reminder_days_before' => 'Remind bookers this many days before the event',
+    'settings.vendor_reminder_days_before_hint' => "Sends a reminder email (and a LINE message too, for a regular vendor with LINE linked) to everyone with a confirmed booking this many days before the event starts (0 means the day of the event).",
     'settings.stripe_section' => 'Stripe settings (online payment)',
     'settings.stripe_hint' => 'Enter a Secret Key to enable the online payment option on the public site. Leave blank to only offer on-site/bank-transfer payment.',
     'settings.stripe_suspended_label' => 'Temporarily suspend online payment',
@@ -726,6 +728,9 @@ return [
 
     // email
     'email.booking_confirmation_subject' => 'Booking confirmed — reference :code',
+    'email.event_reminder_subject' => 'Reminder: ":event" is coming up',
+    'email.event_reminder_title' => 'Your event is coming up',
+    'email.event_reminder_body' => '":event" is happening on :date. Don\'t forget to prepare and arrive on time!',
     'email.event_open_subject' => '":event" is now open for booking!',
     'email.contact_message_subject' => 'New contact message from :name',
     'email.admin_booking_alert_subject' => 'New booking received — ref :code',
@@ -757,6 +762,7 @@ return [
     'line.link_success' => 'Linked this LINE account to vendor ":name". The temple can now send you messages here.',
     'line.link_not_found' => "That phone number isn't in our regular-vendor list. Please double-check it, or contact the temple directly.",
     'line.already_linked' => 'This LINE account is already linked to vendor ":name".',
+    'line.event_reminder' => "📅 Reminder: :event\nDate: :date\nLot: :lot\nDon't forget to bring your stock!",
 
     // upload
     'upload.failed' => 'Upload failed, please try again',

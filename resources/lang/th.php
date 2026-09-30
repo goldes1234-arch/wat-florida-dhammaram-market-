@@ -571,6 +571,8 @@ return [
     'settings.reserved_confirm_deadline_days' => 'ผู้ขายประจำต้องยืนยันสิทธิ์ก่อนวันจัดงานกี่วัน',
     'settings.reserved_confirm_deadline_days_hint' => 'ถ้าผู้ขายประจำไม่กดยืนยันภายในกำหนดนี้ ระบบจะปล่อยล็อกคืนให้จองได้ตามปกติอัตโนมัติ',
     'settings.rate_limit' => 'จำกัดจำนวนการจองต่อ IP ต่อชั่วโมง',
+    'settings.vendor_reminder_days_before' => 'แจ้งเตือนผู้จองก่อนวันงานกี่วัน',
+    'settings.vendor_reminder_days_before_hint' => 'ส่งอีเมลแจ้งเตือน (และข้อความ LINE ถ้าเป็นผู้ขายประจำที่เชื่อมต่อ LINE ไว้) ให้ผู้ที่จองสำเร็จแล้วก่อนถึงวันงานตามจำนวนวันนี้ (ใส่ 0 หมายถึงแจ้งเตือนในวันจัดงานเลย)',
     'settings.stripe_section' => 'ตั้งค่า Stripe (ชำระเงินออนไลน์)',
     'settings.stripe_hint' => 'กรอก Secret Key เพื่อเปิดใช้งานช่องทางชำระเงินออนไลน์บนหน้าเว็บสาธารณะ หากเว้นว่างไว้ ระบบจะแสดงเฉพาะช่องทางจ่ายหน้างาน/โอนเงิน',
     'settings.stripe_suspended_label' => 'ระงับการชำระเงินออนไลน์ชั่วคราว',
@@ -726,6 +728,9 @@ return [
 
     // email
     'email.booking_confirmation_subject' => 'ยืนยันการจองพื้นที่ขายของ — รหัส :code',
+    'email.event_reminder_subject' => 'เตือนความจำ: งาน ":event" ใกล้ถึงแล้ว',
+    'email.event_reminder_title' => 'งานใกล้ถึงแล้ว',
+    'email.event_reminder_body' => 'งาน ":event" จะจัดขึ้นวันที่ :date แล้ว อย่าลืมเตรียมของและมาให้ตรงเวลานะคะ/ครับ',
     'email.event_open_subject' => 'งาน ":event" เปิดให้จองแล้ว!',
     'email.contact_message_subject' => 'ข้อความติดต่อใหม่จาก :name',
     'email.admin_booking_alert_subject' => 'มีการจองใหม่เข้ามา — รหัส :code',
@@ -757,6 +762,7 @@ return [
     'line.link_success' => 'เชื่อมต่อบัญชี LINE กับข้อมูลผู้ขาย ":name" เรียบร้อยแล้ว ทางวัดจะส่งข้อความสำคัญมาที่นี่ได้ต่อไป',
     'line.link_not_found' => 'ไม่พบเบอร์โทรศัพท์นี้ในระบบผู้ขายประจำ กรุณาตรวจสอบเบอร์อีกครั้ง หรือติดต่อทางวัดโดยตรง',
     'line.already_linked' => 'บัญชี LINE นี้เชื่อมต่อกับผู้ขาย ":name" อยู่แล้ว',
+    'line.event_reminder' => "📅 เตือนความจำ: งาน :event\nวันที่ :date\nล็อก: :lot\nอย่าลืมเตรียมของมาขายนะคะ/ครับ",
 
     // upload
     'upload.failed' => 'อัปโหลดไฟล์ไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',

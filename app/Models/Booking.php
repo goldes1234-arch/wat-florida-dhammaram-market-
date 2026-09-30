@@ -28,6 +28,16 @@ class Booking extends Model
         return $stmt->fetchAll();
     }
 
+    /** Confirmed bookings for one event — who a pre-event reminder actually goes to. */
+    public static function confirmedForEvent(int $eventId): array
+    {
+        $stmt = self::db()->prepare(
+            self::baseSelect() . " WHERE bookings.event_id = :event_id AND bookings.status = 'booked'"
+        );
+        $stmt->execute(['event_id' => $eventId]);
+        return $stmt->fetchAll();
+    }
+
     private static function baseSelect(): string
     {
         return 'SELECT bookings.*, lots.code AS lot_code, events.name_th AS event_name_th,

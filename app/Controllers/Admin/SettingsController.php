@@ -43,6 +43,7 @@ class SettingsController
                 ? $request->trimmed('default_locale') : 'th',
             'cancellation_cutoff_days' => max(0, (int) $request->input('cancellation_cutoff_days', 0)),
             'reserved_confirm_deadline_days' => max(1, (int) $request->input('reserved_confirm_deadline_days', 10)),
+            'vendor_reminder_days_before' => max(0, (int) $request->input('vendor_reminder_days_before', 3)),
             'booking_rate_limit_per_hour' => max(1, (int) $request->input('booking_rate_limit_per_hour', 5)),
             'stripe_publishable_key' => $request->trimmed('stripe_publishable_key'),
             'stripe_secret_key' => $request->trimmed('stripe_secret_key'),

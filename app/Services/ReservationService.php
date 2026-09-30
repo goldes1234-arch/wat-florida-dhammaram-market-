@@ -23,7 +23,7 @@ use App\Models\Setting;
  */
 class ReservationService
 {
-    public static function reserve(int $lotId, string $name, string $phone, string $email): array
+    public static function reserve(int $lotId, string $name, string $phone, ?string $email): array
     {
         $pdo = Database::connection();
         $pdo->beginTransaction();

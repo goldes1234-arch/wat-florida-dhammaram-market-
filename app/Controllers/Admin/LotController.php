@@ -442,12 +442,16 @@ class LotController
         $phone = $request->trimmed('reserved_vendor_phone');
         $email = $request->trimmed('reserved_vendor_email');
 
-        if (!Validator::required($name) || !Validator::required($phone) || !Validator::required($email) || !Validator::email($email)) {
+        // Email is optional — not every regular vendor has one. When it's blank the
+        // vendor invite simply isn't emailed; the admin shares the confirm link shown
+        // on this page through whatever channel actually reaches that vendor (LINE,
+        // in person, etc.) instead.
+        if (!Validator::required($name) || !Validator::required($phone) || ($email !== '' && !Validator::email($email))) {
             Flash::error(__('validation.generic_error'));
             redirect('admin/lots/' . $id . '/edit');
         }
 
-        $result = ReservationService::reserve((int) $id, $name, $phone, $email);
+        $result = ReservationService::reserve((int) $id, $name, $phone, $email ?: null);
         if (!$result['success']) {
             Flash::error($result['error']);
             redirect('admin/lots/' . $id . '/edit');

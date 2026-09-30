@@ -125,6 +125,8 @@ return [
     'activity.2fa_enabled' => '":name" enabled two-factor authentication',
     'activity.2fa_disabled' => '":name" disabled two-factor authentication',
     'activity.staff_event_access_updated' => 'Updated ":name"\'s event access (:count event(s))',
+    'activity.staff_deleted' => 'Deleted staff account ":name"',
+    'activity.staff_password_set' => 'Set a new password for ":name"',
     'activity.backup_deleted' => 'Deleted backup file :filename',
 
     // dashboard
@@ -823,6 +825,14 @@ return [
     'staff.event_access_title' => 'Event access',
     'staff.event_access_hint' => "Pick which events this person can manage (multiple allowed) — with none picked, they see/manage every event as usual; with at least one picked, they're limited to only those.",
     'staff.event_access_updated_success' => 'Event access saved.',
+    'staff.delete_button' => 'Delete',
+    'staff.delete_confirm' => 'Delete this user account? This cannot be undone.',
+    'staff.deleted_success' => 'User deleted.',
+    'staff.cannot_delete_self' => 'You cannot delete your own account.',
+    'staff.cannot_delete_last_super_admin' => 'You cannot delete the last super admin.',
+    'staff.set_password_button' => 'Set new password',
+    'staff.new_password' => 'New password',
+    'staff.password_updated_success' => 'Password updated.',
 
     'security.title' => 'Account security',
     'security.2fa_title' => 'Two-factor authentication (2FA)',

@@ -58,6 +58,19 @@ class AdminUser extends Model
         $stmt->execute(['active' => $active ? 1 : 0, 'id' => $id]);
     }
 
+    public static function delete(int $id): void
+    {
+        $stmt = self::db()->prepare('DELETE FROM admin_users WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
+
+    public static function countByRole(string $role): int
+    {
+        $stmt = self::db()->prepare('SELECT COUNT(*) AS total FROM admin_users WHERE role = :role');
+        $stmt->execute(['role' => $role]);
+        return (int) $stmt->fetch()['total'];
+    }
+
     public static function setResetToken(int $id, string $tokenHash, string $expiresAt): void
     {
         $stmt = self::db()->prepare(

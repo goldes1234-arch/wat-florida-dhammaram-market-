@@ -90,6 +90,52 @@ class StaffController
         redirect('admin/staff');
     }
 
+    public function destroy(Request $request, string $id): void
+    {
+        $user = AdminUser::find((int) $id);
+        if (!$user) {
+            redirect('admin/staff');
+        }
+
+        if ((int) $user['id'] === (int) (Auth::user()['id'] ?? 0)) {
+            Flash::error(__('staff.cannot_delete_self'));
+            redirect('admin/staff');
+        }
+
+        if ($user['role'] === 'super_admin' && AdminUser::countByRole('super_admin') <= 1) {
+            Flash::error(__('staff.cannot_delete_last_super_admin'));
+            redirect('admin/staff');
+        }
+
+        AdminUser::delete((int) $id);
+
+        ActivityLog::record('staff.delete', 'admin_user', (int) $id, __('activity.staff_deleted', ['name' => $user['name']]));
+
+        Flash::success(__('staff.deleted_success'));
+        redirect('admin/staff');
+    }
+
+    public function setPassword(Request $request, string $id): void
+    {
+        $user = AdminUser::find((int) $id);
+        if (!$user) {
+            redirect('admin/staff');
+        }
+
+        $password = (string) $request->input('password', '');
+        if (strlen($password) < 8) {
+            Flash::error(__('staff.password_too_short'));
+            redirect('admin/staff');
+        }
+
+        AdminUser::resetPassword((int) $id, password_hash($password, PASSWORD_DEFAULT));
+
+        ActivityLog::record('staff.set_password', 'admin_user', (int) $id, __('activity.staff_password_set', ['name' => $user['name']]));
+
+        Flash::success(__('staff.password_updated_success'));
+        redirect('admin/staff');
+    }
+
     public function eventsForm(Request $request, string $id): void
     {
         $user = AdminUser::find((int) $id);

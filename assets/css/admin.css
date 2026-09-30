@@ -319,3 +319,7 @@
   display: flex; align-items: center; justify-content: center;
 }
 .map-editor-shape-btn.is-active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+
+.staff-pw-row { display: none; }
+.staff-pw-row.is-open { display: table-row; }
+.staff-pw-row td { padding-top: 0; background: var(--color-bg); }

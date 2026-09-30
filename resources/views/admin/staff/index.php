@@ -61,13 +61,28 @@
               <span class="badge badge-slate"><?= __('staff.inactive') ?></span>
             <?php endif; ?>
           </td>
-          <td style="display:flex;gap:8px;">
+          <td style="display:flex;gap:8px;flex-wrap:wrap;">
             <?php if ($u['role'] === 'staff'): ?>
               <a href="<?= base_url('admin/staff/' . $u['id'] . '/events') ?>" class="btn btn-secondary btn-sm"><?= __('staff.manage_event_access') ?></a>
             <?php endif; ?>
             <form method="post" action="<?= base_url('admin/staff/' . $u['id'] . '/toggle-active') ?>" style="margin:0;">
               <?= csrf_field() ?>
               <button type="submit" class="btn btn-secondary btn-sm"><?= $u['is_active'] ? __('staff.inactive') : __('staff.active') ?></button>
+            </form>
+            <button type="button" class="btn btn-secondary btn-sm" data-toggle="#pw-form-<?= $u['id'] ?>"><?= __('staff.set_password_button') ?></button>
+            <form method="post" action="<?= base_url('admin/staff/' . $u['id'] . '/delete') ?>" data-confirm="<?= e(__('staff.delete_confirm')) ?>" style="margin:0;">
+              <?= csrf_field() ?>
+              <button type="submit" class="btn btn-danger btn-sm"><?= __('staff.delete_button') ?></button>
+            </form>
+          </td>
+        </tr>
+        <tr id="pw-form-<?= $u['id'] ?>" class="staff-pw-row">
+          <td colspan="6">
+            <form method="post" action="<?= base_url('admin/staff/' . $u['id'] . '/set-password') ?>" style="display:flex;gap:8px;align-items:center;">
+              <?= csrf_field() ?>
+              <label style="margin:0;"><?= __('staff.new_password') ?></label>
+              <input type="password" name="password" class="form-control" minlength="8" required style="max-width:260px;">
+              <button type="submit" class="btn btn-primary btn-sm"><?= __('staff.set_password_button') ?></button>
             </form>
           </td>
         </tr>

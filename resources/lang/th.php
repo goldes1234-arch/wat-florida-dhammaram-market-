@@ -125,6 +125,8 @@ return [
     'activity.2fa_enabled' => '":name" เปิดใช้งานการยืนยันตัวตนสองชั้น',
     'activity.2fa_disabled' => '":name" ปิดใช้งานการยืนยันตัวตนสองชั้น',
     'activity.staff_event_access_updated' => 'ปรับสิทธิ์เข้าถึงงานของ ":name" (เข้าถึงได้ :count งาน)',
+    'activity.staff_deleted' => 'ลบบัญชีผู้ใช้งาน ":name"',
+    'activity.staff_password_set' => 'ตั้งรหัสผ่านใหม่ให้บัญชี ":name"',
     'activity.backup_deleted' => 'ลบไฟล์สำรองข้อมูล :filename',
 
     // dashboard
@@ -823,6 +825,14 @@ return [
     'staff.event_access_title' => 'สิทธิ์เข้าถึงงาน',
     'staff.event_access_hint' => 'เลือกงานที่ผู้ใช้งานคนนี้ดูแลได้ (เลือกได้หลายงาน) — ถ้าไม่เลือกเลย จะเห็น/จัดการได้ทุกงานเหมือนเดิม ถ้าเลือกอย่างน้อย 1 งาน จะเห็น/จัดการได้เฉพาะงานที่เลือกเท่านั้น',
     'staff.event_access_updated_success' => 'บันทึกสิทธิ์เข้าถึงงานเรียบร้อยแล้ว',
+    'staff.delete_button' => 'ลบ',
+    'staff.delete_confirm' => 'ยืนยันลบบัญชีผู้ใช้งานนี้? ไม่สามารถกู้คืนได้',
+    'staff.deleted_success' => 'ลบผู้ใช้งานเรียบร้อยแล้ว',
+    'staff.cannot_delete_self' => 'ไม่สามารถลบบัญชีของตนเองได้',
+    'staff.cannot_delete_last_super_admin' => 'ไม่สามารถลบผู้ดูแลระบบสูงสุดคนสุดท้ายได้',
+    'staff.set_password_button' => 'ตั้งรหัสผ่านใหม่',
+    'staff.new_password' => 'รหัสผ่านใหม่',
+    'staff.password_updated_success' => 'ตั้งรหัสผ่านใหม่เรียบร้อยแล้ว',
 
     'security.title' => 'ความปลอดภัยบัญชี',
     'security.2fa_title' => 'ยืนยันตัวตนสองชั้น (2FA)',

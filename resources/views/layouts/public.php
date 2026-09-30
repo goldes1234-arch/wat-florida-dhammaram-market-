@@ -45,6 +45,17 @@ $metaUrl = current_url();
     </a>
     <div class="public-nav-links">
       <a href="<?= base_url('') ?>"><?= __('nav.home') ?></a>
+      <?php $downloadCategories = \App\Models\DownloadCategory::allWithFiles(); ?>
+      <?php if ($downloadCategories): ?>
+        <div class="nav-dropdown">
+          <button type="button" class="nav-dropdown-toggle"><?= __('nav.downloads') ?> <span class="nav-dropdown-caret" aria-hidden="true">&#9662;</span></button>
+          <div class="nav-dropdown-menu">
+            <?php foreach ($downloadCategories as $downloadCategory): ?>
+              <a href="<?= base_url('downloads/' . $downloadCategory['id']) ?>"><?= e($downloadCategory['name']) ?></a>
+            <?php endforeach; ?>
+          </div>
+        </div>
+      <?php endif; ?>
       <a href="<?= base_url('my-booking') ?>"><?= __('nav.my_booking') ?></a>
       <a href="<?= base_url('contact') ?>"><?= __('nav.contact') ?></a>
       <div class="lang-switch">

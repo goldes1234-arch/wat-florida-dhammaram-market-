@@ -27,6 +27,7 @@ $router->get('/contact', [Public\ContactController::class, 'form']);
 $router->post('/contact', [Public\ContactController::class, 'store']);
 $router->get('/advertise', [Public\AdvertisementController::class, 'form']);
 $router->post('/advertise', [Public\AdvertisementController::class, 'store']);
+$router->get('/downloads/{id}', [Public\DownloadController::class, 'show']);
 $router->get('/cron/backup', [Public\CronController::class, 'backup']);
 
 // ---------------------------------------------------------------- Admin
@@ -104,6 +105,12 @@ $router->group(['middleware' => ['auth']], function ($router) {
         $router->post('/admin/advertisements', [Admin\AdvertisementController::class, 'store']);
         $router->post('/admin/advertisements/{id}/approve', [Admin\AdvertisementController::class, 'approve']);
         $router->post('/admin/advertisements/{id}/delete', [Admin\AdvertisementController::class, 'destroy']);
+
+        $router->get('/admin/downloads', [Admin\DownloadController::class, 'index']);
+        $router->post('/admin/downloads/categories', [Admin\DownloadController::class, 'storeCategory']);
+        $router->post('/admin/downloads/categories/{id}/delete', [Admin\DownloadController::class, 'destroyCategory']);
+        $router->post('/admin/downloads/files', [Admin\DownloadController::class, 'storeFile']);
+        $router->post('/admin/downloads/files/{id}/delete', [Admin\DownloadController::class, 'destroyFile']);
 
         $router->group(['middleware' => ['super_admin']], function ($router) {
             $router->get('/admin/settings', [Admin\SettingsController::class, 'edit']);

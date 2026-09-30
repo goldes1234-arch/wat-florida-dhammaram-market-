@@ -101,6 +101,28 @@ CREATE TABLE advertisements (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Downloadable resources ("ดาวน์โหลด" nav dropdown) — admin creates categories
+-- freely (no fixed list) and uploads files under each; a category only appears in
+-- the public nav once it has at least one file, same "don't show it empty" rule
+-- used for advertisements/gallery.
+CREATE TABLE download_categories (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE download_files (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  category_id INT UNSIGNED NOT NULL,
+  title VARCHAR(200) NOT NULL,
+  file_path VARCHAR(255) NOT NULL,
+  file_size INT UNSIGNED NULL,
+  sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_download_files_category FOREIGN KEY (category_id) REFERENCES download_categories(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Simple insert-per-attempt anti-spam log for guest-facing forms.
 CREATE TABLE booking_rate_limits (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

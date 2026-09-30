@@ -1,6 +1,27 @@
 (function () {
   'use strict';
 
+  // Nav "ดาวน์โหลด" dropdown — click to open/close (not hover-only, so it works
+  // the same on touch as with a mouse) and closes on an outside click or Escape.
+  document.querySelectorAll('.nav-dropdown-toggle').forEach(function (toggle) {
+    var dropdown = toggle.closest('.nav-dropdown');
+    toggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      var isOpen = dropdown.classList.contains('is-open');
+      document.querySelectorAll('.nav-dropdown.is-open').forEach(function (d) { d.classList.remove('is-open'); });
+      dropdown.classList.toggle('is-open', !isOpen);
+    });
+  });
+  document.addEventListener('click', function (e) {
+    if (e.target.closest('.nav-dropdown')) return;
+    document.querySelectorAll('.nav-dropdown.is-open').forEach(function (d) { d.classList.remove('is-open'); });
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.nav-dropdown.is-open').forEach(function (d) { d.classList.remove('is-open'); });
+    }
+  });
+
   // Lightbox for the floor-plan / banner preview images.
   var lightbox = document.getElementById('lightbox');
   var lightboxImg = lightbox ? lightbox.querySelector('img') : null;

@@ -42,6 +42,7 @@ $locale = \App\Core\Lang::locale();
             <?php if ($pendingAdsCount > 0): ?><span class="nav-badge"><?= $pendingAdsCount ?></span><?php endif; ?>
           </a>
         </li>
+        <li><a href="<?= base_url('admin/downloads') ?>" class="<?= $active === 'downloads' ? 'is-active' : '' ?>"><span class="nav-icon icon-blue"><?= icon('download') ?></span> <?= __('nav.downloads') ?></a></li>
         <?php if (\App\Core\Auth::isSuperAdmin()): ?>
         <li><a href="<?= base_url('admin/backups') ?>" class="<?= $active === 'backups' ? 'is-active' : '' ?>"><span class="nav-icon icon-amber"><?= icon('download') ?></span> <?= __('nav.backups') ?></a></li>
         <li><a href="<?= base_url('admin/activity-log') ?>" class="<?= $active === 'activity_log' ? 'is-active' : '' ?>"><span class="nav-icon icon-magenta"><?= icon('clock') ?></span> <?= __('nav.activity_log') ?></a></li>

@@ -512,7 +512,7 @@ class LotController
         }
 
         $ids = $request->post['ids'] ?? [];
-        $result = Lot::softDeleteMany(is_array($ids) ? $ids : []);
+        $result = Lot::softDeleteMany(is_array($ids) ? $ids : [], (int) $eventId);
 
         if ($result['deleted'] === 0 && $result['skipped'] === 0) {
             Flash::error(__('lot.delete_selected_none'));

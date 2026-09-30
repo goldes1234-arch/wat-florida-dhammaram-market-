@@ -201,9 +201,11 @@ class Lot extends Model
 
     /**
      * Soft-deletes lots by id, but only ones that are safe to delete (available/disabled —
-     * no active booking tied to them), mirroring the single-lot destroy() guard.
+     * no active booking tied to them), mirroring the single-lot destroy() guard. Scoped to
+     * $eventId so a request can never touch another event's lots, matching every other
+     * lot-id-from-the-client action in LotController.
      */
-    public static function softDeleteMany(array $ids): array
+    public static function softDeleteMany(array $ids, int $eventId): array
     {
         $ids = array_values(array_unique(array_map('intval', $ids)));
         if (!$ids) {
@@ -213,9 +215,9 @@ class Lot extends Model
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
         $stmt = self::db()->prepare(
             "UPDATE lots SET deleted_at = NOW()
-             WHERE id IN ($placeholders) AND deleted_at IS NULL AND status IN ('available', 'disabled')"
+             WHERE id IN ($placeholders) AND event_id = ? AND deleted_at IS NULL AND status IN ('available', 'disabled')"
         );
-        $stmt->execute($ids);
+        $stmt->execute([...$ids, $eventId]);
         $deleted = $stmt->rowCount();
 
         return ['deleted' => $deleted, 'skipped' => count($ids) - $deleted];

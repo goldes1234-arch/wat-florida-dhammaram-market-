@@ -12,8 +12,11 @@ class Vendor extends Model
                 LEFT JOIN bookings ON bookings.vendor_id = vendors.id AND bookings.status = "booked"';
         $params = [];
         if ($search) {
-            $sql .= ' WHERE vendors.name LIKE :search OR vendors.phone LIKE :search OR vendors.email LIKE :search';
-            $params['search'] = '%' . $search . '%';
+            $sql .= ' WHERE vendors.name LIKE :search1 OR vendors.phone LIKE :search2 OR vendors.email LIKE :search3';
+            $like = '%' . $search . '%';
+            $params['search1'] = $like;
+            $params['search2'] = $like;
+            $params['search3'] = $like;
         }
         $sql .= ' GROUP BY vendors.id ORDER BY vendors.name';
 

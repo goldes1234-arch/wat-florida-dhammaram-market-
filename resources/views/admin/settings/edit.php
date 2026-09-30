@@ -173,6 +173,11 @@
         <input type="number" min="0" name="cancellation_cutoff_days" class="form-control" value="<?= e((string) ($settings['cancellation_cutoff_days'] ?? 3)) ?>">
       </div>
       <div class="form-group">
+        <label><?= __('settings.reserved_confirm_deadline_days') ?></label>
+        <input type="number" min="1" name="reserved_confirm_deadline_days" class="form-control" value="<?= e((string) ($settings['reserved_confirm_deadline_days'] ?? 10)) ?>">
+        <p class="form-hint"><?= __('settings.reserved_confirm_deadline_days_hint') ?></p>
+      </div>
+      <div class="form-group">
         <label><?= __('settings.rate_limit') ?></label>
         <input type="number" min="1" name="booking_rate_limit_per_hour" class="form-control" value="<?= e((string) ($settings['booking_rate_limit_per_hour'] ?? 5)) ?>">
       </div>

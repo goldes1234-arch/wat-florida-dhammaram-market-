@@ -45,6 +45,7 @@ CREATE TABLE settings (
   currency_code CHAR(3) NOT NULL DEFAULT 'THB',
   default_locale ENUM('th','en') NOT NULL DEFAULT 'th',
   cancellation_cutoff_days SMALLINT UNSIGNED NOT NULL DEFAULT 3,
+  reserved_confirm_deadline_days SMALLINT UNSIGNED NOT NULL DEFAULT 10,
   booking_rate_limit_per_hour SMALLINT UNSIGNED NOT NULL DEFAULT 5,
   stripe_publishable_key VARCHAR(255) NULL,
   stripe_secret_key VARCHAR(255) NULL,
@@ -283,13 +284,27 @@ CREATE TABLE lots (
   map_rotation DECIMAL(5,1) NOT NULL DEFAULT 0,
   photo VARCHAR(255) NULL,
   price DECIMAL(10,2) NOT NULL,
-  status ENUM('available','pending_payment','booked','disabled') NOT NULL DEFAULT 'available',
+  status ENUM('available','pending_payment','booked','disabled','reserved') NOT NULL DEFAULT 'available',
+  -- A lot held for a regular/recurring vendor ahead of the normal public booking
+  -- flow. Set together when status becomes 'reserved'; reserved_confirmed_at is
+  -- filled in only once the vendor actually confirms (see ReservationService) and
+  -- is kept even after the lot becomes a real booking, as a record that this one
+  -- started life as a vendor reservation. An unconfirmed reservation is released
+  -- back to 'available' automatically once the event is within
+  -- settings.reserved_confirm_deadline_days.
+  reserved_vendor_name VARCHAR(150) NULL,
+  reserved_vendor_phone VARCHAR(30) NULL,
+  reserved_vendor_email VARCHAR(150) NULL,
+  reserved_token VARCHAR(64) NULL,
+  reserved_at DATETIME NULL,
+  reserved_confirmed_at DATETIME NULL,
   deleted_at DATETIME NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_lots_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
   CONSTRAINT fk_lots_zone FOREIGN KEY (zone_id) REFERENCES zones(id) ON DELETE SET NULL,
   UNIQUE KEY uq_lot_code_per_event (event_id, code),
+  UNIQUE KEY uq_lots_reserved_token (reserved_token),
   INDEX idx_lots_event_status (event_id, status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

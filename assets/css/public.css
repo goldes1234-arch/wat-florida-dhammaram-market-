@@ -544,7 +544,7 @@
 .booth-cell.status-available { background: #DCFCE7; border-color: #16A34A; color: #166534; cursor: pointer; }
 .booth-cell.status-available:hover { background: #BBF7D0; text-decoration: none; transform: scale(1.08); box-shadow: 0 6px 14px rgba(22,163,74,.28); z-index: 1; }
 .booth-cell.status-pending_payment { background: #FEF9C3; border-color: #EAB308; color: #854D0E; cursor: not-allowed; pointer-events: none; }
-.booth-cell.status-booked { background: #DBEAFE; border-color: #2563EB; color: #1E3A8A; cursor: not-allowed; pointer-events: none; }
+.booth-cell.status-booked, .booth-cell.status-reserved { background: #DBEAFE; border-color: #2563EB; color: #1E3A8A; cursor: not-allowed; pointer-events: none; }
 .booth-cell.status-disabled { background: #FEE2E2; border-color: #DC2626; color: #991B1B; cursor: not-allowed; pointer-events: none; opacity: .75; }
 
 /* Photo-coordinate lot map: lot numbers pinned by % position over the floorplan photo. */
@@ -581,7 +581,7 @@
 .photo-pin.status-available { background: #DCFCE7; border-color: #16A34A; color: #166534; cursor: pointer; }
 .photo-pin.status-available:hover { background: #BBF7D0; text-decoration: none; transform: translate(-50%, -50%) scale(1.12); box-shadow: 0 6px 14px rgba(22,163,74,.28); z-index: 1; }
 .photo-pin.status-pending_payment { background: #FEF9C3; border-color: #EAB308; color: #854D0E; cursor: not-allowed; pointer-events: none; }
-.photo-pin.status-booked { background: #DBEAFE; border-color: #2563EB; color: #1E3A8A; cursor: not-allowed; pointer-events: none; }
+.photo-pin.status-booked, .photo-pin.status-reserved { background: #DBEAFE; border-color: #2563EB; color: #1E3A8A; cursor: not-allowed; pointer-events: none; }
 .photo-pin.status-disabled { background: #FEE2E2; border-color: #DC2626; color: #991B1B; cursor: not-allowed; pointer-events: none; opacity: .75; }
 .photo-pin.size-small { min-width: 24px; height: 24px; font-size: 9px; border-radius: 12px; }
 .photo-pin.size-large { min-width: 46px; height: 46px; font-size: 13px; border-radius: 23px; }

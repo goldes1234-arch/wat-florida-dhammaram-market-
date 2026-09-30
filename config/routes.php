@@ -28,6 +28,8 @@ $router->post('/contact', [Public\ContactController::class, 'store']);
 $router->get('/advertise', [Public\AdvertisementController::class, 'form']);
 $router->post('/advertise', [Public\AdvertisementController::class, 'store']);
 $router->get('/downloads/{id}', [Public\DownloadController::class, 'show']);
+$router->get('/reserve/{token}', [Public\ReservationController::class, 'show']);
+$router->post('/reserve/{token}/confirm', [Public\ReservationController::class, 'confirm']);
 $router->get('/cron/backup', [Public\CronController::class, 'backup']);
 
 // ---------------------------------------------------------------- Admin
@@ -83,6 +85,8 @@ $router->group(['middleware' => ['auth']], function ($router) {
         $router->post('/admin/lots/{id}', [Admin\LotController::class, 'update']);
         $router->post('/admin/lots/{id}/inline-update', [Admin\LotController::class, 'inlineUpdate']);
         $router->post('/admin/lots/{id}/toggle-disable', [Admin\LotController::class, 'toggleDisable']);
+        $router->post('/admin/lots/{id}/reserve', [Admin\LotController::class, 'reserve']);
+        $router->post('/admin/lots/{id}/cancel-reservation', [Admin\LotController::class, 'cancelReservation']);
         $router->post('/admin/lots/{id}/delete', [Admin\LotController::class, 'destroy']);
         $router->post('/admin/events/{eventId}/lots/delete-all', [Admin\LotController::class, 'destroyAll']);
         $router->post('/admin/events/{eventId}/lots/delete-selected', [Admin\LotController::class, 'destroySelected']);

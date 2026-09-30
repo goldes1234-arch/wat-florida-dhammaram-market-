@@ -10,6 +10,7 @@ use App\Core\View;
 use App\Models\Event;
 use App\Models\Lot;
 use App\Models\Zone;
+use App\Services\ReservationService;
 use App\Support\Validator;
 
 /**
@@ -425,6 +426,55 @@ class LotController
             Flash::success(__('lot.disabled_success'));
         } else {
             Flash::error(__('lot.cannot_disable_active'));
+        }
+
+        redirect('admin/lots/' . $id . '/edit');
+    }
+
+    public function reserve(Request $request, string $id): void
+    {
+        $lot = Lot::find((int) $id);
+        if (!$lot) {
+            redirect('admin/events');
+        }
+
+        $name = $request->trimmed('reserved_vendor_name');
+        $phone = $request->trimmed('reserved_vendor_phone');
+        $email = $request->trimmed('reserved_vendor_email');
+
+        if (!Validator::required($name) || !Validator::required($phone) || !Validator::required($email) || !Validator::email($email)) {
+            Flash::error(__('validation.generic_error'));
+            redirect('admin/lots/' . $id . '/edit');
+        }
+
+        $result = ReservationService::reserve((int) $id, $name, $phone, $email);
+        if (!$result['success']) {
+            Flash::error($result['error']);
+            redirect('admin/lots/' . $id . '/edit');
+        }
+
+        ActivityLog::record('lot.reserve', 'lot', (int) $id, __('activity.lot_reserved', [
+            'code' => $lot['code'], 'vendor' => $name,
+        ]));
+        Flash::success(__('lot.reserve_success'));
+        redirect('admin/lots/' . $id . '/edit');
+    }
+
+    public function cancelReservation(Request $request, string $id): void
+    {
+        $lot = Lot::find((int) $id);
+        if (!$lot) {
+            redirect('admin/events');
+        }
+
+        $result = ReservationService::cancel((int) $id);
+        if ($result['success']) {
+            ActivityLog::record('lot.reserve_cancel', 'lot', (int) $id, __('activity.lot_reservation_cancelled', [
+                'code' => $lot['code'],
+            ]));
+            Flash::success(__('lot.reserve_cancelled'));
+        } else {
+            Flash::error($result['error']);
         }
 
         redirect('admin/lots/' . $id . '/edit');

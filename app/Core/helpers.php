@@ -107,6 +107,7 @@ function lot_status_label(string $status): string
         'pending_payment' => __('lot.status_pending_payment'),
         'booked' => __('lot.status_booked'),
         'disabled' => __('lot.status_disabled'),
+        'reserved' => __('lot.status_reserved'),
         default => $status,
     };
 }
@@ -118,6 +119,7 @@ function lot_status_badge_class(string $status): string
         'pending_payment' => 'badge badge-amber',
         'booked' => 'badge badge-slate',
         'disabled' => 'badge badge-red',
+        'reserved' => 'badge badge-indigo',
         default => 'badge',
     };
 }

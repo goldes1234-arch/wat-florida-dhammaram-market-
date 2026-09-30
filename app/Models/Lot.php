@@ -26,13 +26,27 @@ class Lot extends Model
     public static function find(int $id): ?array
     {
         $stmt = self::db()->prepare(
-            'SELECT lots.*, zones.name AS zone_name, events.slug AS event_slug, events.name_th AS event_name_th
+            'SELECT lots.*, zones.name AS zone_name, events.slug AS event_slug, events.name_th AS event_name_th,
+                    events.name_en AS event_name_en, events.start_date AS event_start_date
              FROM lots
              LEFT JOIN zones ON zones.id = lots.zone_id
              JOIN events ON events.id = lots.event_id
              WHERE lots.id = :id'
         );
         $stmt->execute(['id' => $id]);
+        return $stmt->fetch() ?: null;
+    }
+
+    public static function findByReservedToken(string $token): ?array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT lots.*, events.slug AS event_slug, events.name_th AS event_name_th,
+                    events.name_en AS event_name_en, events.start_date AS event_start_date
+             FROM lots
+             JOIN events ON events.id = lots.event_id
+             WHERE lots.reserved_token = :token'
+        );
+        $stmt->execute(['token' => $token]);
         return $stmt->fetch() ?: null;
     }
 
@@ -119,6 +133,51 @@ class Lot extends Model
         $stmt->execute(['map_rotation' => $rotation, 'id' => $id]);
     }
 
+    /** Holds a lot for a regular vendor pending their confirmation — see ReservationService. */
+    public static function setReservation(int $id, string $name, string $phone, ?string $email, string $token): void
+    {
+        $stmt = self::db()->prepare(
+            'UPDATE lots SET status = "reserved", reserved_vendor_name = :name, reserved_vendor_phone = :phone,
+                    reserved_vendor_email = :email, reserved_token = :token, reserved_at = NOW(), reserved_confirmed_at = NULL
+             WHERE id = :id'
+        );
+        $stmt->execute(['name' => $name, 'phone' => $phone, 'email' => $email, 'token' => $token, 'id' => $id]);
+    }
+
+    public static function markReservationConfirmed(int $id): void
+    {
+        self::db()->prepare('UPDATE lots SET reserved_confirmed_at = NOW() WHERE id = :id')->execute(['id' => $id]);
+    }
+
+    /** Releases a lot back to 'available', clearing whatever reservation was on it. */
+    public static function clearReservation(int $id): void
+    {
+        $stmt = self::db()->prepare(
+            'UPDATE lots SET status = "available", reserved_vendor_name = NULL, reserved_vendor_phone = NULL,
+                    reserved_vendor_email = NULL, reserved_token = NULL, reserved_at = NULL, reserved_confirmed_at = NULL
+             WHERE id = :id'
+        );
+        $stmt->execute(['id' => $id]);
+    }
+
+    /**
+     * Reserved lots whose vendor never confirmed and whose event is now within the
+     * confirm-deadline window — what ReservationService::releaseExpired() acts on.
+     */
+    public static function expiredReservations(int $deadlineDays): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT lots.*, events.slug AS event_slug, events.name_th AS event_name_th, events.start_date AS event_start_date
+             FROM lots
+             JOIN events ON events.id = lots.event_id
+             WHERE lots.status = "reserved" AND lots.reserved_confirmed_at IS NULL
+               AND lots.deleted_at IS NULL
+               AND DATE_SUB(events.start_date, INTERVAL :deadline_days DAY) <= CURDATE()'
+        );
+        $stmt->execute(['deadline_days' => $deadlineDays]);
+        return $stmt->fetchAll();
+    }
+
     /** Lightweight id => status map, used by the public "live" map polling endpoint. */
     public static function statusMapForEvent(int $eventId): array
     {
@@ -193,7 +252,7 @@ class Lot extends Model
         );
         $stmt->execute(['event_id' => $eventId]);
         $rows = $stmt->fetchAll();
-        $counts = ['available' => 0, 'pending_payment' => 0, 'booked' => 0, 'disabled' => 0];
+        $counts = ['available' => 0, 'pending_payment' => 0, 'booked' => 0, 'disabled' => 0, 'reserved' => 0];
         foreach ($rows as $row) {
             $counts[$row['status']] = (int) $row['total'];
         }
@@ -230,7 +289,7 @@ class Lot extends Model
         $stmt = self::db()->query(
             "SELECT status, COUNT(*) AS total FROM lots WHERE deleted_at IS NULL GROUP BY status"
         );
-        $counts = ['available' => 0, 'pending_payment' => 0, 'booked' => 0, 'disabled' => 0];
+        $counts = ['available' => 0, 'pending_payment' => 0, 'booked' => 0, 'disabled' => 0, 'reserved' => 0];
         foreach ($stmt->fetchAll() as $row) {
             $counts[$row['status']] = (int) $row['total'];
         }

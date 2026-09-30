@@ -16,6 +16,9 @@ use App\Services\LineService;
  */
 class LineWebhookController
 {
+    private const PORTAL_LINK_TTL_SECONDS = 900;
+    private const PORTAL_KEYWORDS = ['สถานะ', 'ประวัติ', 'status', 'history'];
+
     public function handle(Request $request): void
     {
         $payload = (string) file_get_contents('php://input');
@@ -66,9 +69,25 @@ class LineWebhookController
 
         $already = Vendor::findByLineUserId($userId);
         if ($already) {
-            if ($replyToken) {
-                LineService::reply($replyToken, __('line.already_linked', ['name' => $already['name']]));
+            if (!$replyToken) {
+                return;
             }
+
+            if (self::isPortalKeyword($text)) {
+                $token = bin2hex(random_bytes(24));
+                Vendor::setPortalToken(
+                    (int) $already['id'],
+                    hash('sha256', $token),
+                    date('Y-m-d H:i:s', time() + self::PORTAL_LINK_TTL_SECONDS)
+                );
+                LineService::reply($replyToken, __('line.portal_link', [
+                    'link' => full_url('vendor/portal/' . $token),
+                    'minutes' => (string) (int) (self::PORTAL_LINK_TTL_SECONDS / 60),
+                ]));
+                return;
+            }
+
+            LineService::reply($replyToken, __('line.already_linked', ['name' => $already['name']]));
             return;
         }
 
@@ -85,5 +104,10 @@ class LineWebhookController
         } else {
             LineService::reply($replyToken, __('line.link_not_found'));
         }
+    }
+
+    private static function isPortalKeyword(string $text): bool
+    {
+        return in_array(mb_strtolower(trim($text)), self::PORTAL_KEYWORDS, true);
     }
 }

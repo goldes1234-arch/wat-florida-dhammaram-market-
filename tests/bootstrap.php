@@ -2,6 +2,9 @@
 
 define('BASE_PATH', dirname(__DIR__));
 
+// Matches index.php — pinned explicitly so tests see the same clock the real app runs on.
+date_default_timezone_set('UTC');
+
 require BASE_PATH . '/app/Core/autoload.php';
 require BASE_PATH . '/app/Core/helpers.php';
 

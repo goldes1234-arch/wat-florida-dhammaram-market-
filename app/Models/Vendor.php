@@ -102,6 +102,26 @@ class Vendor extends Model
         self::db()->prepare('UPDATE vendors SET line_user_id = NULL WHERE id = :id')->execute(['id' => $id]);
     }
 
+    public static function setPortalToken(int $id, string $tokenHash, string $expiresAt): void
+    {
+        $stmt = self::db()->prepare(
+            'UPDATE vendors SET portal_token_hash = :hash, portal_token_expires_at = :expires WHERE id = :id'
+        );
+        $stmt->execute(['hash' => $tokenHash, 'expires' => $expiresAt, 'id' => $id]);
+    }
+
+    public static function findByValidPortalTokenHash(string $tokenHash): ?array
+    {
+        // PHP-computed :now, not SQL NOW() — see AdminUser::findByValidResetTokenHash()
+        // for why (portal_token_expires_at is set from PHP's clock, which can differ
+        // from the DB server's local timezone that NOW() would otherwise use).
+        $stmt = self::db()->prepare(
+            'SELECT * FROM vendors WHERE portal_token_hash = :hash AND portal_token_expires_at > :now'
+        );
+        $stmt->execute(['hash' => $tokenHash, 'now' => date('Y-m-d H:i:s')]);
+        return $stmt->fetch() ?: null;
+    }
+
     /** Vendors with a linked LINE account, for the targeted-message page. */
     public static function linkedToLine(): array
     {

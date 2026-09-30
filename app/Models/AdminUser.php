@@ -68,10 +68,15 @@ class AdminUser extends Model
 
     public static function findByValidResetTokenHash(string $tokenHash): ?array
     {
+        // Compares against a PHP-computed timestamp rather than SQL NOW() — MySQL's
+        // NOW() follows the server's local OS timezone by default, which can silently
+        // differ from PHP's (this app runs PHP in UTC; see date_default_timezone_set()
+        // in index.php), making reset_token_expires_at (set from PHP's clock) compare
+        // wrong against it by however many hours the two clocks are apart.
         $stmt = self::db()->prepare(
-            'SELECT * FROM admin_users WHERE reset_token_hash = :hash AND reset_token_expires_at > NOW()'
+            'SELECT * FROM admin_users WHERE reset_token_hash = :hash AND reset_token_expires_at > :now'
         );
-        $stmt->execute(['hash' => $tokenHash]);
+        $stmt->execute(['hash' => $tokenHash, 'now' => date('Y-m-d H:i:s')]);
         return $stmt->fetch() ?: null;
     }
 

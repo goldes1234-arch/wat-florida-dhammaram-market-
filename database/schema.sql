@@ -313,6 +313,11 @@ CREATE TABLE vendors (
   -- admins push a targeted message to this one vendor instead of only broadcasting
   -- to every OA follower.
   line_user_id VARCHAR(64) NULL,
+  -- Self-service portal access (see VendorPortalController) — a short-lived,
+  -- hashed magic-link token a linked vendor gets by messaging the LINE OA with a
+  -- keyword (see LineWebhookController), mirroring how admin password resets work.
+  portal_token_hash VARCHAR(64) NULL,
+  portal_token_expires_at DATETIME NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   INDEX idx_vendors_phone (phone),

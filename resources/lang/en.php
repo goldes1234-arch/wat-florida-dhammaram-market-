@@ -496,6 +496,11 @@ return [
     'downloads.empty_state' => 'No files available to download in this category yet.',
     'downloads.download_button' => 'Download',
 
+    'vendor_portal.title' => 'Your booking history',
+    'vendor_portal.greeting' => 'Hi :name',
+    'vendor_portal.no_history' => 'No booking history yet.',
+    'vendor_portal.expired' => 'This link has expired or is invalid. Type "status" in the LINE chat again for a new one.',
+
     'reservation.confirm_title' => 'Confirm your selling slot',
     'reservation.confirm_hint' => 'Please check the details below, then confirm you\'ll be attending this event.',
     'reservation.confirm_button' => 'Confirm I\'ll be attending',
@@ -759,10 +764,11 @@ return [
     'line.new_ad_submission_alert' => "🏪 New shop ad submission!\nShop: :name\nContact: :contact_name (:contact_phone)\nPlease review it in the admin panel.",
     'line.reservations_expired_alert' => "⏰ Released :count lot(s) back to the public — the reserved vendor(s) didn't confirm in time.",
     'line.link_prompt' => 'Hi! Please type the phone number you registered with the temple to link this LINE account to your vendor profile.',
-    'line.link_success' => 'Linked this LINE account to vendor ":name". The temple can now send you messages here.',
+    'line.link_success' => 'Linked this LINE account to vendor ":name". The temple can now send you messages here. Type "status" any time to see your booking history.',
     'line.link_not_found' => "That phone number isn't in our regular-vendor list. Please double-check it, or contact the temple directly.",
-    'line.already_linked' => 'This LINE account is already linked to vendor ":name".',
+    'line.already_linked' => 'This LINE account is already linked to vendor ":name". Type "status" to see your booking history.',
     'line.event_reminder' => "📅 Reminder: :event\nDate: :date\nLot: :lot\nDon't forget to bring your stock!",
+    'line.portal_link' => "🔗 Your booking history link (valid for :minutes minutes):\n:link",
 
     // upload
     'upload.failed' => 'Upload failed, please try again',

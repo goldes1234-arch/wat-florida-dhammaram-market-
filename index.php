@@ -4,6 +4,14 @@ declare(strict_types=1);
 
 define('BASE_PATH', __DIR__);
 
+// Pinned explicitly rather than left to the server's php.ini default, since a few
+// places (password reset / vendor portal token expiry) compare a PHP-computed
+// timestamp against a value read back from the database — see AdminUser::
+// findByValidResetTokenHash() for why that comparison needs PHP's clock, not
+// MySQL's NOW(), to avoid a silent mismatch against whatever local timezone the
+// DB server happens to be in.
+date_default_timezone_set('UTC');
+
 require BASE_PATH . '/app/Core/autoload.php';
 require BASE_PATH . '/app/Core/helpers.php';
 

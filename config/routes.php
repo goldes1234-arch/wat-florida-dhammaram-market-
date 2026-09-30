@@ -29,6 +29,7 @@ $router->post('/contact', [Public\ContactController::class, 'store']);
 $router->get('/advertise', [Public\AdvertisementController::class, 'form']);
 $router->post('/advertise', [Public\AdvertisementController::class, 'store']);
 $router->get('/downloads/{id}', [Public\DownloadController::class, 'show']);
+$router->get('/vendor/portal/{token}', [Public\VendorPortalController::class, 'show']);
 $router->get('/reserve/{token}', [Public\ReservationController::class, 'show']);
 $router->post('/reserve/{token}/confirm', [Public\ReservationController::class, 'confirm']);
 $router->get('/cron/backup', [Public\CronController::class, 'backup']);

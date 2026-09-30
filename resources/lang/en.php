@@ -59,6 +59,7 @@ return [
     'auth.password' => 'Password',
     'auth.login_button' => 'Log in',
     'auth.invalid_credentials' => 'Incorrect email or password',
+    'auth.login_rate_limited' => 'Too many failed login attempts. Please try again later.',
     'auth.login_required' => 'Please log in to access this page',
     'auth.welcome' => 'Welcome',
     'auth.logged_out' => 'You have been logged out',

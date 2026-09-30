@@ -23,6 +23,15 @@ class AuthController
         $email = $request->trimmed('email');
         $password = (string) $request->input('password', '');
 
+        // Recorded on every attempt (not just failures), same as sendResetLink() below —
+        // a genuine admin essentially never needs 15 login tries in an hour, so this only
+        // ever bites a brute-force script, not a forgetful person.
+        if (RateLimiter::tooMany($request->ip(), 'admin_login', 15)) {
+            Flash::error(__('auth.login_rate_limited'));
+            Flash::setOld(['email' => $email]);
+            redirect('admin/login');
+        }
+
         if ($email === '' || $password === '' || !Auth::attempt($email, $password)) {
             Flash::error(__('auth.invalid_credentials'));
             Flash::setOld(['email' => $email]);

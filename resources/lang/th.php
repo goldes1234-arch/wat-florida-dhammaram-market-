@@ -59,6 +59,7 @@ return [
     'auth.password' => 'รหัสผ่าน',
     'auth.login_button' => 'เข้าสู่ระบบ',
     'auth.invalid_credentials' => 'อีเมลหรือรหัสผ่านไม่ถูกต้อง',
+    'auth.login_rate_limited' => 'ลองเข้าสู่ระบบผิดบ่อยเกินไป กรุณาลองใหม่อีกครั้งภายหลัง',
     'auth.login_required' => 'กรุณาเข้าสู่ระบบก่อนใช้งานส่วนนี้',
     'auth.welcome' => 'สวัสดี',
     'auth.logged_out' => 'ออกจากระบบแล้ว',

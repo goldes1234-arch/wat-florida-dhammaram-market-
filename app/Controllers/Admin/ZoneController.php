@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Core\ActivityLog;
+use App\Core\EventAccess;
 use App\Core\Flash;
 use App\Core\Request;
 use App\Core\View;
@@ -18,9 +19,10 @@ class ZoneController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $eventId);
 
         $idsWithZones = Zone::eventIdsWithZones();
-        $copyableEvents = array_values(array_filter(Event::allForAdmin(), static function (array $e) use ($idsWithZones, $eventId) {
+        $copyableEvents = array_values(array_filter(EventAccess::filterEvents(Event::allForAdmin()), static function (array $e) use ($idsWithZones, $eventId) {
             return in_array((int) $e['id'], $idsWithZones, true) && (int) $e['id'] !== (int) $eventId;
         }));
 
@@ -39,9 +41,10 @@ class ZoneController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $eventId);
 
         $sourceEventId = (int) $request->trimmed('source_event_id');
-        if (!$sourceEventId) {
+        if (!$sourceEventId || !EventAccess::allowed($sourceEventId)) {
             Flash::error(__('zone.copy_pick_first'));
             redirect('admin/events/' . $eventId . '/zones');
         }
@@ -68,6 +71,7 @@ class ZoneController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $eventId);
 
         $name = $request->trimmed('name');
         $price = $request->input('default_price', 0);
@@ -88,6 +92,7 @@ class ZoneController
         if (!$zone) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $zone['event_id']);
 
         $name = $request->trimmed('name');
         $price = $request->input('default_price', 0);
@@ -103,9 +108,19 @@ class ZoneController
         if (!$zone) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $zone['event_id']);
+
         Zone::delete((int) $id);
         ActivityLog::record('zone.delete', 'zone', (int) $id, __('activity.zone_deleted', ['name' => $zone['name']]));
         Flash::success(__('zone.deleted_success'));
         redirect('admin/events/' . $zone['event_id'] . '/zones');
+    }
+
+    private function denyUnlessAllowed(int $eventId): void
+    {
+        if (!EventAccess::allowed($eventId)) {
+            Flash::error(__('common.access_denied'));
+            redirect('admin/events');
+        }
     }
 }

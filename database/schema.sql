@@ -216,6 +216,19 @@ CREATE TABLE events (
   INDEX idx_events_published_window (is_published, booking_open_at, booking_close_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- Optional per-staff event restriction (see App\Core\EventAccess) — a 'staff'
+-- admin with zero rows here can see/manage every event, same as before this
+-- table existed; assigning at least one row switches that account to an
+-- allow-list of only those events. super_admin and checkin ignore this table
+-- entirely (see EventAccess::allowed()).
+CREATE TABLE staff_event_access (
+  admin_id INT UNSIGNED NOT NULL,
+  event_id INT UNSIGNED NOT NULL,
+  PRIMARY KEY (admin_id, event_id),
+  CONSTRAINT fk_staff_event_access_admin FOREIGN KEY (admin_id) REFERENCES admin_users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_staff_event_access_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Optional per-event pricing zones (a lot may or may not belong to one).
 CREATE TABLE zones (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,

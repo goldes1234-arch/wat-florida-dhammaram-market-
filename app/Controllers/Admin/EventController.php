@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\ActivityLog;
 use App\Core\Auth;
+use App\Core\EventAccess;
 use App\Core\Flash;
 use App\Core\Request;
 use App\Core\Upload;
@@ -20,7 +21,7 @@ class EventController
         View::render('admin/events/index', [
             'title' => __('event.list_title'),
             'active' => 'events',
-            'events' => Event::allForAdmin(),
+            'events' => EventAccess::filterEvents(Event::allForAdmin()),
         ], 'admin');
     }
 
@@ -64,6 +65,7 @@ class EventController
             Flash::error(__('booking.not_found'));
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $id);
 
         View::render('admin/events/edit', [
             'title' => __('event.edit_title'),
@@ -81,6 +83,7 @@ class EventController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $id);
 
         if (EventPhoto::countForEvent((int) $id) >= EventPhoto::MAX_PER_EVENT) {
             Flash::error(__('event.photo_limit_reached', ['max' => EventPhoto::MAX_PER_EVENT]));
@@ -107,6 +110,8 @@ class EventController
 
     public function destroyPhoto(Request $request, string $id, string $photoId): void
     {
+        $this->denyUnlessAllowed((int) $id);
+
         $photo = EventPhoto::find((int) $photoId);
         if ($photo && (int) $photo['event_id'] === (int) $id) {
             Upload::delete($photo['image_path']);
@@ -119,6 +124,13 @@ class EventController
     public function contactsJson(Request $request, string $id): void
     {
         header('Content-Type: application/json');
+
+        if (!EventAccess::allowed((int) $id)) {
+            http_response_code(403);
+            echo json_encode(['contacts' => []]);
+            return;
+        }
+
         echo json_encode(['contacts' => EventContact::forEvent((int) $id)]);
     }
 
@@ -128,6 +140,7 @@ class EventController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $id);
 
         [$data, $errors] = $this->validateInput($request);
         [$contacts, $contactErrors] = $this->validateContacts($request);
@@ -149,6 +162,7 @@ class EventController
     public function destroy(Request $request, string $id): void
     {
         $event = Event::find((int) $id);
+        $this->denyUnlessAllowed((int) $id);
 
         Event::softDelete((int) $id);
 
@@ -158,6 +172,14 @@ class EventController
 
         Flash::success(__('event.deleted_success'));
         redirect('admin/events');
+    }
+
+    private function denyUnlessAllowed(int $eventId): void
+    {
+        if (!EventAccess::allowed($eventId)) {
+            Flash::error(__('common.access_denied'));
+            redirect('admin/events');
+        }
     }
 
     private function applyUploads(Request $request, array &$data, ?array $existing): void

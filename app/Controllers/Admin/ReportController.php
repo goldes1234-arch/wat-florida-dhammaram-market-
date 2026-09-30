@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Admin;
 
+use App\Core\EventAccess;
 use App\Core\Request;
 use App\Core\View;
 use App\Models\Booking;
@@ -15,24 +16,28 @@ class ReportController
     {
         $eventId = $request->query['event_id'] ?? '';
         $eventId = $eventId !== '' ? (int) $eventId : null;
+        if ($eventId && !EventAccess::allowed($eventId)) {
+            $eventId = null;
+        }
+        $allowedEventIds = EventAccess::assignedEventIds();
 
         View::render('admin/reports/index', [
             'title' => __('report.title'),
             'active' => 'reports',
-            'events' => Event::allForAdmin(),
+            'events' => EventAccess::filterEvents(Event::allForAdmin()),
             'selectedEventId' => $eventId,
-            'summary' => Report::summary($eventId),
-            'trend' => Report::dailyTrend($eventId),
-            'revenueByZone' => Report::revenueByZone($eventId),
-            'revenueByMethod' => Booking::revenueByPaymentMethod($eventId),
-            'eventComparison' => $eventId === null ? Report::eventComparison() : [],
+            'summary' => Report::summary($eventId, $allowedEventIds),
+            'trend' => Report::dailyTrend($eventId, $allowedEventIds),
+            'revenueByZone' => Report::revenueByZone($eventId, $allowedEventIds),
+            'revenueByMethod' => Booking::revenueByPaymentMethod($eventId, $allowedEventIds),
+            'eventComparison' => $eventId === null ? Report::eventComparison($allowedEventIds) : [],
             'topVendors' => Vendor::topByRevenue(10),
         ], 'admin');
     }
 
     public function exportEvents(Request $request): void
     {
-        $rows = Report::eventComparison();
+        $rows = Report::eventComparison(EventAccess::assignedEventIds());
 
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="event-comparison-' . date('Y-m-d-His') . '.csv"');

@@ -60,7 +60,10 @@
               <span class="badge badge-slate"><?= __('staff.inactive') ?></span>
             <?php endif; ?>
           </td>
-          <td>
+          <td style="display:flex;gap:8px;">
+            <?php if ($u['role'] === 'staff'): ?>
+              <a href="<?= base_url('admin/staff/' . $u['id'] . '/events') ?>" class="btn btn-secondary btn-sm"><?= __('staff.manage_event_access') ?></a>
+            <?php endif; ?>
             <form method="post" action="<?= base_url('admin/staff/' . $u['id'] . '/toggle-active') ?>" style="margin:0;">
               <?= csrf_field() ?>
               <button type="submit" class="btn btn-secondary btn-sm"><?= $u['is_active'] ? __('staff.inactive') : __('staff.active') ?></button>

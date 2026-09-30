@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Core\ActivityLog;
+use App\Core\EventAccess;
 use App\Core\Flash;
 use App\Core\Request;
 use App\Core\Upload;
@@ -28,6 +29,7 @@ class LotController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $eventId);
 
         View::render('admin/lots/index', [
             'title' => __('lot.list_title'),
@@ -44,6 +46,7 @@ class LotController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $eventId);
 
         $code = $request->trimmed('code');
         $price = $request->input('price', 0);
@@ -84,6 +87,7 @@ class LotController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $eventId);
 
         $prefix = $request->trimmed('prefix');
         $start = (int) $request->input('start_number', 0);
@@ -119,6 +123,7 @@ class LotController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $eventId);
 
         $prefix = $request->trimmed('grid_prefix');
         $rows = (int) $request->input('rows', 0);
@@ -155,6 +160,7 @@ class LotController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $eventId);
 
         View::render('admin/lots/map', [
             'title' => __('lot.map_editor_title'),
@@ -173,7 +179,7 @@ class LotController
         $x = $request->input('map_x');
         $y = $request->input('map_y');
 
-        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId
+        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId || !EventAccess::allowed((int) $eventId)
             || !is_numeric($x) || !is_numeric($y) || $x < 0 || $x > 100 || $y < 0 || $y > 100) {
             http_response_code(422);
             echo json_encode(['ok' => false]);
@@ -192,7 +198,7 @@ class LotController
         $lot = Lot::find((int) $request->input('lot_id'));
         $size = $request->input('map_size');
 
-        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId
+        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId || !EventAccess::allowed((int) $eventId)
             || !in_array($size, ['small', 'medium', 'large'], true)) {
             http_response_code(422);
             echo json_encode(['ok' => false]);
@@ -211,7 +217,7 @@ class LotController
         $lot = Lot::find((int) $request->input('lot_id'));
         $shape = $request->input('map_shape');
 
-        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId
+        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId || !EventAccess::allowed((int) $eventId)
             || !in_array($shape, ['pin', 'box'], true)) {
             http_response_code(422);
             echo json_encode(['ok' => false]);
@@ -230,7 +236,7 @@ class LotController
         $lot = Lot::find((int) $request->input('lot_id'));
         $rotation = $request->input('map_rotation');
 
-        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId
+        if (!$event || !$lot || (int) $lot['event_id'] !== (int) $eventId || !EventAccess::allowed((int) $eventId)
             || !is_numeric($rotation) || $rotation < -180 || $rotation > 180) {
             http_response_code(422);
             echo json_encode(['ok' => false]);
@@ -246,7 +252,7 @@ class LotController
         header('Content-Type: application/json');
 
         $event = Event::find((int) $eventId);
-        if (!$event) {
+        if (!$event || !EventAccess::allowed((int) $eventId)) {
             http_response_code(422);
             echo json_encode(['ok' => false]);
             return;
@@ -287,6 +293,7 @@ class LotController
         if (!$lot) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $lot['event_id']);
 
         View::render('admin/lots/edit', [
             'title' => __('lot.singular'),
@@ -303,6 +310,7 @@ class LotController
         if (!$lot) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $lot['event_id']);
 
         $code = $request->trimmed('code');
         $price = $request->input('price', 0);
@@ -350,7 +358,7 @@ class LotController
         header('Content-Type: application/json');
 
         $lot = Lot::find((int) $id);
-        if (!$lot) {
+        if (!$lot || !EventAccess::allowed((int) $lot['event_id'])) {
             http_response_code(422);
             echo json_encode(['ok' => false]);
             return;
@@ -419,6 +427,7 @@ class LotController
         if (!$lot) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $lot['event_id']);
 
         if ($lot['status'] === 'disabled') {
             Lot::setStatus((int) $id, 'available');
@@ -439,6 +448,7 @@ class LotController
         if (!$lot) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $lot['event_id']);
 
         $name = $request->trimmed('reserved_vendor_name');
         $phone = $request->trimmed('reserved_vendor_phone');
@@ -472,6 +482,7 @@ class LotController
         if (!$lot) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $lot['event_id']);
 
         $result = ReservationService::cancel((int) $id);
         if ($result['success']) {
@@ -492,6 +503,7 @@ class LotController
         if (!$lot) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $lot['event_id']);
 
         if (!in_array($lot['status'], ['available', 'disabled'], true)) {
             Flash::error(__('lot.cannot_delete_active'));
@@ -510,6 +522,7 @@ class LotController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $eventId);
 
         $ids = $request->post['ids'] ?? [];
         $result = Lot::softDeleteMany(is_array($ids) ? $ids : [], (int) $eventId);
@@ -541,6 +554,7 @@ class LotController
         if (!$event) {
             redirect('admin/events');
         }
+        $this->denyUnlessAllowed((int) $eventId);
 
         $result = Lot::softDeleteAllForEvent((int) $eventId);
 
@@ -563,6 +577,14 @@ class LotController
         }
 
         redirect('admin/events/' . $eventId . '/lots');
+    }
+
+    private function denyUnlessAllowed(int $eventId): void
+    {
+        if (!EventAccess::allowed($eventId)) {
+            Flash::error(__('common.access_denied'));
+            redirect('admin/events');
+        }
     }
 
     /** Returns a validated zone id (must belong to $eventId) or null — silently drops any mismatch. */

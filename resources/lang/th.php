@@ -26,6 +26,7 @@ return [
     'common.note' => 'หมายเหตุ',
     'common.back_to_home' => 'กลับหน้าแรก',
     'common.export_csv' => 'ส่งออก CSV',
+    'common.access_denied' => 'คุณไม่มีสิทธิ์เข้าถึงงานนี้',
 
     // nav
     'nav.home' => 'หน้าแรก',
@@ -122,6 +123,7 @@ return [
     'activity.staff_deactivated' => 'ปิดใช้งานบัญชี ":name"',
     'activity.2fa_enabled' => '":name" เปิดใช้งานการยืนยันตัวตนสองชั้น',
     'activity.2fa_disabled' => '":name" ปิดใช้งานการยืนยันตัวตนสองชั้น',
+    'activity.staff_event_access_updated' => 'ปรับสิทธิ์เข้าถึงงานของ ":name" (เข้าถึงได้ :count งาน)',
     'activity.backup_deleted' => 'ลบไฟล์สำรองข้อมูล :filename',
 
     // dashboard
@@ -792,6 +794,10 @@ return [
     'staff.cannot_deactivate_self' => 'ไม่สามารถปิดใช้งานบัญชีของตนเองได้',
     'staff.last_login' => 'เข้าสู่ระบบล่าสุด',
     'staff.never_logged_in' => 'ยังไม่เคยเข้าสู่ระบบ',
+    'staff.manage_event_access' => 'จัดการสิทธิ์งาน',
+    'staff.event_access_title' => 'สิทธิ์เข้าถึงงาน',
+    'staff.event_access_hint' => 'เลือกงานที่ผู้ใช้งานคนนี้ดูแลได้ (เลือกได้หลายงาน) — ถ้าไม่เลือกเลย จะเห็น/จัดการได้ทุกงานเหมือนเดิม ถ้าเลือกอย่างน้อย 1 งาน จะเห็น/จัดการได้เฉพาะงานที่เลือกเท่านั้น',
+    'staff.event_access_updated_success' => 'บันทึกสิทธิ์เข้าถึงงานเรียบร้อยแล้ว',
 
     'security.title' => 'ความปลอดภัยบัญชี',
     'security.2fa_title' => 'ยืนยันตัวตนสองชั้น (2FA)',

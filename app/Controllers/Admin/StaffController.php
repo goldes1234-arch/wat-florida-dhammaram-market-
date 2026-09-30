@@ -8,6 +8,8 @@ use App\Core\Flash;
 use App\Core\Request;
 use App\Core\View;
 use App\Models\AdminUser;
+use App\Models\Event;
+use App\Models\StaffEventAccess;
 use App\Support\Validator;
 
 class StaffController
@@ -86,5 +88,39 @@ class StaffController
 
         Flash::success(__('staff.updated_success'));
         redirect('admin/staff');
+    }
+
+    public function eventsForm(Request $request, string $id): void
+    {
+        $user = AdminUser::find((int) $id);
+        if (!$user) {
+            redirect('admin/staff');
+        }
+
+        View::render('admin/staff/events', [
+            'title' => __('staff.event_access_title'),
+            'active' => 'staff',
+            'staffUser' => $user,
+            'events' => Event::allForAdmin(),
+            'assignedEventIds' => StaffEventAccess::eventIdsFor((int) $id),
+        ], 'admin');
+    }
+
+    public function updateEventAccess(Request $request, string $id): void
+    {
+        $user = AdminUser::find((int) $id);
+        if (!$user) {
+            redirect('admin/staff');
+        }
+
+        $eventIds = array_map('intval', $request->post['event_ids'] ?? []);
+        StaffEventAccess::setFor((int) $id, $eventIds);
+
+        ActivityLog::record('staff.event_access_updated', 'admin_user', (int) $id, __('activity.staff_event_access_updated', [
+            'name' => $user['name'], 'count' => count($eventIds),
+        ]));
+
+        Flash::success(__('staff.event_access_updated_success'));
+        redirect('admin/staff/' . $id . '/events');
     }
 }

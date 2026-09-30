@@ -157,6 +157,8 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->get('/admin/staff', [Admin\StaffController::class, 'index']);
             $router->post('/admin/staff', [Admin\StaffController::class, 'store']);
             $router->post('/admin/staff/{id}/toggle-active', [Admin\StaffController::class, 'toggleActive']);
+            $router->get('/admin/staff/{id}/events', [Admin\StaffController::class, 'eventsForm']);
+            $router->post('/admin/staff/{id}/events', [Admin\StaffController::class, 'updateEventAccess']);
         });
     });
 });

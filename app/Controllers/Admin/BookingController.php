@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Core\Auth;
+use App\Core\EventAccess;
 use App\Core\Flash;
 use App\Core\Request;
 use App\Core\View;
@@ -18,12 +19,18 @@ class BookingController
         $eventId = $request->query['event_id'] ?? '';
         $status = $request->query['status'] ?? '';
         $sort = ($request->query['sort'] ?? '') === 'asc' ? 'asc' : 'desc';
+        $filterEventId = $eventId !== '' ? (int) $eventId : null;
+
+        if ($filterEventId && !EventAccess::allowed($filterEventId)) {
+            $filterEventId = null;
+            $eventId = '';
+        }
 
         View::render('admin/bookings/index', [
             'title' => __('booking.list_title'),
             'active' => 'bookings',
-            'bookings' => Booking::forAdmin($eventId !== '' ? (int) $eventId : null, $status !== '' ? $status : null, $sort),
-            'events' => Event::allForAdmin(),
+            'bookings' => Booking::forAdmin($filterEventId, $status !== '' ? $status : null, $sort, EventAccess::assignedEventIds()),
+            'events' => EventAccess::filterEvents(Event::allForAdmin()),
             'selectedEvent' => $eventId,
             'selectedStatus' => $status,
             'selectedSort' => $sort,
@@ -35,8 +42,13 @@ class BookingController
         $eventId = $request->query['event_id'] ?? '';
         $status = $request->query['status'] ?? '';
         $sort = ($request->query['sort'] ?? '') === 'asc' ? 'asc' : 'desc';
+        $filterEventId = $eventId !== '' ? (int) $eventId : null;
 
-        $bookings = Booking::forAdmin($eventId !== '' ? (int) $eventId : null, $status !== '' ? $status : null, $sort);
+        if ($filterEventId && !EventAccess::allowed($filterEventId)) {
+            $filterEventId = null;
+        }
+
+        $bookings = Booking::forAdmin($filterEventId, $status !== '' ? $status : null, $sort, EventAccess::assignedEventIds());
 
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="bookings-' . date('Y-m-d-His') . '.csv"');
@@ -65,6 +77,7 @@ class BookingController
         if (!$booking) {
             redirect('admin/bookings');
         }
+        $this->denyUnlessAllowed((int) $booking['event_id']);
 
         View::render('admin/bookings/show', [
             'title' => __('booking.detail_title'),
@@ -76,6 +89,8 @@ class BookingController
 
     public function confirm(Request $request, string $id): void
     {
+        $this->denyUnlessAllowedForBooking((int) $id);
+
         $note = $request->trimmed('note') ?: __('booking.default_note_confirm');
         $result = BookingService::confirm((int) $id, 'admin', Auth::user()['id'] ?? null, $note);
         $this->respond($result, 'booking.confirm_success', $id);
@@ -83,6 +98,8 @@ class BookingController
 
     public function reject(Request $request, string $id): void
     {
+        $this->denyUnlessAllowedForBooking((int) $id);
+
         $note = $request->trimmed('note') ?: __('booking.default_note_reject');
         $result = BookingService::reject((int) $id, Auth::user()['id'] ?? null, $note);
         $this->respond($result, 'booking.reject_success', $id);
@@ -90,6 +107,8 @@ class BookingController
 
     public function cancel(Request $request, string $id): void
     {
+        $this->denyUnlessAllowedForBooking((int) $id);
+
         $note = $request->trimmed('note') ?: __('booking.default_note_cancel_admin');
         $result = BookingService::cancel((int) $id, 'admin', Auth::user()['id'] ?? null, $note);
         $this->respond($result, 'booking.cancel_success', $id);
@@ -98,7 +117,7 @@ class BookingController
     public function destroySelected(Request $request): void
     {
         $ids = $request->post['ids'] ?? [];
-        $result = Booking::deleteMany(is_array($ids) ? $ids : []);
+        $result = Booking::deleteMany(is_array($ids) ? $ids : [], EventAccess::assignedEventIds());
         $this->respondDelete($request, $result);
     }
 
@@ -106,8 +125,28 @@ class BookingController
     {
         $eventId = $request->post['event_id'] ?? '';
         $status = $request->post['status'] ?? '';
-        $result = Booking::deleteAllSafe($eventId !== '' ? (int) $eventId : null, $status !== '' ? $status : null);
+        $result = Booking::deleteAllSafe(
+            $eventId !== '' ? (int) $eventId : null,
+            $status !== '' ? $status : null,
+            EventAccess::assignedEventIds()
+        );
         $this->respondDelete($request, $result);
+    }
+
+    private function denyUnlessAllowed(int $eventId): void
+    {
+        if (!EventAccess::allowed($eventId)) {
+            Flash::error(__('common.access_denied'));
+            redirect('admin/bookings');
+        }
+    }
+
+    private function denyUnlessAllowedForBooking(int $bookingId): void
+    {
+        $booking = Booking::find($bookingId);
+        if ($booking) {
+            $this->denyUnlessAllowed((int) $booking['event_id']);
+        }
     }
 
     private function respondDelete(Request $request, array $result): void

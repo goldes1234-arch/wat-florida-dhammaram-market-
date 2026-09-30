@@ -38,13 +38,27 @@ class Booking extends Model
                  JOIN events ON events.id = bookings.event_id';
     }
 
-    public static function forAdmin(?int $eventId, ?string $status, string $sort = 'desc'): array
+    /**
+     * $allowedEventIds is null for an unrestricted admin (see EventAccess) — an empty
+     * array (a restricted staff account with zero assignments) short-circuits to no
+     * results rather than building a SQL "IN ()" that would match nothing anyway.
+     */
+    public static function forAdmin(?int $eventId, ?string $status, string $sort = 'desc', ?array $allowedEventIds = null): array
     {
+        if ($allowedEventIds !== null && !$allowedEventIds) {
+            return [];
+        }
+
         $sql = self::baseSelect() . ' WHERE 1=1';
         $params = [];
         if ($eventId) {
             $sql .= ' AND bookings.event_id = :event_id';
             $params['event_id'] = $eventId;
+        }
+        if ($allowedEventIds !== null) {
+            [$clause, $eventParams] = self::inClause('allowed', $allowedEventIds);
+            $sql .= ' AND bookings.event_id IN (' . $clause . ')';
+            $params += $eventParams;
         }
         if ($status) {
             $sql .= ' AND bookings.status = :status';
@@ -55,6 +69,19 @@ class Booking extends Model
         $stmt = self::db()->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    /** @return array{0: string, 1: array<string, int>} named placeholders + bound values for an IN (...) clause */
+    private static function inClause(string $prefix, array $ids): array
+    {
+        $names = [];
+        $params = [];
+        foreach (array_values($ids) as $i => $id) {
+            $key = $prefix . '_' . $i;
+            $names[] = ':' . $key;
+            $params[$key] = (int) $id;
+        }
+        return [implode(',', $names), $params];
     }
 
     public static function create(array $data): int
@@ -177,30 +204,47 @@ class Booking extends Model
      * transaction record and must go through cancel/reject first, never a raw delete.
      * booking_status_logs rows cascade-delete automatically (FK ON DELETE CASCADE).
      */
-    public static function deleteMany(array $ids): array
+    public static function deleteMany(array $ids, ?array $allowedEventIds = null): array
     {
         $ids = array_values(array_unique(array_map('intval', $ids)));
         if (!$ids) {
             return ['deleted' => 0, 'skipped' => 0];
         }
+        if ($allowedEventIds !== null && !$allowedEventIds) {
+            return ['deleted' => 0, 'skipped' => count($ids)];
+        }
 
         $placeholders = implode(',', array_fill(0, count($ids), '?'));
-        $stmt = self::db()->prepare(
-            "DELETE FROM bookings WHERE id IN ($placeholders) AND status IN ('rejected', 'cancelled')"
-        );
-        $stmt->execute($ids);
+        $sql = "DELETE FROM bookings WHERE id IN ($placeholders) AND status IN ('rejected', 'cancelled')";
+        $params = $ids;
+        if ($allowedEventIds !== null) {
+            $eventPlaceholders = implode(',', array_fill(0, count($allowedEventIds), '?'));
+            $sql .= " AND event_id IN ($eventPlaceholders)";
+            $params = array_merge($params, array_map('intval', $allowedEventIds));
+        }
+
+        $stmt = self::db()->prepare($sql);
+        $stmt->execute($params);
         $deleted = $stmt->rowCount();
 
         return ['deleted' => $deleted, 'skipped' => count($ids) - $deleted];
     }
 
-    public static function deleteAllSafe(?int $eventId, ?string $status): array
+    public static function deleteAllSafe(?int $eventId, ?string $status, ?array $allowedEventIds = null): array
     {
+        if ($allowedEventIds !== null && (!$allowedEventIds || ($eventId && !in_array($eventId, $allowedEventIds, true)))) {
+            return ['deleted' => 0, 'skipped' => 0];
+        }
+
         $where = "status IN ('rejected', 'cancelled')";
         $params = [];
         if ($eventId) {
             $where .= ' AND event_id = :event_id';
             $params['event_id'] = $eventId;
+        } elseif ($allowedEventIds !== null) {
+            [$clause, $eventParams] = self::inClause('allowed', $allowedEventIds);
+            $where .= ' AND event_id IN (' . $clause . ')';
+            $params += $eventParams;
         }
         if ($status) {
             $where .= ' AND status = :status';
@@ -214,6 +258,9 @@ class Booking extends Model
         $skipWhere = "status NOT IN ('rejected', 'cancelled')";
         if ($eventId) {
             $skipWhere .= ' AND event_id = :event_id';
+        } elseif ($allowedEventIds !== null) {
+            [$clause] = self::inClause('allowed', $allowedEventIds);
+            $skipWhere .= ' AND event_id IN (' . $clause . ')';
         }
         if ($status) {
             $skipWhere .= ' AND status = :status';
@@ -231,14 +278,22 @@ class Booking extends Model
         return (int) $stmt->fetch()['total'];
     }
 
-    public static function revenueByPaymentMethod(?int $eventId = null): array
+    public static function revenueByPaymentMethod(?int $eventId = null, ?array $allowedEventIds = null): array
     {
+        if ($allowedEventIds !== null && !$allowedEventIds) {
+            return ['onsite_cash' => 0.0, 'bank_transfer' => 0.0, 'stripe' => 0.0];
+        }
+
         $sql = "SELECT payment_method, COALESCE(SUM(price_at_booking), 0) AS total
                 FROM bookings WHERE status = 'booked'";
         $params = [];
         if ($eventId) {
             $sql .= ' AND event_id = :event_id';
             $params['event_id'] = $eventId;
+        } elseif ($allowedEventIds !== null) {
+            [$clause, $eventParams] = self::inClause('allowed', $allowedEventIds);
+            $sql .= ' AND event_id IN (' . $clause . ')';
+            $params += $eventParams;
         }
         $sql .= ' GROUP BY payment_method';
 

@@ -26,6 +26,7 @@ return [
     'common.note' => 'Note',
     'common.back_to_home' => 'Back to home',
     'common.export_csv' => 'Export CSV',
+    'common.access_denied' => "You don't have access to that event.",
 
     // nav
     'nav.home' => 'Home',
@@ -122,6 +123,7 @@ return [
     'activity.staff_deactivated' => 'Deactivated account ":name"',
     'activity.2fa_enabled' => '":name" enabled two-factor authentication',
     'activity.2fa_disabled' => '":name" disabled two-factor authentication',
+    'activity.staff_event_access_updated' => 'Updated ":name"\'s event access (:count event(s))',
     'activity.backup_deleted' => 'Deleted backup file :filename',
 
     // dashboard
@@ -792,6 +794,10 @@ return [
     'staff.cannot_deactivate_self' => 'You cannot deactivate your own account',
     'staff.last_login' => 'Last login',
     'staff.never_logged_in' => 'Never logged in',
+    'staff.manage_event_access' => 'Manage event access',
+    'staff.event_access_title' => 'Event access',
+    'staff.event_access_hint' => "Pick which events this person can manage (multiple allowed) — with none picked, they see/manage every event as usual; with at least one picked, they're limited to only those.",
+    'staff.event_access_updated_success' => 'Event access saved.',
 
     'security.title' => 'Account security',
     'security.2fa_title' => 'Two-factor authentication (2FA)',

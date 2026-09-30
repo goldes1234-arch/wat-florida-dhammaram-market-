@@ -390,3 +390,14 @@ CREATE TABLE booking_status_logs (
   CONSTRAINT fk_logs_admin FOREIGN KEY (changed_by_admin_id) REFERENCES admin_users(id) ON DELETE SET NULL,
   INDEX idx_logs_booking (booking_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tracks which database/upgrades/*.sql files MigrationService has already run,
+-- so GET /cron/post-deploy can safely auto-apply new ones on every deploy
+-- without ever re-running (and erroring on) one that already went in. This
+-- schema.sql already reflects every upgrade file's changes, so on a fresh
+-- install MigrationService correctly treats them all as already applied rather
+-- than replaying them.
+CREATE TABLE schema_migrations (
+  filename VARCHAR(255) NOT NULL PRIMARY KEY,
+  applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

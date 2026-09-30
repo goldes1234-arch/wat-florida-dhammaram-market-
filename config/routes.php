@@ -32,6 +32,7 @@ $router->get('/downloads/{id}', [Public\DownloadController::class, 'show']);
 $router->get('/reserve/{token}', [Public\ReservationController::class, 'show']);
 $router->post('/reserve/{token}/confirm', [Public\ReservationController::class, 'confirm']);
 $router->get('/cron/backup', [Public\CronController::class, 'backup']);
+$router->get('/cron/post-deploy', [Public\CronController::class, 'postDeploy']);
 
 // ---------------------------------------------------------------- Admin
 $router->group(['middleware' => ['guest']], function ($router) {

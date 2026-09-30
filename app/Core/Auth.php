@@ -125,4 +125,15 @@ class Auth
         $user = self::user();
         return $user !== null && $user['role'] === 'checkin';
     }
+
+    /**
+     * Finance sees money (dashboard, reports, bookings, refunds) but not event/lot/
+     * vendor management or anything super_admin-only — see the 'not_finance' and
+     * 'finance_or_super_admin' router middleware for where that's enforced.
+     */
+    public static function isFinance(): bool
+    {
+        $user = self::user();
+        return $user !== null && $user['role'] === 'finance';
+    }
 }

@@ -230,7 +230,9 @@ $revenueMethodTotal = array_sum($revenueMethodData);
   <div class="card">
     <div class="card-header"><h3><?= __('dashboard.quick_links') ?></h3></div>
     <div style="display:flex;flex-direction:column;gap:10px;">
-      <a href="<?= base_url('admin/events/create') ?>" class="btn btn-primary"><?= __('dashboard.create_event') ?></a>
+      <?php if (!\App\Core\Auth::isFinance()): ?>
+        <a href="<?= base_url('admin/events/create') ?>" class="btn btn-primary"><?= __('dashboard.create_event') ?></a>
+      <?php endif; ?>
       <a href="<?= base_url('admin/bookings?status=pending_payment') ?>" class="btn btn-secondary"><?= __('dashboard.review_bookings') ?></a>
     </div>
 
@@ -241,7 +243,11 @@ $revenueMethodTotal = array_sum($revenueMethodData);
       <?php foreach ($upcomingEvents as $ev): ?>
         <div class="status-log-item" style="padding:10px 0;">
           <div>
-            <a href="<?= base_url('admin/events/' . $ev['id'] . '/edit') ?>"><?= e($ev['name_th']) ?></a>
+            <?php if (\App\Core\Auth::isFinance()): ?>
+              <?= e($ev['name_th']) ?>
+            <?php else: ?>
+              <a href="<?= base_url('admin/events/' . $ev['id'] . '/edit') ?>"><?= e($ev['name_th']) ?></a>
+            <?php endif; ?>
             <div class="status-log-meta"><?= e(date('d/m/Y', strtotime($ev['start_date']))) ?></div>
           </div>
         </div>

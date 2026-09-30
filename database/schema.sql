@@ -157,7 +157,7 @@ CREATE TABLE admin_users (
   name VARCHAR(100) NOT NULL,
   email VARCHAR(150) NOT NULL UNIQUE,
   password_hash VARCHAR(255) NOT NULL,
-  role ENUM('super_admin','staff','checkin') NOT NULL DEFAULT 'staff',
+  role ENUM('super_admin','staff','checkin','finance') NOT NULL DEFAULT 'staff',
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   last_login_at DATETIME NULL,
   reset_token_hash VARCHAR(64) NULL,

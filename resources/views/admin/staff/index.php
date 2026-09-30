@@ -26,6 +26,7 @@
         <select name="role" class="form-control">
           <option value="staff"><?= __('staff.role_staff') ?></option>
           <option value="checkin"><?= __('staff.role_checkin') ?></option>
+          <option value="finance"><?= __('staff.role_finance') ?></option>
           <option value="super_admin"><?= __('staff.role_super_admin') ?></option>
         </select>
       </div>

@@ -167,7 +167,7 @@ foreach ($trend as $r) {
         </thead>
         <tbody>
           <?php foreach ($topVendors as $v): ?>
-            <tr onclick="location.href='<?= base_url('admin/vendors/' . $v['id']) ?>'" style="cursor:pointer;">
+            <tr<?= \App\Core\Auth::isFinance() ? '' : ' onclick="location.href=\'' . base_url('admin/vendors/' . $v['id']) . '\'" style="cursor:pointer;"' ?>>
               <td><strong><?= e($v['name']) ?></strong></td>
               <td><?= e($v['phone']) ?></td>
               <td><span class="badge badge-indigo"><?= (int) $v['booking_count'] ?></span></td>

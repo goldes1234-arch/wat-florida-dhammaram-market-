@@ -42,7 +42,7 @@ class StaffController
         if (strlen($password) < 8) {
             $errors[] = __('staff.password_too_short');
         }
-        if (!in_array($role, ['super_admin', 'staff', 'checkin'], true)) {
+        if (!in_array($role, ['super_admin', 'staff', 'checkin', 'finance'], true)) {
             $errors[] = __('validation.generic_error');
         }
 

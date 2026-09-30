@@ -121,6 +121,23 @@ class Router
             }
         }
 
+        // Event/lot/vendor management and the like — finance sees money, not this.
+        if ($middleware === 'not_finance') {
+            if (Auth::isFinance()) {
+                header('Location: ' . $base . '/admin');
+                return false;
+            }
+        }
+
+        // Refunding money: super_admin's usual actions, plus finance specifically.
+        if ($middleware === 'finance_or_super_admin') {
+            if (!Auth::isSuperAdmin() && !Auth::isFinance()) {
+                http_response_code(403);
+                echo 'Forbidden: finance or super admin only.';
+                return false;
+            }
+        }
+
         return true;
     }
 }

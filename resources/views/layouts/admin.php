@@ -23,8 +23,11 @@ $locale = \App\Core\Lang::locale();
       <?php else: ?>
         <li><a href="<?= base_url('admin') ?>" class="<?= $active === 'dashboard' ? 'is-active' : '' ?>"><span class="nav-icon icon-indigo"><?= icon('dashboard') ?></span> <?= __('nav.dashboard') ?></a></li>
         <li><a href="<?= base_url('admin/reports') ?>" class="<?= $active === 'reports' ? 'is-active' : '' ?>"><span class="nav-icon icon-teal"><?= icon('chart') ?></span> <?= __('nav.reports') ?></a></li>
+        <?php if (!\App\Core\Auth::isFinance()): ?>
         <li><a href="<?= base_url('admin/events') ?>" class="<?= $active === 'events' ? 'is-active' : '' ?>"><span class="nav-icon icon-violet"><?= icon('calendar') ?></span> <?= __('nav.events') ?></a></li>
+        <?php endif; ?>
         <li><a href="<?= base_url('admin/bookings') ?>" class="<?= $active === 'bookings' ? 'is-active' : '' ?>"><span class="nav-icon icon-magenta"><?= icon('ticket') ?></span> <?= __('nav.bookings') ?></a></li>
+        <?php if (!\App\Core\Auth::isFinance()): ?>
         <li><a href="<?= base_url('admin/vendors') ?>" class="<?= $active === 'vendors' ? 'is-active' : '' ?>"><span class="nav-icon icon-green"><?= icon('users') ?></span> <?= __('nav.vendors') ?></a></li>
         <li><a href="<?= base_url('admin/line-messages') ?>" class="<?= $active === 'line_messages' ? 'is-active' : '' ?>"><span class="nav-icon icon-green"><?= icon('message-circle') ?></span> <?= __('nav.line_messages') ?></a></li>
         <li><a href="<?= base_url('admin/checkin') ?>" class="<?= $active === 'checkin' ? 'is-active' : '' ?>"><span class="nav-icon icon-green"><?= icon('check-circle') ?></span> <?= __('nav.checkin') ?></a></li>
@@ -35,9 +38,11 @@ $locale = \App\Core\Lang::locale();
             <?php if ($unreadContacts > 0): ?><span class="nav-badge"><?= $unreadContacts ?></span><?php endif; ?>
           </a>
         </li>
+        <?php endif; ?>
         <?php if (\App\Core\Auth::isSuperAdmin()): ?>
         <li><a href="<?= base_url('admin/staff') ?>" class="<?= $active === 'staff' ? 'is-active' : '' ?>"><span class="nav-icon icon-blue"><?= icon('users') ?></span> <?= __('nav.staff') ?></a></li>
         <?php endif; ?>
+        <?php if (!\App\Core\Auth::isFinance()): ?>
         <li>
           <a href="<?= base_url('admin/advertisements') ?>" class="<?= $active === 'advertisements' ? 'is-active' : '' ?>">
             <span class="nav-icon icon-teal"><?= icon('store') ?></span> <?= __('nav.advertisements') ?>
@@ -45,10 +50,13 @@ $locale = \App\Core\Lang::locale();
             <?php if ($pendingAdsCount > 0): ?><span class="nav-badge"><?= $pendingAdsCount ?></span><?php endif; ?>
           </a>
         </li>
+        <?php endif; ?>
         <?php if (\App\Core\Auth::isSuperAdmin()): ?>
         <li><a href="<?= base_url('admin/gallery') ?>" class="<?= $active === 'gallery' ? 'is-active' : '' ?>"><span class="nav-icon icon-teal"><?= icon('image') ?></span> <?= __('nav.gallery') ?></a></li>
         <?php endif; ?>
+        <?php if (!\App\Core\Auth::isFinance()): ?>
         <li><a href="<?= base_url('admin/downloads') ?>" class="<?= $active === 'downloads' ? 'is-active' : '' ?>"><span class="nav-icon icon-blue"><?= icon('download') ?></span> <?= __('nav.downloads') ?></a></li>
+        <?php endif; ?>
         <?php if (\App\Core\Auth::isSuperAdmin()): ?>
         <li><a href="<?= base_url('admin/backups') ?>" class="<?= $active === 'backups' ? 'is-active' : '' ?>"><span class="nav-icon icon-amber"><?= icon('download') ?></span> <?= __('nav.backups') ?></a></li>
         <li><a href="<?= base_url('admin/activity-log') ?>" class="<?= $active === 'activity_log' ? 'is-active' : '' ?>"><span class="nav-icon icon-magenta"><?= icon('clock') ?></span> <?= __('nav.activity_log') ?></a></li>

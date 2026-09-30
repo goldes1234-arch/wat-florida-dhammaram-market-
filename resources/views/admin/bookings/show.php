@@ -67,7 +67,7 @@
     <?php if ($booking['status'] === 'cancelled' && $booking['payment_method'] === 'stripe' && !empty($booking['stripe_payment_intent_id']) && empty($booking['refunded_at'])): ?>
       <div class="card mb-6">
         <div class="card-header"><h3><?= __('booking.refund_action') ?></h3></div>
-        <?php if (\App\Core\Auth::isSuperAdmin()): ?>
+        <?php if (\App\Core\Auth::isSuperAdmin() || \App\Core\Auth::isFinance()): ?>
           <p class="form-hint mb-4"><?= __('booking.refund_hint') ?></p>
           <form method="post" action="<?= base_url('admin/bookings/' . $booking['id'] . '/refund') ?>" data-confirm="<?= e(__('booking.refund_confirm')) ?>">
             <?= csrf_field() ?>

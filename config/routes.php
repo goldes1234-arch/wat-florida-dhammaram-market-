@@ -38,6 +38,8 @@ $router->get('/cron/post-deploy', [Public\CronController::class, 'postDeploy']);
 $router->group(['middleware' => ['guest']], function ($router) {
     $router->get('/admin/login', [Admin\AuthController::class, 'loginForm']);
     $router->post('/admin/login', [Admin\AuthController::class, 'login']);
+    $router->get('/admin/login/verify-2fa', [Admin\AuthController::class, 'verify2faForm']);
+    $router->post('/admin/login/verify-2fa', [Admin\AuthController::class, 'verify2fa']);
     $router->get('/admin/forgot-password', [Admin\AuthController::class, 'forgotPasswordForm']);
     $router->post('/admin/forgot-password', [Admin\AuthController::class, 'sendResetLink']);
     $router->get('/admin/reset-password/{token}', [Admin\AuthController::class, 'resetPasswordForm']);
@@ -52,6 +54,11 @@ $router->group(['middleware' => ['auth']], function ($router) {
     $router->post('/admin/checkin', [Admin\CheckinController::class, 'search']);
     $router->get('/admin/checkin/{code}', [Admin\CheckinController::class, 'show']);
     $router->post('/admin/checkin/{code}/confirm', [Admin\CheckinController::class, 'confirm']);
+
+    $router->get('/admin/security', [Admin\SecurityController::class, 'index']);
+    $router->get('/admin/security/enroll', [Admin\SecurityController::class, 'enrollStart']);
+    $router->post('/admin/security/enroll/confirm', [Admin\SecurityController::class, 'enrollConfirm']);
+    $router->post('/admin/security/disable', [Admin\SecurityController::class, 'disable']);
 
     // Everything else is off-limits to the "checkin" role (see staff_or_admin middleware).
     $router->group(['middleware' => ['staff_or_admin']], function ($router) {

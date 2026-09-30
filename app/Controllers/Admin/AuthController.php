@@ -7,6 +7,7 @@ use App\Core\Flash;
 use App\Core\Mailer;
 use App\Core\RateLimiter;
 use App\Core\Request;
+use App\Core\Totp;
 use App\Core\View;
 use App\Models\AdminUser;
 use App\Models\Setting;
@@ -32,13 +33,61 @@ class AuthController
             redirect('admin/login');
         }
 
-        if ($email === '' || $password === '' || !Auth::attempt($email, $password)) {
+        $result = ($email === '' || $password === '') ? 'invalid' : Auth::attempt($email, $password);
+
+        if ($result === 'invalid') {
             Flash::error(__('auth.invalid_credentials'));
             Flash::setOld(['email' => $email]);
             redirect('admin/login');
         }
 
+        if ($result === 'needs_2fa') {
+            redirect('admin/login/verify-2fa');
+        }
+
         redirect('admin');
+    }
+
+    public function verify2faForm(Request $request): void
+    {
+        if (!Auth::pendingTwoFactorUser()) {
+            redirect('admin/login');
+        }
+
+        View::render('admin/auth/verify_2fa', ['title' => __('auth.verify_2fa_title')], 'auth');
+    }
+
+    public function verify2fa(Request $request): void
+    {
+        $user = Auth::pendingTwoFactorUser();
+        if (!$user) {
+            Flash::error(__('auth.login_session_expired'));
+            redirect('admin/login');
+        }
+
+        if (RateLimiter::tooMany($request->ip(), 'admin_login_2fa', 15)) {
+            Flash::error(__('auth.login_rate_limited'));
+            redirect('admin/login/verify-2fa');
+        }
+
+        $code = $request->trimmed('code');
+        $secret = (string) ($user['totp_secret'] ?? '');
+
+        if ($secret && Totp::verify($secret, $code)) {
+            Auth::completeTwoFactorLogin();
+            redirect('admin');
+        }
+
+        // Not a valid live TOTP code — try it as a one-time backup code instead.
+        $codeHash = hash('sha256', strtoupper(trim($code)));
+        if (AdminUser::consumeBackupCode((int) $user['id'], $codeHash)) {
+            Auth::completeTwoFactorLogin();
+            Flash::success(__('auth.backup_code_used'));
+            redirect('admin');
+        }
+
+        Flash::error(__('auth.invalid_2fa_code'));
+        redirect('admin/login/verify-2fa');
     }
 
     public function logout(Request $request): void

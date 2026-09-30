@@ -82,4 +82,46 @@ class AdminUser extends Model
         );
         $stmt->execute(['hash' => $passwordHash, 'id' => $id]);
     }
+
+    /** Stores a freshly generated secret without enabling 2FA yet — see SecurityController::enrollStart(). */
+    public static function setPendingTotpSecret(int $id, string $secret): void
+    {
+        $stmt = self::db()->prepare('UPDATE admin_users SET totp_secret = :secret WHERE id = :id');
+        $stmt->execute(['secret' => $secret, 'id' => $id]);
+    }
+
+    /** @param string[] $backupCodeHashes */
+    public static function enableTotp(int $id, array $backupCodeHashes): void
+    {
+        $stmt = self::db()->prepare(
+            'UPDATE admin_users SET totp_enabled = 1, totp_backup_codes = :codes WHERE id = :id'
+        );
+        $stmt->execute(['codes' => json_encode(array_values($backupCodeHashes)), 'id' => $id]);
+    }
+
+    public static function disableTotp(int $id): void
+    {
+        $stmt = self::db()->prepare(
+            'UPDATE admin_users SET totp_enabled = 0, totp_secret = NULL, totp_backup_codes = NULL WHERE id = :id'
+        );
+        $stmt->execute(['id' => $id]);
+    }
+
+    /** Removes one matching backup code hash (one-time use) and returns whether it was found. */
+    public static function consumeBackupCode(int $id, string $codeHash): bool
+    {
+        $user = self::find($id);
+        $codes = $user ? (json_decode((string) $user['totp_backup_codes'], true) ?: []) : [];
+
+        $index = array_search($codeHash, $codes, true);
+        if ($index === false) {
+            return false;
+        }
+
+        unset($codes[$index]);
+        $stmt = self::db()->prepare('UPDATE admin_users SET totp_backup_codes = :codes WHERE id = :id');
+        $stmt->execute(['codes' => json_encode(array_values($codes)), 'id' => $id]);
+
+        return true;
+    }
 }

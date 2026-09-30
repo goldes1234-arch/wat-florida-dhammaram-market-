@@ -69,7 +69,7 @@ $locale = \App\Core\Lang::locale();
           <a href="<?= base_url('lang/th') ?>" class="<?= $locale === 'th' ? 'is-active' : '' ?>">TH</a>
           <a href="<?= base_url('lang/en') ?>" class="<?= $locale === 'en' ? 'is-active' : '' ?>">EN</a>
         </div>
-        <span class="user-name"><?= e($user['name'] ?? '') ?></span>
+        <a href="<?= base_url('admin/security') ?>" class="user-name" style="text-decoration:none;"><?= e($user['name'] ?? '') ?></a>
         <form method="post" action="<?= base_url('admin/logout') ?>" style="margin:0;">
           <?= csrf_field() ?>
           <button type="submit" class="btn btn-secondary btn-sm"><?= __('nav.logout') ?></button>

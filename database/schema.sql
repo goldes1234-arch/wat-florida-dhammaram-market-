@@ -161,6 +161,13 @@ CREATE TABLE admin_users (
   last_login_at DATETIME NULL,
   reset_token_hash VARCHAR(64) NULL,
   reset_token_expires_at DATETIME NULL,
+  -- Self-service two-factor auth (see App\Core\Totp, admin/security) — totp_secret is
+  -- written during enrollment before totp_enabled flips on, so an abandoned enrollment
+  -- never actually gates login. totp_backup_codes is a JSON array of hashed one-time
+  -- codes, each removed from the array the moment it's used.
+  totp_secret VARCHAR(32) NULL,
+  totp_enabled TINYINT(1) NOT NULL DEFAULT 0,
+  totp_backup_codes TEXT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

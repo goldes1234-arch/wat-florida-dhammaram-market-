@@ -7,7 +7,6 @@ use App\Core\Mailer;
 use App\Core\Request;
 use App\Core\Upload;
 use App\Core\View;
-use App\Models\GalleryPhoto;
 use App\Models\Setting;
 use App\Models\SocialLink;
 use App\Services\CurrencyService;
@@ -22,7 +21,6 @@ class SettingsController
             'settings' => Setting::get(true),
             'currencies' => CurrencyService::options(),
             'socialLinks' => SocialLink::all(),
-            'galleryPhotos' => GalleryPhoto::all(),
         ], 'admin');
     }
 
@@ -157,37 +155,6 @@ class SettingsController
     {
         SocialLink::delete((int) $id);
         Flash::success(__('settings.social_link_removed'));
-        redirect('admin/settings');
-    }
-
-    public function storeGalleryPhoto(Request $request): void
-    {
-        $photoFile = $request->file('photo');
-        if (!$photoFile) {
-            Flash::error(__('validation.generic_error'));
-            redirect('admin/settings');
-        }
-
-        $error = null;
-        $path = Upload::storeImage($photoFile, 'gallery', $error);
-        if (!$path) {
-            Flash::error($error);
-            redirect('admin/settings');
-        }
-
-        GalleryPhoto::create($path, $request->trimmed('caption'));
-        Flash::success(__('settings.gallery_photo_added'));
-        redirect('admin/settings');
-    }
-
-    public function destroyGalleryPhoto(Request $request, string $id): void
-    {
-        $photo = GalleryPhoto::find((int) $id);
-        if ($photo) {
-            Upload::delete($photo['image_path']);
-            GalleryPhoto::delete((int) $id);
-            Flash::success(__('settings.gallery_photo_removed'));
-        }
         redirect('admin/settings');
     }
 

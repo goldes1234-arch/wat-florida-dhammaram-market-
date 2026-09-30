@@ -49,6 +49,7 @@ return [
     'nav.contacts' => 'ข้อความติดต่อ',
     'nav.advertisements' => 'ร้านค้าแนะนำ',
     'nav.downloads' => 'ดาวน์โหลด',
+    'nav.gallery' => 'รูปภาพบรรยากาศ',
     'nav.vendors' => 'ผู้ขายประจำ',
     'nav.line_messages' => 'ส่งข้อความ LINE',
     'nav.backups' => 'สำรองข้อมูล',

@@ -149,9 +149,11 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->post('/admin/settings/social-links', [Admin\SettingsController::class, 'storeSocialLink']);
             $router->post('/admin/settings/social-links/{id}', [Admin\SettingsController::class, 'updateSocialLink']);
             $router->post('/admin/settings/social-links/{id}/delete', [Admin\SettingsController::class, 'destroySocialLink']);
-            $router->post('/admin/settings/gallery', [Admin\SettingsController::class, 'storeGalleryPhoto']);
-            $router->post('/admin/settings/gallery/{id}/delete', [Admin\SettingsController::class, 'destroyGalleryPhoto']);
             $router->post('/admin/settings/test-email', [Admin\SettingsController::class, 'testEmail']);
+
+            $router->get('/admin/gallery', [Admin\GalleryController::class, 'index']);
+            $router->post('/admin/gallery', [Admin\GalleryController::class, 'store']);
+            $router->post('/admin/gallery/{id}/delete', [Admin\GalleryController::class, 'destroy']);
 
             $router->get('/admin/activity-log', [Admin\ActivityLogController::class, 'index']);
 

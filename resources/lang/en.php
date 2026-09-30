@@ -49,6 +49,7 @@ return [
     'nav.contacts' => 'Contact messages',
     'nav.advertisements' => 'Featured shops',
     'nav.downloads' => 'Downloads',
+    'nav.gallery' => 'Atmosphere photos',
     'nav.vendors' => 'Regular vendors',
     'nav.line_messages' => 'LINE messages',
     'nav.backups' => 'Backups',

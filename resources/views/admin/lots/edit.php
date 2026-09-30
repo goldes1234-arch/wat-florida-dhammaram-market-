@@ -74,24 +74,47 @@
     <p class="form-hint mb-4"><?= __('lot.reserve_for_vendor_hint') ?></p>
     <form method="post" action="<?= base_url('admin/lots/' . $lot['id'] . '/reserve') ?>">
       <?= csrf_field() ?>
+      <?php if ($vendors): ?>
+        <div class="form-group">
+          <label><?= __('lot.reserve_pick_vendor') ?></label>
+          <select id="reserveVendorPicker" class="form-control">
+            <option value=""><?= __('lot.reserve_pick_vendor_new') ?></option>
+            <?php foreach ($vendors as $v): ?>
+              <option value="<?= (int) $v['id'] ?>" data-name="<?= e($v['name']) ?>" data-phone="<?= e($v['phone']) ?>" data-email="<?= e($v['email'] ?? '') ?>">
+                <?= e($v['name']) ?> (<?= e($v['phone']) ?>)
+              </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+      <?php endif; ?>
       <div class="form-group">
         <label><?= __('lot.reserve_vendor_name') ?></label>
-        <input type="text" name="reserved_vendor_name" class="form-control" required>
+        <input type="text" id="reserveVendorName" name="reserved_vendor_name" class="form-control" required>
       </div>
       <div class="form-row">
         <div class="form-group">
           <label><?= __('lot.reserve_vendor_phone') ?></label>
-          <input type="text" name="reserved_vendor_phone" class="form-control" required>
+          <input type="text" id="reserveVendorPhone" name="reserved_vendor_phone" class="form-control" required>
         </div>
         <div class="form-group">
           <label><?= __('lot.reserve_vendor_email') ?> <span class="optional-tag">(<?= __('common.optional') ?>)</span></label>
-          <input type="email" name="reserved_vendor_email" class="form-control">
+          <input type="email" id="reserveVendorEmail" name="reserved_vendor_email" class="form-control">
         </div>
       </div>
       <p class="form-hint mb-4"><?= __('lot.reserve_vendor_email_hint') ?></p>
       <button type="submit" class="btn btn-primary"><?= __('lot.reserve_button') ?></button>
     </form>
   </div>
+  <?php if ($vendors): ?>
+    <script>
+    document.getElementById('reserveVendorPicker').addEventListener('change', function () {
+      var opt = this.options[this.selectedIndex];
+      document.getElementById('reserveVendorName').value = opt.getAttribute('data-name') || '';
+      document.getElementById('reserveVendorPhone').value = opt.getAttribute('data-phone') || '';
+      document.getElementById('reserveVendorEmail').value = opt.getAttribute('data-email') || '';
+    });
+    </script>
+  <?php endif; ?>
 
 <?php elseif ($lot['status'] === 'reserved'): ?>
   <?php

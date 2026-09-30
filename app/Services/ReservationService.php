@@ -10,6 +10,7 @@ use App\Models\BookingStatusLog;
 use App\Models\Event;
 use App\Models\Lot;
 use App\Models\Setting;
+use App\Models\Vendor;
 
 /**
  * Holds a lot for a regular/recurring vendor ahead of the normal public booking
@@ -25,6 +26,11 @@ class ReservationService
 {
     public static function reserve(int $lotId, string $name, string $phone, ?string $email): array
     {
+        // Resolved before the lot lock below — matching by phone reuses the same
+        // vendor record across reservations instead of spawning a duplicate every
+        // time, which is what lets a vendor's history accumulate on one profile.
+        $vendorId = Vendor::findOrCreateByContact($name, $phone, $email);
+
         $pdo = Database::connection();
         $pdo->beginTransaction();
 
@@ -41,7 +47,7 @@ class ReservationService
             }
 
             $token = bin2hex(random_bytes(32));
-            Lot::setReservation($lotId, $name, $phone, $email, $token);
+            Lot::setReservation($lotId, $name, $phone, $email, $token, $vendorId);
 
             $pdo->commit();
         } catch (\Throwable $e) {
@@ -104,6 +110,7 @@ class ReservationService
                 'booker_name' => $lot['reserved_vendor_name'],
                 'booker_phone' => $lot['reserved_vendor_phone'],
                 'booker_email' => $lot['reserved_vendor_email'],
+                'vendor_id' => $lot['reserved_vendor_id'],
                 'payment_method' => 'onsite_cash',
                 'status' => 'booked',
                 'price_at_booking' => $lot['price'],

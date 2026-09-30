@@ -269,6 +269,21 @@ CREATE TABLE interest_subscribers (
   INDEX idx_subscribers_event (event_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- A regular/recurring vendor's persistent identity, independent of any one lot
+-- reservation or booking — built up automatically as admins reserve lots for
+-- vendors (see lots.reserved_vendor_id, bookings.vendor_id) so a vendor's
+-- history accumulates across events without any extra admin data entry.
+CREATE TABLE vendors (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(150) NOT NULL,
+  phone VARCHAR(30) NOT NULL,
+  email VARCHAR(150) NULL,
+  notes TEXT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  INDEX idx_vendors_phone (phone)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 -- Individual sellable stalls within an event.
 CREATE TABLE lots (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -295,6 +310,11 @@ CREATE TABLE lots (
   reserved_vendor_name VARCHAR(150) NULL,
   reserved_vendor_phone VARCHAR(30) NULL,
   reserved_vendor_email VARCHAR(150) NULL,
+  -- Links to the persistent vendor record this reservation is/was for — cleared
+  -- along with the rest of the reserved_* fields on cancel/expiry (a reservation
+  -- that never became a real booking isn't meaningful vendor history), but carried
+  -- into bookings.vendor_id once confirmed, which is where that history actually lives.
+  reserved_vendor_id INT UNSIGNED NULL,
   reserved_token VARCHAR(64) NULL,
   reserved_at DATETIME NULL,
   reserved_confirmed_at DATETIME NULL,
@@ -303,6 +323,7 @@ CREATE TABLE lots (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_lots_event FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
   CONSTRAINT fk_lots_zone FOREIGN KEY (zone_id) REFERENCES zones(id) ON DELETE SET NULL,
+  CONSTRAINT fk_lots_reserved_vendor FOREIGN KEY (reserved_vendor_id) REFERENCES vendors(id) ON DELETE SET NULL,
   UNIQUE KEY uq_lot_code_per_event (event_id, code),
   UNIQUE KEY uq_lots_reserved_token (reserved_token),
   INDEX idx_lots_event_status (event_id, status)
@@ -317,6 +338,10 @@ CREATE TABLE bookings (
   booker_name VARCHAR(150) NOT NULL,
   booker_phone VARCHAR(30) NOT NULL,
   booker_email VARCHAR(150) NULL,
+  -- Only set when this booking originated from a confirmed vendor reservation
+  -- (see ReservationService::confirm) — NULL for an ordinary public booking. This
+  -- is the permanent link a vendor's booking history is built from.
+  vendor_id INT UNSIGNED NULL,
   shop_photo VARCHAR(255) NULL,
   payment_method ENUM('onsite_cash','bank_transfer','stripe') NOT NULL,
   status ENUM('pending_payment','booked','rejected','cancelled') NOT NULL DEFAULT 'pending_payment',
@@ -334,9 +359,11 @@ CREATE TABLE bookings (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT fk_bookings_event FOREIGN KEY (event_id) REFERENCES events(id),
   CONSTRAINT fk_bookings_lot FOREIGN KEY (lot_id) REFERENCES lots(id),
+  CONSTRAINT fk_bookings_vendor FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE SET NULL,
   INDEX idx_bookings_event_status (event_id, status),
   INDEX idx_bookings_lookup (booker_phone, booker_email),
-  INDEX idx_bookings_lot (lot_id)
+  INDEX idx_bookings_lot (lot_id),
+  INDEX idx_bookings_vendor (vendor_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Full audit trail of booking status transitions.

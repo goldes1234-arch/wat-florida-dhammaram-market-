@@ -9,6 +9,7 @@ use App\Core\Upload;
 use App\Core\View;
 use App\Models\Event;
 use App\Models\Lot;
+use App\Models\Vendor;
 use App\Models\Zone;
 use App\Services\ReservationService;
 use App\Support\Validator;
@@ -292,6 +293,7 @@ class LotController
             'active' => 'events',
             'lot' => $lot,
             'zones' => Zone::forEvent((int) $lot['event_id']),
+            'vendors' => $lot['status'] === 'available' ? Vendor::allWithBookingCounts() : [],
         ], 'admin');
     }
 

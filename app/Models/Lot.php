@@ -134,14 +134,15 @@ class Lot extends Model
     }
 
     /** Holds a lot for a regular vendor pending their confirmation — see ReservationService. */
-    public static function setReservation(int $id, string $name, string $phone, ?string $email, string $token): void
+    public static function setReservation(int $id, string $name, string $phone, ?string $email, string $token, int $vendorId): void
     {
         $stmt = self::db()->prepare(
             'UPDATE lots SET status = "reserved", reserved_vendor_name = :name, reserved_vendor_phone = :phone,
-                    reserved_vendor_email = :email, reserved_token = :token, reserved_at = NOW(), reserved_confirmed_at = NULL
+                    reserved_vendor_email = :email, reserved_vendor_id = :vendor_id, reserved_token = :token,
+                    reserved_at = NOW(), reserved_confirmed_at = NULL
              WHERE id = :id'
         );
-        $stmt->execute(['name' => $name, 'phone' => $phone, 'email' => $email, 'token' => $token, 'id' => $id]);
+        $stmt->execute(['name' => $name, 'phone' => $phone, 'email' => $email, 'vendor_id' => $vendorId, 'token' => $token, 'id' => $id]);
     }
 
     public static function markReservationConfirmed(int $id): void
@@ -154,7 +155,8 @@ class Lot extends Model
     {
         $stmt = self::db()->prepare(
             'UPDATE lots SET status = "available", reserved_vendor_name = NULL, reserved_vendor_phone = NULL,
-                    reserved_vendor_email = NULL, reserved_token = NULL, reserved_at = NULL, reserved_confirmed_at = NULL
+                    reserved_vendor_email = NULL, reserved_vendor_id = NULL, reserved_token = NULL,
+                    reserved_at = NULL, reserved_confirmed_at = NULL
              WHERE id = :id'
         );
         $stmt->execute(['id' => $id]);

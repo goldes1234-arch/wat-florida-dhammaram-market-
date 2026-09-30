@@ -110,6 +110,12 @@ $router->group(['middleware' => ['auth']], function ($router) {
         $router->post('/admin/advertisements/{id}/approve', [Admin\AdvertisementController::class, 'approve']);
         $router->post('/admin/advertisements/{id}/delete', [Admin\AdvertisementController::class, 'destroy']);
 
+        $router->get('/admin/vendors', [Admin\VendorController::class, 'index']);
+        $router->post('/admin/vendors', [Admin\VendorController::class, 'store']);
+        $router->get('/admin/vendors/{id}', [Admin\VendorController::class, 'show']);
+        $router->post('/admin/vendors/{id}', [Admin\VendorController::class, 'update']);
+        $router->post('/admin/vendors/{id}/delete', [Admin\VendorController::class, 'destroy']);
+
         $router->get('/admin/downloads', [Admin\DownloadController::class, 'index']);
         $router->post('/admin/downloads/categories', [Admin\DownloadController::class, 'storeCategory']);
         $router->post('/admin/downloads/categories/{id}/delete', [Admin\DownloadController::class, 'destroyCategory']);

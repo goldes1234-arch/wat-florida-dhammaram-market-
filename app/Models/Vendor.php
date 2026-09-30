@@ -68,6 +68,23 @@ class Vendor extends Model
         self::db()->prepare('DELETE FROM vendors WHERE id = :id')->execute(['id' => $id]);
     }
 
+    /** Ranks vendors by confirmed-booking revenue, for the reports page. */
+    public static function topByRevenue(int $limit = 10): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT vendors.id, vendors.name, vendors.phone,
+                    COUNT(bookings.id) AS booking_count,
+                    COALESCE(SUM(bookings.price_at_booking), 0) AS revenue
+             FROM vendors
+             JOIN bookings ON bookings.vendor_id = vendors.id AND bookings.status = "booked"
+             GROUP BY vendors.id
+             ORDER BY revenue DESC
+             LIMIT ' . (int) $limit
+        );
+        $stmt->execute();
+        return $stmt->fetchAll();
+    }
+
     /** Confirmed booking history for a vendor — what actually happened, not attempted/cancelled reservations. */
     public static function bookingHistory(int $id): array
     {

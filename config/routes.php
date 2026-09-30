@@ -55,6 +55,9 @@ $router->group(['middleware' => ['auth']], function ($router) {
     $router->group(['middleware' => ['staff_or_admin']], function ($router) {
         $router->get('/admin', [Admin\DashboardController::class, 'index']);
 
+        $router->get('/admin/reports', [Admin\ReportController::class, 'index']);
+        $router->get('/admin/reports/export-events', [Admin\ReportController::class, 'exportEvents']);
+
         $router->get('/admin/events', [Admin\EventController::class, 'index']);
         $router->get('/admin/events/create', [Admin\EventController::class, 'create']);
         $router->post('/admin/events', [Admin\EventController::class, 'store']);

@@ -25,6 +25,7 @@ return [
     'common.date' => 'Date',
     'common.note' => 'Note',
     'common.back_to_home' => 'Back to home',
+    'common.export_csv' => 'Export CSV',
 
     // nav
     'nav.home' => 'Home',
@@ -33,6 +34,7 @@ return [
     'nav.login' => 'Log in',
     'nav.logout' => 'Log out',
     'nav.dashboard' => 'Dashboard',
+    'nav.reports' => 'Reports',
     'nav.events' => 'Events',
     'nav.bookings' => 'Bookings',
     'nav.settings' => 'Settings',
@@ -497,6 +499,21 @@ return [
     'vendor.added_success' => 'Vendor added.',
     'vendor.updated_success' => 'Vendor updated.',
     'vendor.deleted_success' => 'Vendor deleted.',
+
+    'report.title' => 'Reports & sales trends',
+    'report.filter_event' => 'Event',
+    'report.all_events' => 'All events (overview)',
+    'report.revenue' => 'Revenue',
+    'report.total_lots' => 'Total lots',
+    'report.booked_lots' => 'Lots booked',
+    'report.sell_through' => 'Sell-through',
+    'report.avg_price' => 'Average price per lot',
+    'report.chart_trend' => 'Booking trend',
+    'report.chart_revenue_by_zone' => 'Revenue by zone',
+    'report.event_comparison' => 'Event comparison',
+    'report.top_vendors' => 'Top vendors by revenue',
+    'report.trend_bookings' => 'Bookings (per day)',
+    'report.trend_cumulative_revenue' => 'Cumulative revenue',
 
     'settings.bank_info' => 'Payment details (bank transfer)',
     'settings.bank_name' => 'Bank name',

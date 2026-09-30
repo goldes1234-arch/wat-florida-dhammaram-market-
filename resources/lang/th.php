@@ -25,6 +25,7 @@ return [
     'common.date' => 'วันที่',
     'common.note' => 'หมายเหตุ',
     'common.back_to_home' => 'กลับหน้าแรก',
+    'common.export_csv' => 'ส่งออก CSV',
 
     // nav
     'nav.home' => 'หน้าแรก',
@@ -33,6 +34,7 @@ return [
     'nav.login' => 'เข้าสู่ระบบ',
     'nav.logout' => 'ออกจากระบบ',
     'nav.dashboard' => 'แดชบอร์ด',
+    'nav.reports' => 'รายงาน',
     'nav.events' => 'จัดการงาน',
     'nav.bookings' => 'จัดการการจอง',
     'nav.settings' => 'ตั้งค่าระบบ',
@@ -497,6 +499,21 @@ return [
     'vendor.added_success' => 'เพิ่มผู้ขายเรียบร้อยแล้ว',
     'vendor.updated_success' => 'บันทึกข้อมูลผู้ขายเรียบร้อยแล้ว',
     'vendor.deleted_success' => 'ลบผู้ขายเรียบร้อยแล้ว',
+
+    'report.title' => 'รายงานและเทรนด์การขาย',
+    'report.filter_event' => 'เลือกงาน',
+    'report.all_events' => 'ทุกงาน (ภาพรวม)',
+    'report.revenue' => 'รายได้',
+    'report.total_lots' => 'ล็อกทั้งหมด',
+    'report.booked_lots' => 'ล็อกที่จองแล้ว',
+    'report.sell_through' => 'อัตราการขาย',
+    'report.avg_price' => 'ราคาเฉลี่ยต่อล็อก',
+    'report.chart_trend' => 'แนวโน้มการจอง',
+    'report.chart_revenue_by_zone' => 'รายได้แยกตามโซน',
+    'report.event_comparison' => 'เปรียบเทียบระหว่างงาน',
+    'report.top_vendors' => 'ผู้ขายที่มียอดจองสูงสุด',
+    'report.trend_bookings' => 'จำนวนการจอง (ต่อวัน)',
+    'report.trend_cumulative_revenue' => 'รายได้สะสม',
 
     'settings.bank_info' => 'ข้อมูลรับชำระเงิน (โอนเงิน)',
     'settings.bank_name' => 'ธนาคาร',

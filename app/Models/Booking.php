@@ -231,12 +231,19 @@ class Booking extends Model
         return (int) $stmt->fetch()['total'];
     }
 
-    public static function revenueByPaymentMethod(): array
+    public static function revenueByPaymentMethod(?int $eventId = null): array
     {
-        $stmt = self::db()->query(
-            "SELECT payment_method, COALESCE(SUM(price_at_booking), 0) AS total
-             FROM bookings WHERE status = 'booked' GROUP BY payment_method"
-        );
+        $sql = "SELECT payment_method, COALESCE(SUM(price_at_booking), 0) AS total
+                FROM bookings WHERE status = 'booked'";
+        $params = [];
+        if ($eventId) {
+            $sql .= ' AND event_id = :event_id';
+            $params['event_id'] = $eventId;
+        }
+        $sql .= ' GROUP BY payment_method';
+
+        $stmt = self::db()->prepare($sql);
+        $stmt->execute($params);
         $totals = ['onsite_cash' => 0.0, 'bank_transfer' => 0.0, 'stripe' => 0.0];
         foreach ($stmt->fetchAll() as $row) {
             $totals[$row['payment_method']] = (float) $row['total'];

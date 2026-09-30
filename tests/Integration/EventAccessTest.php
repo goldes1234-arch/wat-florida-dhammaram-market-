@@ -25,10 +25,6 @@ class EventAccessTest extends TestCase
 
     public function setUp(): void
     {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
-
         $this->staffId = AdminUser::create([
             'name' => '[TEST] staff',
             'email' => 'test-eventaccess-' . bin2hex(random_bytes(4)) . '@example.invalid',

@@ -29,11 +29,19 @@ class StripeWebhookController
         }
 
         if (($event['type'] ?? '') === 'checkout.session.completed') {
-            $sessionId = $event['data']['object']['id'] ?? '';
+            $sessionObject = $event['data']['object'] ?? [];
+            $sessionId = $sessionObject['id'] ?? '';
+            $paymentIntentId = $sessionObject['payment_intent'] ?? null;
             if ($sessionId) {
                 $booking = Booking::findByStripeSession($sessionId);
                 if ($booking && $booking['status'] === 'pending_payment') {
-                    BookingService::confirm((int) $booking['id'], 'system', null, __('booking.default_note_confirm') . ' (Stripe webhook)');
+                    BookingService::confirm(
+                        (int) $booking['id'],
+                        'system',
+                        null,
+                        __('booking.default_note_confirm') . ' (Stripe webhook)',
+                        is_string($paymentIntentId) ? $paymentIntentId : null
+                    );
                 }
             }
         }

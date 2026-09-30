@@ -114,6 +114,14 @@ class BookingController
         $this->respond($result, 'booking.cancel_success', $id);
     }
 
+    public function refund(Request $request, string $id): void
+    {
+        $this->denyUnlessAllowedForBooking((int) $id);
+
+        $result = BookingService::refund((int) $id, Auth::user()['id'] ?? null);
+        $this->respond($result, 'booking.refund_success', $id);
+    }
+
     public function destroySelected(Request $request): void
     {
         $ids = $request->post['ids'] ?? [];

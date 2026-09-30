@@ -71,9 +71,24 @@ class BookingService
         }
     }
 
-    public static function confirm(int $bookingId, string $actorType, ?int $adminId = null, ?string $note = null): array
-    {
-        return self::transition($bookingId, ['pending_payment'], 'booked', $actorType, $adminId, $note, true);
+    public static function confirm(
+        int $bookingId,
+        string $actorType,
+        ?int $adminId = null,
+        ?string $note = null,
+        ?string $stripePaymentIntentId = null
+    ): array {
+        return self::transition(
+            $bookingId,
+            ['pending_payment'],
+            'booked',
+            $actorType,
+            $adminId,
+            $note,
+            true,
+            null,
+            $stripePaymentIntentId
+        );
     }
 
     public static function reject(int $bookingId, ?int $adminId, ?string $note = null): array
@@ -87,6 +102,63 @@ class BookingService
         return self::transition($bookingId, ['pending_payment', 'booked'], 'cancelled', $actorType, $adminId, $note, false, $cancelledBy);
     }
 
+    /**
+     * Refunds a cancelled Stripe payment in full — a deliberate, separate admin
+     * action (never an automatic side effect of cancel()), since it's real,
+     * irreversible money movement. Requires the booking to be cancelled, paid via
+     * Stripe, have a captured payment intent on file, and not already refunded.
+     */
+    public static function refund(int $bookingId, ?int $adminId): array
+    {
+        $pdo = Database::connection();
+        $pdo->beginTransaction();
+
+        try {
+            $stmt = $pdo->prepare('SELECT * FROM bookings WHERE id = :id FOR UPDATE');
+            $stmt->execute(['id' => $bookingId]);
+            $booking = $stmt->fetch();
+
+            if (!$booking) {
+                $pdo->rollBack();
+                return ['success' => false, 'error' => __('booking.not_found')];
+            }
+            if ($booking['status'] !== 'cancelled') {
+                $pdo->rollBack();
+                return ['success' => false, 'error' => __('booking.refund_not_cancelled')];
+            }
+            if ($booking['payment_method'] !== 'stripe' || !$booking['stripe_payment_intent_id']) {
+                $pdo->rollBack();
+                return ['success' => false, 'error' => __('booking.refund_no_payment_intent')];
+            }
+            if ($booking['refunded_at']) {
+                $pdo->rollBack();
+                return ['success' => false, 'error' => __('booking.refund_already_refunded')];
+            }
+
+            $pdo->rollBack(); // release the row lock before the outbound Stripe API call
+
+            $refund = StripeService::createRefund($booking['stripe_payment_intent_id']);
+            if (!$refund || empty($refund['id'])) {
+                return ['success' => false, 'error' => __('booking.refund_failed')];
+            }
+
+            $pdo->beginTransaction();
+            Booking::updateStatus($bookingId, 'cancelled', [
+                'refunded_at' => date('Y-m-d H:i:s'),
+                'stripe_refund_id' => $refund['id'],
+            ]);
+            BookingStatusLog::record($bookingId, 'cancelled', 'cancelled', 'admin', $adminId, __('booking.log_refunded'));
+            $pdo->commit();
+
+            return ['success' => true, 'booking' => Booking::find($bookingId)];
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        }
+    }
+
     private static function transition(
         int $bookingId,
         array $allowedFrom,
@@ -95,7 +167,8 @@ class BookingService
         ?int $adminId,
         ?string $note,
         bool $lotBecomesBooked,
-        ?string $cancelledBy = null
+        ?string $cancelledBy = null,
+        ?string $stripePaymentIntentId = null
     ): array {
         $pdo = Database::connection();
         $pdo->beginTransaction();
@@ -125,6 +198,9 @@ class BookingService
             }
             if ($note) {
                 $extra['admin_note'] = $note;
+            }
+            if ($stripePaymentIntentId) {
+                $extra['stripe_payment_intent_id'] = $stripePaymentIntentId;
             }
 
             Booking::updateStatus($bookingId, $toStatus, $extra);

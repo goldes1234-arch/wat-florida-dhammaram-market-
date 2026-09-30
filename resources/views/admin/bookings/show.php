@@ -23,6 +23,9 @@
       <?php if (!empty($booking['admin_note'])): ?>
         <div class="info-row"><span class="info-label"><?= __('common.note') ?></span><span class="info-value"><?= e($booking['admin_note']) ?></span></div>
       <?php endif; ?>
+      <?php if (!empty($booking['refunded_at'])): ?>
+        <div class="info-row"><span class="info-label"><?= __('booking.refunded_label') ?></span><span class="info-value">✅ <?= e(date('d/m/Y H:i', strtotime($booking['refunded_at']))) ?></span></div>
+      <?php endif; ?>
     </div>
 
     <?php if ($booking['status'] === 'pending_payment'): ?>
@@ -58,6 +61,21 @@
           </div>
           <button type="submit" class="btn btn-danger"><?= __('booking.cancel_action') ?></button>
         </form>
+      </div>
+    <?php endif; ?>
+
+    <?php if ($booking['status'] === 'cancelled' && $booking['payment_method'] === 'stripe' && !empty($booking['stripe_payment_intent_id']) && empty($booking['refunded_at'])): ?>
+      <div class="card mb-6">
+        <div class="card-header"><h3><?= __('booking.refund_action') ?></h3></div>
+        <?php if (\App\Core\Auth::isSuperAdmin()): ?>
+          <p class="form-hint mb-4"><?= __('booking.refund_hint') ?></p>
+          <form method="post" action="<?= base_url('admin/bookings/' . $booking['id'] . '/refund') ?>" data-confirm="<?= e(__('booking.refund_confirm')) ?>">
+            <?= csrf_field() ?>
+            <button type="submit" class="btn btn-danger"><?= __('booking.refund_action') ?></button>
+          </form>
+        <?php else: ?>
+          <p class="form-hint mb-0"><?= __('booking.refund_super_admin_only') ?></p>
+        <?php endif; ?>
       </div>
     <?php endif; ?>
   </div>

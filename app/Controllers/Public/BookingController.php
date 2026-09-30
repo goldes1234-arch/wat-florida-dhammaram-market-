@@ -187,7 +187,14 @@ class BookingController
         if ($sessionId && $booking['status'] === 'pending_payment') {
             $session = StripeService::retrieveSession($sessionId);
             if ($session && ($session['payment_status'] ?? '') === 'paid') {
-                BookingService::confirm((int) $booking['id'], 'system', null, __('booking.default_note_confirm') . ' (Stripe)');
+                $paymentIntentId = $session['payment_intent'] ?? null;
+                BookingService::confirm(
+                    (int) $booking['id'],
+                    'system',
+                    null,
+                    __('booking.default_note_confirm') . ' (Stripe)',
+                    is_string($paymentIntentId) ? $paymentIntentId : null
+                );
                 $booking = Booking::findByCode(strtoupper($code));
             }
         }

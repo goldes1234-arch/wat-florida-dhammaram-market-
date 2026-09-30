@@ -139,6 +139,10 @@ $router->group(['middleware' => ['auth']], function ($router) {
         $router->post('/admin/downloads/files/{id}/delete', [Admin\DownloadController::class, 'destroyFile']);
 
         $router->group(['middleware' => ['super_admin']], function ($router) {
+            // Refunding real money is kept separate from the staff-accessible confirm/
+            // reject/cancel actions right above — only super_admin can trigger it.
+            $router->post('/admin/bookings/{id}/refund', [Admin\BookingController::class, 'refund']);
+
             $router->get('/admin/settings', [Admin\SettingsController::class, 'edit']);
             $router->post('/admin/settings', [Admin\SettingsController::class, 'update']);
             $router->post('/admin/settings/social-links', [Admin\SettingsController::class, 'storeSocialLink']);

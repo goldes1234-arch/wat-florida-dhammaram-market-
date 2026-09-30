@@ -384,6 +384,11 @@ CREATE TABLE bookings (
   checked_in_by INT UNSIGNED NULL,
   cancelled_at DATETIME NULL,
   cancelled_by ENUM('guest','admin') NULL,
+  -- Set only by an admin-triggered Stripe refund (see BookingService::refund()) —
+  -- never automatic on cancel/reject, since that's an irreversible money movement
+  -- an admin should trigger deliberately, not as a side effect of freeing up a lot.
+  refunded_at DATETIME NULL,
+  stripe_refund_id VARCHAR(255) NULL,
   admin_note VARCHAR(500) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

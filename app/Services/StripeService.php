@@ -118,6 +118,16 @@ class StripeService
         return self::request('GET', 'checkout/sessions/' . urlencode($sessionId), [], $secretKey);
     }
 
+    /** Refunds the full amount of a captured payment — see BookingService::refund(). */
+    public static function createRefund(string $paymentIntentId): ?array
+    {
+        $secretKey = Setting::get()['stripe_secret_key'] ?? '';
+        if (!$secretKey) {
+            return null;
+        }
+        return self::request('POST', 'refunds', ['payment_intent' => $paymentIntentId], $secretKey);
+    }
+
     public static function verifyWebhookSignature(string $payload, string $sigHeader, string $webhookSecret, int $tolerance = 300): bool
     {
         $parts = [];

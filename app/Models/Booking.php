@@ -116,7 +116,7 @@ class Booking extends Model
         $params = ['status' => $status, 'id' => $id];
 
         $allowedExtra = ['confirmed_at', 'cancelled_at', 'cancelled_by', 'admin_note',
-            'stripe_checkout_session_id', 'stripe_payment_intent_id'];
+            'stripe_checkout_session_id', 'stripe_payment_intent_id', 'refunded_at', 'stripe_refund_id'];
         foreach ($allowedExtra as $field) {
             if (array_key_exists($field, $extra)) {
                 $fields[] = "$field = :$field";

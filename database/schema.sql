@@ -169,6 +169,11 @@ CREATE TABLE admin_users (
   totp_secret VARCHAR(32) NULL,
   totp_enabled TINYINT(1) NOT NULL DEFAULT 0,
   totp_backup_codes TEXT NULL,
+  -- Long-lived no-password login link for front-of-house "checkin" accounts (see
+  -- Public\CheckinLinkController) — overwritten (implicitly revoking the old link)
+  -- each time a super_admin regenerates it from the staff page. No expiry by design:
+  -- it's meant to be bookmarked/scanned repeatedly across many events.
+  checkin_link_token_hash VARCHAR(64) NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

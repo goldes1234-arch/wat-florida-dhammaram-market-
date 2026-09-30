@@ -127,6 +127,8 @@ return [
     'activity.staff_event_access_updated' => 'ปรับสิทธิ์เข้าถึงงานของ ":name" (เข้าถึงได้ :count งาน)',
     'activity.staff_deleted' => 'ลบบัญชีผู้ใช้งาน ":name"',
     'activity.staff_password_set' => 'ตั้งรหัสผ่านใหม่ให้บัญชี ":name"',
+    'activity.staff_checkin_link_generated' => 'สร้างลิงก์เช็คอินให้บัญชี ":name"',
+    'activity.staff_checkin_link_revoked' => 'ยกเลิกลิงก์เช็คอินของบัญชี ":name"',
     'activity.backup_deleted' => 'ลบไฟล์สำรองข้อมูล :filename',
 
     // dashboard
@@ -833,6 +835,16 @@ return [
     'staff.set_password_button' => 'ตั้งรหัสผ่านใหม่',
     'staff.new_password' => 'รหัสผ่านใหม่',
     'staff.password_updated_success' => 'ตั้งรหัสผ่านใหม่เรียบร้อยแล้ว',
+    'staff.checkin_link_generate_button' => 'สร้างลิงก์เช็คอิน',
+    'staff.checkin_link_revoke_button' => 'ยกเลิกลิงก์',
+    'staff.checkin_link_revoke_confirm' => 'ยืนยันยกเลิกลิงก์เช็คอินนี้? ลิงก์เดิมจะใช้ไม่ได้อีก',
+    'staff.checkin_link_revoked_success' => 'ยกเลิกลิงก์เช็คอินเรียบร้อยแล้ว',
+    'staff.checkin_link_title' => 'ลิงก์เข้าใช้งานเช็คอิน',
+    'staff.checkin_link_generated_for' => 'สร้างลิงก์เช็คอินสำหรับ ":name" เรียบร้อยแล้ว',
+    'staff.checkin_link_hint' => 'ให้ทีมหน้างานสแกน QR code นี้หรือเปิดลิงก์ด้านล่างเพื่อเข้าหน้าเช็คอินได้ทันที ไม่ต้องพิมพ์อีเมล/รหัสผ่าน — ลิงก์นี้จะแสดงแค่ครั้งนี้ครั้งเดียวเท่านั้น ถ้าปิดหน้านี้ไปแล้วต้องกด "สร้างลิงก์เช็คอิน" ใหม่ (ลิงก์เก่าจะใช้ไม่ได้ทันที)',
+    'staff.checkin_link_label' => 'ลิงก์',
+    'staff.checkin_link_done_button' => 'เสร็จสิ้น',
+    'checkin_link.invalid' => 'ลิงก์นี้ไม่ถูกต้องหรือถูกยกเลิกแล้ว กรุณาติดต่อผู้ดูแลระบบเพื่อขอลิงก์ใหม่',
 
     'security.title' => 'ความปลอดภัยบัญชี',
     'security.2fa_title' => 'ยืนยันตัวตนสองชั้น (2FA)',

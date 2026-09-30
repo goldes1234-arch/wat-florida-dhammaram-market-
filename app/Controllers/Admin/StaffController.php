@@ -136,6 +136,41 @@ class StaffController
         redirect('admin/staff');
     }
 
+    public function generateCheckinLink(Request $request, string $id): void
+    {
+        $user = AdminUser::find((int) $id);
+        if (!$user || $user['role'] !== 'checkin') {
+            redirect('admin/staff');
+        }
+
+        $token = bin2hex(random_bytes(32));
+        AdminUser::setCheckinLinkToken((int) $id, hash('sha256', $token));
+
+        ActivityLog::record('staff.checkin_link_generated', 'admin_user', (int) $id, __('activity.staff_checkin_link_generated', ['name' => $user['name']]));
+
+        View::render('admin/staff/checkin_link', [
+            'title' => __('staff.checkin_link_title'),
+            'active' => 'staff',
+            'staffUser' => $user,
+            'link' => full_url('checkin-link/' . $token),
+        ], 'admin');
+    }
+
+    public function revokeCheckinLink(Request $request, string $id): void
+    {
+        $user = AdminUser::find((int) $id);
+        if (!$user || $user['role'] !== 'checkin') {
+            redirect('admin/staff');
+        }
+
+        AdminUser::clearCheckinLinkToken((int) $id);
+
+        ActivityLog::record('staff.checkin_link_revoked', 'admin_user', (int) $id, __('activity.staff_checkin_link_revoked', ['name' => $user['name']]));
+
+        Flash::success(__('staff.checkin_link_revoked_success'));
+        redirect('admin/staff');
+    }
+
     public function eventsForm(Request $request, string $id): void
     {
         $user = AdminUser::find((int) $id);

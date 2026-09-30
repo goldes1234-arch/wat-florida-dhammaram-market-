@@ -78,6 +78,12 @@ class Auth
         self::$resolved = true;
     }
 
+    /** Establishes a full session for $user without a password — see Public\CheckinLinkController, the only caller. */
+    public static function loginAs(array $user): void
+    {
+        self::completeLogin($user);
+    }
+
     public static function logout(): void
     {
         Session::forget('admin_id');

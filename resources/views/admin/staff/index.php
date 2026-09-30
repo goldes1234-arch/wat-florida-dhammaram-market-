@@ -70,6 +70,18 @@
               <button type="submit" class="btn btn-secondary btn-sm"><?= $u['is_active'] ? __('staff.inactive') : __('staff.active') ?></button>
             </form>
             <button type="button" class="btn btn-secondary btn-sm" data-toggle="#pw-form-<?= $u['id'] ?>"><?= __('staff.set_password_button') ?></button>
+            <?php if ($u['role'] === 'checkin'): ?>
+              <form method="post" action="<?= base_url('admin/staff/' . $u['id'] . '/checkin-link/generate') ?>" style="margin:0;">
+                <?= csrf_field() ?>
+                <button type="submit" class="btn btn-secondary btn-sm"><?= __('staff.checkin_link_generate_button') ?></button>
+              </form>
+              <?php if (!empty($u['checkin_link_token_hash'])): ?>
+                <form method="post" action="<?= base_url('admin/staff/' . $u['id'] . '/checkin-link/revoke') ?>" data-confirm="<?= e(__('staff.checkin_link_revoke_confirm')) ?>" style="margin:0;">
+                  <?= csrf_field() ?>
+                  <button type="submit" class="btn btn-secondary btn-sm"><?= __('staff.checkin_link_revoke_button') ?></button>
+                </form>
+              <?php endif; ?>
+            <?php endif; ?>
             <form method="post" action="<?= base_url('admin/staff/' . $u['id'] . '/delete') ?>" data-confirm="<?= e(__('staff.delete_confirm')) ?>" style="margin:0;">
               <?= csrf_field() ?>
               <button type="submit" class="btn btn-danger btn-sm"><?= __('staff.delete_button') ?></button>

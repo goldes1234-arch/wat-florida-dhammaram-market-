@@ -30,6 +30,7 @@ $router->get('/advertise', [Public\AdvertisementController::class, 'form']);
 $router->post('/advertise', [Public\AdvertisementController::class, 'store']);
 $router->get('/downloads/{id}', [Public\DownloadController::class, 'show']);
 $router->get('/vendor/portal/{token}', [Public\VendorPortalController::class, 'show']);
+$router->get('/checkin-link/{token}', [Public\CheckinLinkController::class, 'show']);
 $router->get('/reserve/{token}', [Public\ReservationController::class, 'show']);
 $router->post('/reserve/{token}/confirm', [Public\ReservationController::class, 'confirm']);
 $router->get('/cron/backup', [Public\CronController::class, 'backup']);
@@ -171,6 +172,8 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->post('/admin/staff/{id}/toggle-active', [Admin\StaffController::class, 'toggleActive']);
             $router->post('/admin/staff/{id}/delete', [Admin\StaffController::class, 'destroy']);
             $router->post('/admin/staff/{id}/set-password', [Admin\StaffController::class, 'setPassword']);
+            $router->post('/admin/staff/{id}/checkin-link/generate', [Admin\StaffController::class, 'generateCheckinLink']);
+            $router->post('/admin/staff/{id}/checkin-link/revoke', [Admin\StaffController::class, 'revokeCheckinLink']);
             $router->get('/admin/staff/{id}/events', [Admin\StaffController::class, 'eventsForm']);
             $router->post('/admin/staff/{id}/events', [Admin\StaffController::class, 'updateEventAccess']);
         });

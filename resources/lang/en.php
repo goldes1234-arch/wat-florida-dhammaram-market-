@@ -127,6 +127,8 @@ return [
     'activity.staff_event_access_updated' => 'Updated ":name"\'s event access (:count event(s))',
     'activity.staff_deleted' => 'Deleted staff account ":name"',
     'activity.staff_password_set' => 'Set a new password for ":name"',
+    'activity.staff_checkin_link_generated' => 'Generated a checkin link for ":name"',
+    'activity.staff_checkin_link_revoked' => 'Revoked the checkin link for ":name"',
     'activity.backup_deleted' => 'Deleted backup file :filename',
 
     // dashboard
@@ -833,6 +835,16 @@ return [
     'staff.set_password_button' => 'Set new password',
     'staff.new_password' => 'New password',
     'staff.password_updated_success' => 'Password updated.',
+    'staff.checkin_link_generate_button' => 'Generate checkin link',
+    'staff.checkin_link_revoke_button' => 'Revoke link',
+    'staff.checkin_link_revoke_confirm' => 'Revoke this checkin link? The old link will stop working.',
+    'staff.checkin_link_revoked_success' => 'Checkin link revoked.',
+    'staff.checkin_link_title' => 'Checkin login link',
+    'staff.checkin_link_generated_for' => 'Generated a checkin link for ":name".',
+    'staff.checkin_link_hint' => 'Have the front-of-house team scan this QR code or open the link below to jump straight to the checkin page — no email/password needed. This link is shown only this once; if you close this page, generate a new one (the old link stops working immediately).',
+    'staff.checkin_link_label' => 'Link',
+    'staff.checkin_link_done_button' => 'Done',
+    'checkin_link.invalid' => 'This link is invalid or has been revoked. Contact an admin for a new one.',
 
     'security.title' => 'Account security',
     'security.2fa_title' => 'Two-factor authentication (2FA)',

@@ -125,6 +125,25 @@ class AdminUser extends Model
         $stmt->execute(['id' => $id]);
     }
 
+    public static function setCheckinLinkToken(int $id, string $tokenHash): void
+    {
+        $stmt = self::db()->prepare('UPDATE admin_users SET checkin_link_token_hash = :hash WHERE id = :id');
+        $stmt->execute(['hash' => $tokenHash, 'id' => $id]);
+    }
+
+    public static function clearCheckinLinkToken(int $id): void
+    {
+        $stmt = self::db()->prepare('UPDATE admin_users SET checkin_link_token_hash = NULL WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
+
+    public static function findByCheckinLinkTokenHash(string $tokenHash): ?array
+    {
+        $stmt = self::db()->prepare('SELECT * FROM admin_users WHERE checkin_link_token_hash = :hash');
+        $stmt->execute(['hash' => $tokenHash]);
+        return $stmt->fetch() ?: null;
+    }
+
     /** Removes one matching backup code hash (one-time use) and returns whether it was found. */
     public static function consumeBackupCode(int $id, string $codeHash): bool
     {

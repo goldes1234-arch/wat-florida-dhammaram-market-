@@ -154,13 +154,18 @@ class BackupService
 
     private static function resolveBinary(): ?string
     {
+        // is_executable() is silenced here: on hosts with open_basedir restricted to the
+        // vhost + /tmp (common on shared Plesk hosting), checking a system path like
+        // /usr/bin/mysqldump emits a PHP warning even though the check itself still
+        // correctly returns false — the real resolution then happens via the `command -v`
+        // shell lookup below, which isn't subject to open_basedir.
         $configured = App::config('backup.mysqldump_path');
-        if ($configured && is_executable($configured)) {
+        if ($configured && @is_executable($configured)) {
             return $configured;
         }
 
         foreach (['/usr/bin/mysqldump', '/usr/local/bin/mysqldump', '/usr/local/mysql/bin/mysqldump'] as $candidate) {
-            if (is_executable($candidate)) {
+            if (@is_executable($candidate)) {
                 return $candidate;
             }
         }

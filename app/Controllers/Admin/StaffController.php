@@ -27,6 +27,7 @@ class StaffController
     {
         $name = $request->trimmed('name');
         $email = $request->trimmed('email');
+        $phone = $request->trimmed('phone');
         $password = (string) $request->input('password', '');
         $role = $request->trimmed('role');
 
@@ -54,6 +55,7 @@ class StaffController
         $newId = AdminUser::create([
             'name' => $name,
             'email' => $email,
+            'phone' => $phone,
             'password_hash' => password_hash($password, PASSWORD_DEFAULT),
             'role' => $role,
         ]);
@@ -87,6 +89,22 @@ class StaffController
         );
 
         Flash::success(__('staff.updated_success'));
+        redirect('admin/staff');
+    }
+
+    public function updatePhone(Request $request, string $id): void
+    {
+        $user = AdminUser::find((int) $id);
+        if (!$user) {
+            redirect('admin/staff');
+        }
+
+        $phone = $request->trimmed('phone');
+        AdminUser::setPhone((int) $id, $phone ?: null);
+
+        ActivityLog::record('staff.phone_updated', 'admin_user', (int) $id, __('activity.staff_phone_updated', ['name' => $user['name']]));
+
+        Flash::success(__('staff.phone_updated_success'));
         redirect('admin/staff');
     }
 

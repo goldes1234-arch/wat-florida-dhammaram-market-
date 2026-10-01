@@ -18,9 +18,15 @@
     </div>
     <div class="form-row">
       <div class="form-group">
+        <label><?= __('staff.phone') ?></label>
+        <input type="text" name="phone" class="form-control">
+      </div>
+      <div class="form-group">
         <label><?= __('staff.password') ?></label>
         <input type="password" name="password" class="form-control" minlength="8" required>
       </div>
+    </div>
+    <div class="form-row">
       <div class="form-group">
         <label><?= __('staff.role') ?></label>
         <select name="role" class="form-control">
@@ -41,6 +47,7 @@
       <tr>
         <th><?= __('staff.name') ?></th>
         <th><?= __('staff.email') ?></th>
+        <th><?= __('staff.phone') ?></th>
         <th><?= __('staff.role') ?></th>
         <th><?= __('staff.last_login') ?></th>
         <th><?= __('staff.status') ?></th>
@@ -52,6 +59,7 @@
         <tr>
           <td><?= e($u['name']) ?></td>
           <td><?= e($u['email']) ?></td>
+          <td class="text-sm"><?= $u['phone'] ? e($u['phone']) : '<span class="text-muted">' . __('staff.phone_none') . '</span>' ?></td>
           <td><span class="badge badge-indigo"><?= __('staff.role_' . $u['role']) ?></span></td>
           <td class="text-sm text-muted"><?= $u['last_login_at'] ? e(date('d/m/Y H:i', strtotime($u['last_login_at']))) : __('staff.never_logged_in') ?></td>
           <td>
@@ -70,6 +78,7 @@
               <button type="submit" class="btn btn-secondary btn-sm"><?= $u['is_active'] ? __('staff.inactive') : __('staff.active') ?></button>
             </form>
             <button type="button" class="btn btn-secondary btn-sm" data-toggle="#pw-form-<?= $u['id'] ?>"><?= __('staff.set_password_button') ?></button>
+            <button type="button" class="btn btn-secondary btn-sm" data-toggle="#phone-form-<?= $u['id'] ?>"><?= __('staff.edit_phone_button') ?></button>
             <?php if ($u['role'] === 'checkin'): ?>
               <form method="post" action="<?= base_url('admin/staff/' . $u['id'] . '/checkin-link/generate') ?>" style="margin:0;">
                 <?= csrf_field() ?>
@@ -89,12 +98,22 @@
           </td>
         </tr>
         <tr id="pw-form-<?= $u['id'] ?>" class="staff-pw-row">
-          <td colspan="6">
+          <td colspan="7">
             <form method="post" action="<?= base_url('admin/staff/' . $u['id'] . '/set-password') ?>" style="display:flex;gap:8px;align-items:center;">
               <?= csrf_field() ?>
               <label style="margin:0;"><?= __('staff.new_password') ?></label>
               <input type="password" name="password" class="form-control" minlength="8" required style="max-width:260px;">
               <button type="submit" class="btn btn-primary btn-sm"><?= __('staff.set_password_button') ?></button>
+            </form>
+          </td>
+        </tr>
+        <tr id="phone-form-<?= $u['id'] ?>" class="staff-pw-row">
+          <td colspan="7">
+            <form method="post" action="<?= base_url('admin/staff/' . $u['id'] . '/phone') ?>" style="display:flex;gap:8px;align-items:center;">
+              <?= csrf_field() ?>
+              <label style="margin:0;"><?= __('staff.phone') ?></label>
+              <input type="text" name="phone" class="form-control" value="<?= e($u['phone'] ?? '') ?>" style="max-width:260px;">
+              <button type="submit" class="btn btn-primary btn-sm"><?= __('staff.edit_phone_button') ?></button>
             </form>
           </td>
         </tr>

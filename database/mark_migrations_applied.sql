@@ -1,0 +1,18 @@
+INSERT IGNORE INTO schema_migrations (filename, applied_at) VALUES
+  ('2026_09_admin_2fa.sql', NOW()),
+  ('2026_09_advertisement_submissions.sql', NOW()),
+  ('2026_09_advertisements.sql', NOW()),
+  ('2026_09_checkin_link.sql', NOW()),
+  ('2026_09_downloads.sql', NOW()),
+  ('2026_09_finance_role.sql', NOW()),
+  ('2026_09_line_targeting.sql', NOW()),
+  ('2026_09_photo_layout.sql', NOW()),
+  ('2026_09_photo_layout_box_rotation.sql', NOW()),
+  ('2026_09_photo_layout_pin_size.sql', NOW()),
+  ('2026_09_staff_event_access.sql', NOW()),
+  ('2026_09_stripe_refunds.sql', NOW()),
+  ('2026_09_stripe_suspend.sql', NOW()),
+  ('2026_09_vendor_crm.sql', NOW()),
+  ('2026_09_vendor_event_reminders.sql', NOW()),
+  ('2026_09_vendor_portal.sql', NOW()),
+  ('2026_09_vendor_reservations.sql', NOW());

@@ -32,17 +32,24 @@ class AdminUser extends Model
     public static function create(array $data): int
     {
         $stmt = self::db()->prepare(
-            'INSERT INTO admin_users (name, email, password_hash, role, is_active)
-             VALUES (:name, :email, :password_hash, :role, :is_active)'
+            'INSERT INTO admin_users (name, email, phone, password_hash, role, is_active)
+             VALUES (:name, :email, :phone, :password_hash, :role, :is_active)'
         );
         $stmt->execute([
             'name' => $data['name'],
             'email' => $data['email'],
+            'phone' => empty($data['phone']) ? null : $data['phone'],
             'password_hash' => $data['password_hash'],
             'role' => $data['role'] ?? 'staff',
             'is_active' => $data['is_active'] ?? 1,
         ]);
         return (int) self::db()->lastInsertId();
+    }
+
+    public static function setPhone(int $id, ?string $phone): void
+    {
+        $stmt = self::db()->prepare('UPDATE admin_users SET phone = :phone WHERE id = :id');
+        $stmt->execute(['phone' => $phone ?: null, 'id' => $id]);
     }
 
     public static function emailExists(string $email): bool

@@ -172,6 +172,7 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->post('/admin/staff/{id}/toggle-active', [Admin\StaffController::class, 'toggleActive']);
             $router->post('/admin/staff/{id}/delete', [Admin\StaffController::class, 'destroy']);
             $router->post('/admin/staff/{id}/set-password', [Admin\StaffController::class, 'setPassword']);
+            $router->post('/admin/staff/{id}/phone', [Admin\StaffController::class, 'updatePhone']);
             $router->post('/admin/staff/{id}/checkin-link/generate', [Admin\StaffController::class, 'generateCheckinLink']);
             $router->post('/admin/staff/{id}/checkin-link/revoke', [Admin\StaffController::class, 'revokeCheckinLink']);
             $router->get('/admin/staff/{id}/events', [Admin\StaffController::class, 'eventsForm']);

@@ -83,6 +83,7 @@ if ($locale === 'en') {
       </div>
     <?php endif; ?>
 
+    <p class="receipt-footer-note"><?= e(__('public.cancellation_policy', \App\Services\BookingService::policyDays())) ?></p>
     <p class="receipt-footer-note"><?= __('public.receipt_generated_note', ['datetime' => date('d/m/Y H:i')]) ?></p>
   </div>
 </div>

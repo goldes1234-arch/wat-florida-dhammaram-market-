@@ -41,12 +41,14 @@
     <form method="post" action="<?= base_url('my-booking/' . $booking['booking_code'] . '/cancel') ?>" data-confirm="<?= e(__('public.cancel_confirm')) ?>">
       <?= csrf_field() ?>
       <button type="submit" class="btn btn-danger btn-block"><?= __('public.cancel_button') ?></button>
-      <p class="form-hint text-center mt-2"><?= __('public.cutoff_notice', ['days' => $cutoffDays]) ?></p>
-      <?php if ($booking['payment_method'] === 'stripe'): ?>
-        <p class="form-hint text-center mt-2"><?= __('public.refund_policy_notice', ['days' => (int) ($settings['refund_cutoff_days'] ?? 10)]) ?></p>
-      <?php endif; ?>
+      <p class="form-hint text-center mt-2"><?= __('public.cancel_deadline_notice', [
+        'date' => date('d/m/Y', strtotime((string) $booking['event_start_date']) - $cutoffDays * 86400),
+        'days' => $cutoffDays,
+      ]) ?></p>
     </form>
   <?php elseif (in_array($booking['status'], ['pending_payment', 'booked'], true)): ?>
     <p class="text-muted text-center"><?= __('public.cannot_cancel') ?></p>
   <?php endif; ?>
+
+  <div class="mt-4"><?= partial('cancellation_policy') ?></div>
 </div>

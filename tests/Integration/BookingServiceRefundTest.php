@@ -115,6 +115,21 @@ class BookingServiceRefundTest extends TestCase
         $this->assertNull(Booking::find($bookingId)['refunded_at']);
     }
 
+    public function testRefundWindowIsMeasuredFromWhenTheBookingWasCancelledNotFromNow(): void
+    {
+        $bookingId = $this->createBooking('cancelled', 'stripe', 'pi_test_when');
+        $this->setEventStartInDays(8);
+
+        // Cancelled 5 days ago = 13 days before the event: in time, even though only 8 days
+        // remain today — a slow admin must not cost a guest who cancelled on time.
+        Booking::updateStatus($bookingId, 'cancelled', ['cancelled_at' => date('Y-m-d H:i:s', strtotime('-5 days'))]);
+        $this->assertTrue(BookingService::isRefundWindowOpen(Booking::find($bookingId), 10));
+
+        // Cancelled just now = 8 days before the event: too late.
+        Booking::updateStatus($bookingId, 'cancelled', ['cancelled_at' => date('Y-m-d H:i:s')]);
+        $this->assertFalse(BookingService::isRefundWindowOpen(Booking::find($bookingId), 10));
+    }
+
     private function setEventStartInDays(int $days): void
     {
         $date = date('Y-m-d', strtotime("+{$days} days"));

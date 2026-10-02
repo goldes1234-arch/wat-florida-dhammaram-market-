@@ -263,7 +263,7 @@ class ReservationService
                 'event' => $eventName,
                 'lot' => $lot['code'],
                 'link' => full_url('reserve/' . $lot['reserved_token']),
-            ]));
+            ]) . "\n\n" . __('public.cancellation_policy', BookingService::policyDays()));
         }
     }
 }

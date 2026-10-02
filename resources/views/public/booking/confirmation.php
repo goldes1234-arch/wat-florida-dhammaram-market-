@@ -28,6 +28,8 @@
   <div class="info-row"><span class="info-label"><?= __('booking.payment_method') ?></span><span class="info-value"><?= payment_method_label($booking['payment_method']) ?></span></div>
 </div>
 
+<div style="max-width:520px;margin:16px auto 0;"><?= partial('cancellation_policy') ?></div>
+
 <?php if ($booking['payment_method'] === 'onsite_cash'): ?>
   <div class="card" style="max-width:520px;margin:16px auto 0;">
     <p class="mb-0"><?= __('public.confirmation_instructions_onsite') ?></p>

@@ -41,6 +41,8 @@
       <p style="font-size:13px;color:#64748B;margin-top:16px;"><?= __('public.confirmation_instructions_onsite') ?></p>
     <?php endif; ?>
 
+    <p style="font-size:12px;color:#64748B;margin-top:16px;"><?= e(__('public.cancellation_policy', \App\Services\BookingService::policyDays())) ?></p>
+
     <p style="font-size:12px;color:#94A3B8;margin-top:22px;"><?= __('email.thanks') ?> — <?= e($settings['org_name'] ?? '') ?></p>
   </div>
 </div>

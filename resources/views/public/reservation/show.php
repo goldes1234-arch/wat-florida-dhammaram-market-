@@ -18,6 +18,7 @@ $eventName = $lot ? ($lot['event_name_th'] ?: ($lot['event_name_en'] ?? '')) : '
       <div class="info-row"><span><?= __('lot.code') ?></span><strong><?= e($lot['code']) ?></strong></div>
       <div class="info-row"><span><?= __('lot.price') ?></span><strong><?= money((float) $lot['price']) ?></strong></div>
       <div class="info-row"><span><?= __('public.event_dates') ?></span><strong><?= date('d/m/Y', strtotime((string) $lot['event_start_date'])) ?></strong></div>
+      <div class="mt-4"><?= partial('cancellation_policy') ?></div>
       <form method="post" action="<?= base_url('reserve/' . $token . '/confirm') ?>" class="mt-6">
         <?= csrf_field() ?>
         <button type="submit" class="btn btn-primary btn-lg btn-block"><?= __('reservation.confirm_button') ?></button>

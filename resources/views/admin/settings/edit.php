@@ -138,7 +138,7 @@
     <div class="form-row">
       <div class="form-group">
         <label><?= __('settings.cancellation_cutoff_days') ?></label>
-        <input type="number" min="0" name="cancellation_cutoff_days" class="form-control" value="<?= e((string) ($settings['cancellation_cutoff_days'] ?? 3)) ?>">
+        <input type="number" min="0" name="cancellation_cutoff_days" class="form-control" value="<?= e((string) ($settings['cancellation_cutoff_days'] ?? 10)) ?>">
       </div>
       <div class="form-group">
         <label><?= __('settings.refund_cutoff_days') ?></label>

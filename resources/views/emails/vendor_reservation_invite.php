@@ -10,6 +10,8 @@
     <p style="text-align:center;margin:22px 0;">
       <a href="<?= full_url('reserve/' . $lot['reserved_token']) ?>" style="background:#C2650C;color:#fff;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:700;display:inline-block;"><?= __('email.vendor_reservation_invite_cta') ?></a>
     </p>
+    <p style="font-size:12px;color:#64748B;margin-top:16px;"><?= e(__('public.cancellation_policy', \App\Services\BookingService::policyDays())) ?></p>
+
     <p style="font-size:12px;color:#94A3B8;margin-top:22px;"><?= __('email.thanks') ?> — <?= e($settings['org_name'] ?? '') ?></p>
   </div>
 </div>

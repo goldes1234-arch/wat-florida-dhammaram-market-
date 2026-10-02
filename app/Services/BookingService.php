@@ -108,8 +108,8 @@ class BookingService
      * irreversible money movement. Requires the booking to be cancelled, paid via
      * Stripe, have a captured payment intent on file, and not already refunded.
      *
-     * Also requires the refund window to still be open (see isRefundWindowOpen()) — measured
-     * from the moment this is called, not from when the guest cancelled. $overrideReason is how
+     * Also requires the refund window to have been open when the booking was cancelled (see
+     * isRefundWindowOpen()). $overrideReason is how
      * a super_admin deliberately refunds past that window: it must be non-empty and is written
      * into the booking's status log. Whether the caller is *allowed* to override is the
      * controller's call; this only enforces that an override always carries a reason.
@@ -274,17 +274,30 @@ class BookingService
     }
 
     /**
-     * Whether a refund is still allowed for this booking's event: only while at least
-     * refund_cutoff_days remain before it starts (counted to the end of that day, same as
-     * canGuestCancel()). Deliberately independent of when the guest cancelled — see refund().
-     * $cutoffDays is only a parameter so tests don't depend on whatever the live setting is.
+     * Whether a refund is still allowed for this booking: only if it was cancelled at least
+     * refund_cutoff_days before the event starts (counted to the end of that day, same as
+     * canGuestCancel()). Measured from when the booking was cancelled — not from when an admin
+     * gets round to pressing refund — so a slow admin never costs a guest who cancelled in time.
+     * A booking with no cancelled_at is measured from now. $cutoffDays is only a parameter so
+     * tests don't depend on whatever the live setting is.
      */
     public static function isRefundWindowOpen(array $booking, ?int $cutoffDays = null): bool
     {
         $cutoffDays ??= (int) (Setting::get()['refund_cutoff_days'] ?? 10);
         $deadline = strtotime((string) $booking['event_start_date']) - ($cutoffDays * 86400) + 86399;
+        $cancelledAt = !empty($booking['cancelled_at']) ? strtotime((string) $booking['cancelled_at']) : time();
 
-        return time() <= $deadline;
+        return $cancelledAt <= $deadline;
+    }
+
+    /** The two numbers the customer-facing cancellation policy text quotes. */
+    public static function policyDays(): array
+    {
+        $settings = Setting::get();
+        return [
+            'days' => (int) ($settings['cancellation_cutoff_days'] ?? 10),
+            'refund_days' => (int) ($settings['refund_cutoff_days'] ?? 10),
+        ];
     }
 
     /** Whether a guest is still within the self-cancel cutoff window for their booking's event. */

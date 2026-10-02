@@ -72,6 +72,11 @@ class ReceiptPdfService
 
             $pdf->Ln(6);
             $pdf->SetFont('NotoSansThai', '', 9);
+            $pdf->SetTextColor(122, 106, 84);
+            $pdf->SetX(self::PAGE_MARGIN);
+            self::renderWrappedText($pdf, 210 - 2 * self::PAGE_MARGIN, 5, __('public.cancellation_policy', BookingService::policyDays()));
+
+            $pdf->Ln(4);
             $pdf->SetTextColor(140, 130, 110);
             $pdf->SetX(self::PAGE_MARGIN);
             self::renderWrappedText($pdf, 210 - 2 * self::PAGE_MARGIN, 5, __('public.receipt_generated_note', ['datetime' => date('d/m/Y H:i')]));

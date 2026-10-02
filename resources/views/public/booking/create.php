@@ -73,6 +73,7 @@
       </div>
     </div>
 
+    <div class="mb-4"><?= partial('cancellation_policy') ?></div>
     <button type="submit" class="btn btn-primary btn-lg btn-block"><?= __('public.submit_booking') ?></button>
   </form>
 </div>

@@ -34,7 +34,7 @@ $pdo->prepare(
      VALUES
         (1, :org_name, :org_address, :org_phone, :org_email, :facebook_url, :line_oa_id, :google_maps_url,
          :bank_name, :bank_account_name, :bank_account_number, :promptpay_id,
-         "THB", "th", 3, 5)'
+         "THB", "th", 10, 5)'
 )->execute([
     'org_name' => 'วัดโพธิ์เย็น',
     'org_address' => '99 หมู่ 4 ตำบลบางพลี อำเภอบางพลี จังหวัดสมุทรปราการ 10540',

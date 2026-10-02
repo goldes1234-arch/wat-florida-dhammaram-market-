@@ -67,4 +67,11 @@
       </tbody>
     </table>
   </div>
+
+  <?= partial('pagination', [
+    'page' => $page,
+    'totalPages' => $totalPages,
+    'path' => 'admin/vendors',
+    'query' => ['q' => $search],
+  ]) ?>
 <?php endif; ?>

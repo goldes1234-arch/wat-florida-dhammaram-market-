@@ -14,12 +14,19 @@ class VendorController
     public function index(Request $request): void
     {
         $search = $request->trimmed('q');
+        $perPage = 50;
+
+        $total = Vendor::countWithSearch($search ?: null);
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page = min(max(1, (int) ($request->query['page'] ?? 1)), $totalPages);
 
         View::render('admin/vendors/index', [
             'title' => __('nav.vendors'),
             'active' => 'vendors',
-            'vendors' => Vendor::allWithBookingCounts($search ?: null),
+            'vendors' => Vendor::allWithBookingCounts($search ?: null, $page, $perPage),
             'search' => $search,
+            'page' => $page,
+            'totalPages' => $totalPages,
         ], 'admin');
     }
 

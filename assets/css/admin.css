@@ -151,6 +151,10 @@
 }
 .filter-bar .form-group { margin-bottom: 0; min-width: 180px; }
 
+.pagination { display: flex; gap: 14px; align-items: center; justify-content: center; margin-top: 18px; }
+.pagination .is-disabled { opacity: .4; cursor: not-allowed; }
+.pagination-status { font-size: 13px; color: var(--color-text-muted); }
+
 .thumb-sm { width: 48px; height: 48px; object-fit: cover; border-radius: var(--radius-sm); border: 1px solid var(--color-border); }
 .thumb-md { width: 100%; max-width: 320px; aspect-ratio: 16/9; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--color-border); }
 

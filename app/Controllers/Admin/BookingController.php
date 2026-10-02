@@ -20,20 +20,29 @@ class BookingController
         $status = $request->query['status'] ?? '';
         $sort = ($request->query['sort'] ?? '') === 'asc' ? 'asc' : 'desc';
         $filterEventId = $eventId !== '' ? (int) $eventId : null;
+        $perPage = 50;
 
         if ($filterEventId && !EventAccess::allowed($filterEventId)) {
             $filterEventId = null;
             $eventId = '';
         }
 
+        $allowedEventIds = EventAccess::assignedEventIds();
+        $statusFilter = $status !== '' ? $status : null;
+        $total = Booking::countForAdmin($filterEventId, $statusFilter, $allowedEventIds);
+        $totalPages = max(1, (int) ceil($total / $perPage));
+        $page = min(max(1, (int) ($request->query['page'] ?? 1)), $totalPages);
+
         View::render('admin/bookings/index', [
             'title' => __('booking.list_title'),
             'active' => 'bookings',
-            'bookings' => Booking::forAdmin($filterEventId, $status !== '' ? $status : null, $sort, EventAccess::assignedEventIds()),
+            'bookings' => Booking::forAdmin($filterEventId, $statusFilter, $sort, $allowedEventIds, $page, $perPage),
             'events' => EventAccess::filterEvents(Event::allForAdmin()),
             'selectedEvent' => $eventId,
             'selectedStatus' => $status,
             'selectedSort' => $sort,
+            'page' => $page,
+            'totalPages' => $totalPages,
         ], 'admin');
     }
 

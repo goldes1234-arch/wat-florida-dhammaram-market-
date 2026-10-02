@@ -4,8 +4,12 @@ namespace App\Models;
 
 class Vendor extends Model
 {
-    /** All vendors with their confirmed-booking count, for the list/search page. */
-    public static function allWithBookingCounts(?string $search = null): array
+    /**
+     * All vendors with their confirmed-booking count, for the list/search page.
+     * $page is null for callers that need the full list (e.g. the lot-assignment
+     * picker) — only a non-null page applies LIMIT/OFFSET.
+     */
+    public static function allWithBookingCounts(?string $search = null, ?int $page = null, int $perPage = 50): array
     {
         $sql = 'SELECT vendors.*, COUNT(bookings.id) AS booking_count
                 FROM vendors
@@ -20,9 +24,32 @@ class Vendor extends Model
         }
         $sql .= ' GROUP BY vendors.id ORDER BY vendors.name';
 
+        if ($page !== null) {
+            $perPage = max(1, $perPage);
+            $sql .= ' LIMIT ' . $perPage . ' OFFSET ' . ((max(1, $page) - 1) * $perPage);
+        }
+
         $stmt = self::db()->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll();
+    }
+
+    /** Total vendors matching the search filter — drives the admin list's pagination controls. */
+    public static function countWithSearch(?string $search = null): int
+    {
+        $sql = 'SELECT COUNT(*) FROM vendors';
+        $params = [];
+        if ($search) {
+            $sql .= ' WHERE name LIKE :search1 OR phone LIKE :search2 OR email LIKE :search3';
+            $like = '%' . $search . '%';
+            $params['search1'] = $like;
+            $params['search2'] = $like;
+            $params['search3'] = $like;
+        }
+
+        $stmt = self::db()->prepare($sql);
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
     }
 
     public static function find(int $id): ?array

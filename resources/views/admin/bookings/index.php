@@ -90,6 +90,13 @@
     </div>
   </form>
 
+  <?= partial('pagination', [
+    'page' => $page,
+    'totalPages' => $totalPages,
+    'path' => 'admin/bookings',
+    'query' => ['event_id' => $selectedEvent, 'status' => $selectedStatus, 'sort' => $selectedSort],
+  ]) ?>
+
   <script>
   (function () {
     var selectAll = document.getElementById('selectAllBookings');

@@ -52,14 +52,56 @@ class Booking extends Model
      * $allowedEventIds is null for an unrestricted admin (see EventAccess) — an empty
      * array (a restricted staff account with zero assignments) short-circuits to no
      * results rather than building a SQL "IN ()" that would match nothing anyway.
+     *
+     * $page is null for callers that need every matching row regardless of volume
+     * (e.g. the CSV export) — only a non-null page applies LIMIT/OFFSET.
      */
-    public static function forAdmin(?int $eventId, ?string $status, string $sort = 'desc', ?array $allowedEventIds = null): array
-    {
+    public static function forAdmin(
+        ?int $eventId,
+        ?string $status,
+        string $sort = 'desc',
+        ?array $allowedEventIds = null,
+        ?int $page = null,
+        int $perPage = 50
+    ): array {
         if ($allowedEventIds !== null && !$allowedEventIds) {
             return [];
         }
 
-        $sql = self::baseSelect() . ' WHERE 1=1';
+        [$where, $params] = self::forAdminWhere($eventId, $status, $allowedEventIds);
+        $sql = self::baseSelect() . $where . ' ORDER BY bookings.created_at ' . ($sort === 'asc' ? 'ASC' : 'DESC');
+
+        if ($page !== null) {
+            $perPage = max(1, $perPage);
+            $sql .= ' LIMIT ' . $perPage . ' OFFSET ' . ((max(1, $page) - 1) * $perPage);
+        }
+
+        $stmt = self::db()->prepare($sql);
+        $stmt->execute($params);
+        return $stmt->fetchAll();
+    }
+
+    /** Total rows matching forAdmin()'s filters — drives the admin list's pagination controls. */
+    public static function countForAdmin(?int $eventId, ?string $status, ?array $allowedEventIds = null): int
+    {
+        if ($allowedEventIds !== null && !$allowedEventIds) {
+            return 0;
+        }
+
+        [$where, $params] = self::forAdminWhere($eventId, $status, $allowedEventIds);
+        $stmt = self::db()->prepare(
+            'SELECT COUNT(*) FROM bookings
+             JOIN lots ON lots.id = bookings.lot_id
+             JOIN events ON events.id = bookings.event_id' . $where
+        );
+        $stmt->execute($params);
+        return (int) $stmt->fetchColumn();
+    }
+
+    /** @return array{0: string, 1: array<string, mixed>} shared WHERE clause + bound params for forAdmin()/countForAdmin() */
+    private static function forAdminWhere(?int $eventId, ?string $status, ?array $allowedEventIds): array
+    {
+        $sql = ' WHERE 1=1';
         $params = [];
         if ($eventId) {
             $sql .= ' AND bookings.event_id = :event_id';
@@ -74,11 +116,7 @@ class Booking extends Model
             $sql .= ' AND bookings.status = :status';
             $params['status'] = $status;
         }
-        $sql .= ' ORDER BY bookings.created_at ' . ($sort === 'asc' ? 'ASC' : 'DESC');
-
-        $stmt = self::db()->prepare($sql);
-        $stmt->execute($params);
-        return $stmt->fetchAll();
+        return [$sql, $params];
     }
 
     /** @return array{0: string, 1: array<string, int>} named placeholders + bound values for an IN (...) clause */

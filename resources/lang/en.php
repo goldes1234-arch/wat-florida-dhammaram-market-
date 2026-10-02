@@ -739,6 +739,7 @@ return [
     'public.confirmation_save_code' => 'Please save this code — you will need it to look up your booking later',
     'public.confirmation_email_sent' => 'A confirmation email has been sent to :email',
     'public.print_receipt_button' => 'Print / Save as PDF',
+    'public.download_pdf_button' => 'Download PDF',
     'public.receipt_title' => 'Booking Receipt',
     'public.receipt_back' => '← Back',
     'public.receipt_booker' => 'Booked by',

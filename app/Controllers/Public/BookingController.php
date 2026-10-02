@@ -14,6 +14,7 @@ use App\Models\Setting;
 use App\Services\BookingService;
 use App\Services\EventStatusService;
 use App\Services\NotificationService;
+use App\Services\ReceiptPdfService;
 use App\Services\StripeService;
 use App\Support\Validator;
 
@@ -174,6 +175,21 @@ class BookingController
             'booking' => $booking,
             'settings' => Setting::get(),
         ]);
+    }
+
+    public function receiptPdf(Request $request, string $code): void
+    {
+        $booking = Booking::findByCode(strtoupper($code));
+        if (!$booking) {
+            redirect('');
+        }
+
+        $pdf = ReceiptPdfService::generate($booking, Setting::get());
+
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="receipt-' . $booking['booking_code'] . '.pdf"');
+        header('Content-Length: ' . strlen($pdf));
+        echo $pdf;
     }
 
     public function stripeReturn(Request $request, string $code): void

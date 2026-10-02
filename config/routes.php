@@ -16,6 +16,7 @@ $router->get('/events/{slug}/book/{lotId}', [Public\BookingController::class, 'c
 $router->post('/events/{slug}/book/{lotId}', [Public\BookingController::class, 'store']);
 $router->get('/booking/{code}/confirmation', [Public\BookingController::class, 'confirmation']);
 $router->get('/booking/{code}/receipt', [Public\BookingController::class, 'receipt']);
+$router->get('/booking/{code}/receipt.pdf', [Public\BookingController::class, 'receiptPdf']);
 $router->get('/booking/{code}/stripe-return', [Public\BookingController::class, 'stripeReturn']);
 $router->get('/booking/{code}/stripe-cancelled', [Public\BookingController::class, 'stripeCancelled']);
 $router->post('/stripe/webhook', [Public\StripeWebhookController::class, 'handle']);

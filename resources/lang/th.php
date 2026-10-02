@@ -739,6 +739,7 @@ return [
     'public.confirmation_save_code' => 'กรุณาบันทึกรหัสนี้ไว้เพื่อใช้ค้นหาการจองในภายหลัง',
     'public.confirmation_email_sent' => 'เราได้ส่งอีเมลยืนยันไปที่ :email แล้ว',
     'public.print_receipt_button' => 'พิมพ์ / บันทึกเป็น PDF',
+    'public.download_pdf_button' => 'ดาวน์โหลด PDF',
     'public.receipt_title' => 'ใบยืนยันการจอง',
     'public.receipt_back' => '← กลับ',
     'public.receipt_booker' => 'ผู้จอง',

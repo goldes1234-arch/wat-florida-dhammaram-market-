@@ -21,7 +21,10 @@ if ($locale === 'en') {
 
 <div class="receipt-toolbar">
   <a href="<?= base_url('my-booking/' . $booking['booking_code']) ?>" class="back-link"><?= __('public.receipt_back') ?></a>
-  <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ <?= __('public.print_receipt_button') ?></button>
+  <div>
+    <a href="<?= base_url('booking/' . $booking['booking_code'] . '/receipt.pdf') ?>" class="btn btn-secondary">📄 <?= __('public.download_pdf_button') ?></a>
+    <button type="button" class="btn btn-primary" onclick="window.print()">🖨️ <?= __('public.print_receipt_button') ?></button>
+  </div>
 </div>
 
 <div class="receipt-sheet">

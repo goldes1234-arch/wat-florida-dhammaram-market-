@@ -11,6 +11,8 @@ uploads/downloads/*
 storage/logs/emails/*.html
 storage/logs/last_error_alert.txt
 storage/backups/*.sql.gz
+storage/tmp/*
+!storage/tmp/.gitkeep
 
 # OS/editor cruft
 .DS_Store

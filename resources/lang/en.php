@@ -107,6 +107,16 @@ return [
     'backup.download' => 'Download',
     'backup.cron_not_configured' => 'Scheduled automatic backups aren\'t set up yet — use "Back up now" in the meantime, or see the README for how to schedule one via a cron job.',
     'backup.cron_setup_hint' => 'Add this URL as a scheduled cron job on your hosting (e.g. cPanel → Cron Jobs) so backups run automatically on a schedule (keep this URL secret — don\'t share it):',
+    'backup.migrations_title' => 'Database migration history',
+    'backup.migrations_hint' => 'Schema-upgrade files that have been applied, newest first — only the most recent one can be rolled back from here, and only if it has a matching .down.sql file. Anything else that breaks needs a backup restore instead.',
+    'backup.migrations_none' => 'No migration history yet.',
+    'backup.migration_filename' => 'File',
+    'backup.migration_applied_at' => 'Applied at',
+    'backup.rollback_button' => 'Roll back the last migration',
+    'backup.rollback_confirm' => 'Roll back the most recent database migration? This directly modifies the database schema.',
+    'backup.rollback_unavailable' => 'No .down.sql file exists for this one — it can\'t be rolled back from here. Restore from a backup instead.',
+    'backup.migration_rollback_success' => 'Rolled back :filename successfully.',
+    'backup.migration_rollback_failed' => 'Rollback failed: :error',
 
     'activity.title' => 'Activity log',
     'activity.hint' => 'Records consequential admin actions — deleting events/lots, managing staff accounts. Booking status changes are tracked separately on each booking\'s own detail page.',
@@ -135,6 +145,7 @@ return [
     'activity.staff_checkin_link_generated' => 'Generated a checkin link for ":name"',
     'activity.staff_checkin_link_revoked' => 'Revoked the checkin link for ":name"',
     'activity.backup_deleted' => 'Deleted backup file :filename',
+    'activity.migration_rolled_back' => 'Rolled back database migration :filename',
 
     // dashboard
     'dashboard.title' => 'Overview',

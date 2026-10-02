@@ -53,3 +53,40 @@
 <?php foreach ($backups as $b): ?>
   <form id="backup-delete-<?= e($b['filename']) ?>" method="post" action="<?= base_url('admin/backups/' . urlencode($b['filename']) . '/delete') ?>" data-confirm="<?= e(__('zone.delete_confirm')) ?>" style="display:none;"><?= csrf_field() ?></form>
 <?php endforeach; ?>
+
+<div class="page-header mt-6">
+  <h1><?= __('backup.migrations_title') ?></h1>
+</div>
+<p class="text-sm text-muted mb-4"><?= __('backup.migrations_hint') ?></p>
+
+<?php if (!$migrations): ?>
+  <div class="empty-state"><div class="empty-icon"><?= icon('clock') ?></div><?= __('backup.migrations_none') ?></div>
+<?php else: ?>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th><?= __('backup.migration_filename') ?></th>
+          <th><?= __('backup.migration_applied_at') ?></th>
+          <th><?= __('common.actions') ?></th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php foreach ($migrations as $i => $m): ?>
+          <tr>
+            <td class="text-sm"><?= e($m['filename']) ?></td>
+            <td class="text-sm text-muted"><?= e(date('d/m/Y H:i', strtotime($m['applied_at']))) ?></td>
+            <td>
+              <?php if ($i === 0 && $m['rollback_available']): ?>
+                <button type="submit" form="migration-rollback-form" class="btn btn-danger btn-sm"><?= __('backup.rollback_button') ?></button>
+              <?php elseif ($i === 0): ?>
+                <span class="text-sm text-muted"><?= __('backup.rollback_unavailable') ?></span>
+              <?php endif; ?>
+            </td>
+          </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+  <form id="migration-rollback-form" method="post" action="<?= base_url('admin/migrations/rollback') ?>" data-confirm="<?= e(__('backup.rollback_confirm')) ?>" style="display:none;"><?= csrf_field() ?></form>
+<?php endif; ?>

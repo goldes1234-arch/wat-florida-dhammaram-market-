@@ -107,6 +107,16 @@ return [
     'backup.download' => 'ดาวน์โหลด',
     'backup.cron_not_configured' => 'ยังไม่ได้ตั้งค่าให้สำรองข้อมูลอัตโนมัติตามตารางเวลา — กดปุ่ม "สำรองข้อมูลตอนนี้" เพื่อสำรองด้วยตัวเองได้ก่อน หรือดูวิธีตั้งเวลาอัตโนมัติผ่าน cron job ได้ใน README',
     'backup.cron_setup_hint' => 'นำ URL นี้ไปตั้งเป็น cron job บนโฮสติ้งของคุณ (เช่นใน cPanel → Cron Jobs) เพื่อให้สำรองข้อมูลอัตโนมัติตามตารางเวลาที่ตั้งไว้ (เก็บ URL นี้เป็นความลับ ห้ามเผยแพร่):',
+    'backup.migrations_title' => 'ประวัติการอัปเดตฐานข้อมูล (Migrations)',
+    'backup.migrations_hint' => 'รายการไฟล์อัปเดตโครงสร้างฐานข้อมูลที่ถูกรันไปแล้ว เรียงจากล่าสุดก่อน — ย้อนกลับได้เฉพาะรายการล่าสุดและเฉพาะที่มีไฟล์ .down.sql คู่กันเท่านั้น รายการอื่นถ้าพังต้องกู้คืนจากไฟล์สำรองแทน',
+    'backup.migrations_none' => 'ยังไม่มีประวัติการอัปเดตฐานข้อมูล',
+    'backup.migration_filename' => 'ไฟล์',
+    'backup.migration_applied_at' => 'วันที่รัน',
+    'backup.rollback_button' => 'ย้อนกลับรายการล่าสุด',
+    'backup.rollback_confirm' => 'ย้อนกลับการอัปเดตฐานข้อมูลล่าสุด? การกระทำนี้แก้ไขโครงสร้างฐานข้อมูลโดยตรง',
+    'backup.rollback_unavailable' => 'ไม่มีไฟล์ .down.sql สำหรับรายการนี้ ย้อนกลับผ่านหน้านี้ไม่ได้ — กู้คืนจากไฟล์สำรองแทน',
+    'backup.migration_rollback_success' => 'ย้อนกลับ :filename สำเร็จแล้ว',
+    'backup.migration_rollback_failed' => 'ย้อนกลับไม่สำเร็จ: :error',
 
     'activity.title' => 'ประวัติการใช้งาน',
     'activity.hint' => 'บันทึกการกระทำสำคัญของแอดมิน เช่น การลบงาน/ลบล็อก และการจัดการบัญชีผู้ใช้งาน (ไม่รวมการเปลี่ยนสถานะการจอง ซึ่งดูได้จากประวัติในหน้ารายละเอียดการจองแต่ละรายการ)',
@@ -135,6 +145,7 @@ return [
     'activity.staff_checkin_link_generated' => 'สร้างลิงก์เช็คอินให้บัญชี ":name"',
     'activity.staff_checkin_link_revoked' => 'ยกเลิกลิงก์เช็คอินของบัญชี ":name"',
     'activity.backup_deleted' => 'ลบไฟล์สำรองข้อมูล :filename',
+    'activity.migration_rolled_back' => 'ย้อนกลับการอัปเดตฐานข้อมูล :filename',
 
     // dashboard
     'dashboard.title' => 'ภาพรวมระบบ',

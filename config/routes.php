@@ -168,6 +168,7 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->post('/admin/backups', [Admin\BackupController::class, 'store']);
             $router->get('/admin/backups/{filename}/download', [Admin\BackupController::class, 'download']);
             $router->post('/admin/backups/{filename}/delete', [Admin\BackupController::class, 'destroy']);
+            $router->post('/admin/migrations/rollback', [Admin\BackupController::class, 'rollbackLastMigration']);
             $router->get('/admin/staff', [Admin\StaffController::class, 'index']);
             $router->post('/admin/staff', [Admin\StaffController::class, 'store']);
             $router->post('/admin/staff/{id}/toggle-active', [Admin\StaffController::class, 'toggleActive']);

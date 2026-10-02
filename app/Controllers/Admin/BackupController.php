@@ -7,6 +7,7 @@ use App\Core\Flash;
 use App\Core\Request;
 use App\Core\View;
 use App\Services\BackupService;
+use App\Services\MigrationService;
 
 class BackupController
 {
@@ -16,7 +17,20 @@ class BackupController
             'title' => __('backup.title'),
             'active' => 'backups',
             'backups' => BackupService::list(),
+            'migrations' => MigrationService::appliedHistory(),
         ], 'admin');
+    }
+
+    public function rollbackLastMigration(Request $request): void
+    {
+        [$ok, $result] = MigrationService::rollbackLast();
+        if ($ok) {
+            ActivityLog::record('migration.rollback', 'migration', null, __('activity.migration_rolled_back', ['filename' => $result]));
+            Flash::success(__('backup.migration_rollback_success', ['filename' => $result]));
+        } else {
+            Flash::error(__('backup.migration_rollback_failed', ['error' => $result]));
+        }
+        redirect('admin/backups');
     }
 
     public function store(Request $request): void

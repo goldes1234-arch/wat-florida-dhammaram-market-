@@ -102,13 +102,18 @@ class ReceiptPdfService
     {
         $orgName = $settings['org_name'] ?: __('common.app_name');
 
-        $logoPath = self::resolveLogoPath($settings['logo_path'] ?? null);
+        $logo = self::prepareLogo($settings['logo_path'] ?? null);
+        $logoPath = $logo['path'] ?? null;
         $logoSize = 18;
         $startY = $pdf->GetY();
         $textX = self::PAGE_MARGIN;
         if ($logoPath) {
-            $pdf->Image($logoPath, self::PAGE_MARGIN, $startY, $logoSize, $logoSize);
-            $textX = self::PAGE_MARGIN + $logoSize + 4;
+            $logoWidth = min(40, $logoSize * $logo['ratio']);
+            $pdf->Image($logoPath, self::PAGE_MARGIN, $startY, $logoWidth, $logoSize);
+            $textX = self::PAGE_MARGIN + $logoWidth + 4;
+            if ($logo['temp']) {
+                unlink($logoPath);
+            }
         }
         $textWidth = 210 - self::PAGE_MARGIN - $textX;
 
@@ -138,8 +143,14 @@ class ReceiptPdfService
         $pdf->Ln(5);
     }
 
-    /** tFPDF only embeds JPEG/PNG — a logo in any other format (e.g. WebP) is skipped, text-only header. */
-    private static function resolveLogoPath(?string $logoPath): ?string
+    /**
+     * tFPDF only embeds JPEG/PNG — a logo in any other format (e.g. WebP) is skipped, text-only
+     * header. It also embeds the file at full resolution, and an uploaded logo can be several
+     * MB (the receipt only shows it ~18mm tall), so anything bigger than needed is downscaled
+     * into a temp PNG first — the caller deletes it when 'temp' is true.
+     * @return array{path: string, temp: bool, ratio: float}|null
+     */
+    private static function prepareLogo(?string $logoPath): ?array
     {
         if (!$logoPath) {
             return null;
@@ -151,7 +162,44 @@ class ReceiptPdfService
             return null;
         }
 
-        return in_array(strtolower(pathinfo($file, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png'], true) ? $file : null;
+        $info = @getimagesize($file);
+        if (!$info || !in_array($info[2], [IMAGETYPE_JPEG, IMAGETYPE_PNG], true) || $info[0] < 1 || $info[1] < 1) {
+            return null;
+        }
+
+        [$width, $height, $type] = $info;
+        $ratio = $width / $height;
+        $maxSide = 200;
+        $original = ['path' => $file, 'temp' => false, 'ratio' => $ratio];
+
+        if (max($width, $height) <= $maxSide || !function_exists('imagecreatetruecolor')) {
+            return $original;
+        }
+
+        $source = $type === IMAGETYPE_PNG ? @imagecreatefrompng($file) : @imagecreatefromjpeg($file);
+        if (!$source) {
+            return $original;
+        }
+
+        $scale = $maxSide / max($width, $height);
+        $newWidth = max(1, (int) round($width * $scale));
+        $newHeight = max(1, (int) round($height * $scale));
+        $resized = imagecreatetruecolor($newWidth, $newHeight);
+        imagealphablending($resized, false);
+        imagesavealpha($resized, true);
+        imagefill($resized, 0, 0, imagecolorallocatealpha($resized, 255, 255, 255, 127));
+        imagecopyresampled($resized, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+        $tmpDir = BASE_PATH . '/storage/tmp';
+        if (!is_dir($tmpDir)) {
+            mkdir($tmpDir, 0775, true);
+        }
+        $tmpPng = $tmpDir . '/' . uniqid('receiptlogo_', true) . '.png';
+        $saved = imagepng($resized, $tmpPng, 9);
+        imagedestroy($source);
+        imagedestroy($resized);
+
+        return $saved ? ['path' => $tmpPng, 'temp' => true, 'ratio' => $ratio] : $original;
     }
 
     private static function renderTitle(\tFPDF $pdf): void

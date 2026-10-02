@@ -145,6 +145,22 @@ class Lot extends Model
         $stmt->execute(['name' => $name, 'phone' => $phone, 'email' => $email, 'vendor_id' => $vendorId, 'token' => $token, 'id' => $id]);
     }
 
+    /** A vendor's reserved lots still waiting on their confirmation, soonest event first. */
+    public static function reservedForVendor(int $vendorId): array
+    {
+        $stmt = self::db()->prepare(
+            'SELECT lots.*, events.name_th AS event_name_th, events.name_en AS event_name_en,
+                    events.start_date AS event_start_date
+             FROM lots
+             JOIN events ON events.id = lots.event_id
+             WHERE lots.status = "reserved" AND lots.reserved_vendor_id = :vendor_id
+               AND lots.reserved_confirmed_at IS NULL AND lots.deleted_at IS NULL
+             ORDER BY events.start_date'
+        );
+        $stmt->execute(['vendor_id' => $vendorId]);
+        return $stmt->fetchAll();
+    }
+
     public static function markReservationConfirmed(int $id): void
     {
         self::db()->prepare('UPDATE lots SET reserved_confirmed_at = NOW() WHERE id = :id')->execute(['id' => $id]);

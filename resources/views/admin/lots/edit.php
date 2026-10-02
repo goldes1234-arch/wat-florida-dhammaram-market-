@@ -131,6 +131,11 @@
     <div class="form-group">
       <input type="text" class="form-control" readonly value="<?= e(full_url('reserve/' . $lot['reserved_token'])) ?>" onclick="this.select()">
     </div>
+    <p class="form-hint mb-4"><?= __('lot.reserve_confirm_channels_hint') ?></p>
+    <form method="post" action="<?= base_url('admin/lots/' . $lot['id'] . '/confirm-reservation') ?>">
+      <?= csrf_field() ?>
+      <button type="submit" class="btn btn-primary btn-block" data-confirm="<?= e(__('lot.reserve_confirm_by_admin_confirm', ['name' => $lot['reserved_vendor_name']])) ?>">✅ <?= __('lot.reserve_confirm_by_admin_button') ?></button>
+    </form>
     <form method="post" action="<?= base_url('admin/lots/' . $lot['id'] . '/cancel-reservation') ?>" class="mt-4">
       <?= csrf_field() ?>
       <button type="submit" class="btn btn-danger btn-block" data-confirm="<?= e(__('lot.reserve_cancel_confirm')) ?>"><?= __('lot.reserve_cancel_button') ?></button>

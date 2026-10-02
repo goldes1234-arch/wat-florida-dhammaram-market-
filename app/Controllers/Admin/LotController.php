@@ -3,6 +3,7 @@
 namespace App\Controllers\Admin;
 
 use App\Core\ActivityLog;
+use App\Core\Auth;
 use App\Core\EventAccess;
 use App\Core\Flash;
 use App\Core\Request;
@@ -473,6 +474,28 @@ class LotController
             'code' => $lot['code'], 'vendor' => $name,
         ]));
         Flash::success(__('lot.reserve_success'));
+        redirect('admin/lots/' . $id . '/edit');
+    }
+
+    /** Admin recording that the vendor confirmed outside the link — e.g. phoned the temple. */
+    public function confirmReservation(Request $request, string $id): void
+    {
+        $lot = Lot::find((int) $id);
+        if (!$lot) {
+            redirect('admin/events');
+        }
+        $this->denyUnlessAllowed((int) $lot['event_id']);
+
+        $result = ReservationService::confirmByAdmin((int) $id, Auth::user()['id'] ?? null);
+        if ($result['success']) {
+            ActivityLog::record('lot.reserve_confirm', 'lot', (int) $id, __('activity.lot_reservation_confirmed_by_admin', [
+                'code' => $lot['code'], 'vendor' => $lot['reserved_vendor_name'],
+            ]));
+            Flash::success(__('lot.reserve_confirmed_by_admin_success'));
+        } else {
+            Flash::error($result['error']);
+        }
+
         redirect('admin/lots/' . $id . '/edit');
     }
 

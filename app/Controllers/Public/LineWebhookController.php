@@ -6,6 +6,7 @@ use App\Core\Request;
 use App\Models\Setting;
 use App\Models\Vendor;
 use App\Services\LineService;
+use App\Services\ReservationService;
 
 /**
  * Receives events from the temple's LINE Official Account (same Messaging API
@@ -18,6 +19,7 @@ class LineWebhookController
 {
     private const PORTAL_LINK_TTL_SECONDS = 900;
     private const PORTAL_KEYWORDS = ['สถานะ', 'ประวัติ', 'status', 'history'];
+    private const CONFIRM_KEYWORDS = ['ยืนยัน', 'ยืนยันสิทธิ์', 'ยืนยันการจอง', 'confirm'];
 
     public function handle(Request $request): void
     {
@@ -73,6 +75,11 @@ class LineWebhookController
                 return;
             }
 
+            if (self::isConfirmKeyword($text)) {
+                LineService::reply($replyToken, $this->confirmReservationMessage($already));
+                return;
+            }
+
             if (self::isPortalKeyword($text)) {
                 $token = bin2hex(random_bytes(24));
                 Vendor::setPortalToken(
@@ -104,6 +111,33 @@ class LineWebhookController
         } else {
             LineService::reply($replyToken, __('line.link_not_found'));
         }
+    }
+
+    /** Runs the LINE confirmation and returns the chat reply describing what happened. */
+    private function confirmReservationMessage(array $vendor): string
+    {
+        $outcome = ReservationService::confirmViaLine($vendor);
+
+        return match ($outcome['status']) {
+            'confirmed' => __('line.confirm_done', [
+                'event' => $outcome['lot']['event_name_th'],
+                'lot' => $outcome['lot']['code'],
+            ]),
+            'multiple' => __('line.confirm_multiple', [
+                'count' => (string) count($outcome['lots']),
+                'links' => implode("\n", array_map(
+                    static fn (array $lot) => '• ' . $lot['event_name_th'] . ' — ' . $lot['code'] . "\n" . full_url('reserve/' . $lot['reserved_token']),
+                    $outcome['lots']
+                )),
+            ]),
+            'error' => __('line.confirm_failed', ['error' => $outcome['error']]),
+            default => __('line.confirm_none'),
+        };
+    }
+
+    private static function isConfirmKeyword(string $text): bool
+    {
+        return in_array(mb_strtolower(trim($text)), self::CONFIRM_KEYWORDS, true);
     }
 
     private static function isPortalKeyword(string $text): bool

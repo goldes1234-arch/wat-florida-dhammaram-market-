@@ -122,6 +122,7 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->post('/admin/lots/{id}/toggle-disable', [Admin\LotController::class, 'toggleDisable']);
             $router->post('/admin/lots/{id}/reserve', [Admin\LotController::class, 'reserve']);
             $router->post('/admin/lots/{id}/cancel-reservation', [Admin\LotController::class, 'cancelReservation']);
+            $router->post('/admin/lots/{id}/confirm-reservation', [Admin\LotController::class, 'confirmReservation']);
             $router->post('/admin/lots/{id}/delete', [Admin\LotController::class, 'destroy']);
             $router->post('/admin/events/{eventId}/lots/delete-all', [Admin\LotController::class, 'destroyAll']);
             $router->post('/admin/events/{eventId}/lots/delete-selected', [Admin\LotController::class, 'destroySelected']);

@@ -5,6 +5,7 @@ namespace Tests\Integration;
 use App\Core\Database;
 use App\Models\Event;
 use App\Models\Lot;
+use App\Models\Vendor;
 use App\Services\ReservationService;
 use Tests\TestCase;
 
@@ -107,5 +108,65 @@ class ReservationServiceTest extends TestCase
         $lot = Lot::find($this->lotId);
         $this->assertSame('available', $lot['status']);
         $this->assertNull($lot['reserved_vendor_id']);
+    }
+
+    public function testAdminCanRecordAConfirmationOnTheVendorsBehalfAndItIsLoggedAsAnAdminAction(): void
+    {
+        ReservationService::reserve($this->lotId, 'ผู้ทดสอบ', '0899990010', null);
+
+        $result = ReservationService::confirmByAdmin($this->lotId, null);
+
+        $this->assertTrue($result['success']);
+        $this->assertSame('booked', Lot::find($this->lotId)['status']);
+
+        $log = Database::connection()->prepare('SELECT changed_by_type FROM booking_status_logs WHERE booking_id = ?');
+        $log->execute([$result['booking']['id']]);
+        $this->assertSame('admin', $log->fetchColumn());
+    }
+
+    public function testAdminConfirmationStillWorksPastTheDeadlineWhereTheEmailLinkNoLongerDoes(): void
+    {
+        ReservationService::reserve($this->lotId, 'ผู้ทดสอบ', '0899990011', null);
+        $token = Lot::find($this->lotId)['reserved_token'];
+        $soon = date('Y-m-d', strtotime('+2 days'));
+        Database::connection()->prepare('UPDATE events SET start_date = ?, end_date = ? WHERE id = ?')
+            ->execute([$soon, $soon, $this->eventId]);
+
+        $this->assertFalse(ReservationService::confirm($token)['success'], 'the link must stop working once past the deadline');
+        $this->assertTrue(ReservationService::confirmByAdmin($this->lotId, null)['success']);
+    }
+
+    public function testConfirmingOverLineBooksTheOnlyPendingReservation(): void
+    {
+        ReservationService::reserve($this->lotId, 'ผู้ทดสอบ', '0899990012', null);
+        $vendor = Vendor::find((int) Lot::find($this->lotId)['reserved_vendor_id']);
+
+        $outcome = ReservationService::confirmViaLine($vendor);
+
+        $this->assertSame('confirmed', $outcome['status']);
+        $this->assertSame('booked', Lot::find($this->lotId)['status']);
+    }
+
+    public function testConfirmingOverLineWithSeveralPendingReservationsConfirmsNoneOfThem(): void
+    {
+        $secondLotId = Lot::create($this->eventId, null, 'TEST-A2', 100.00);
+        ReservationService::reserve($this->lotId, 'ผู้ทดสอบ', '0899990013', null);
+        ReservationService::reserve($secondLotId, 'ผู้ทดสอบ', '0899990013', null);
+        $vendor = Vendor::find((int) Lot::find($this->lotId)['reserved_vendor_id']);
+
+        $outcome = ReservationService::confirmViaLine($vendor);
+
+        $this->assertSame('multiple', $outcome['status']);
+        $this->assertSame('reserved', Lot::find($this->lotId)['status']);
+        $this->assertSame('reserved', Lot::find($secondLotId)['status']);
+    }
+
+    public function testConfirmingOverLineWithNothingPendingSaysSo(): void
+    {
+        $vendorId = Vendor::create('[TEST] ไม่มีล็อกรอ', '0899990014', null);
+
+        $outcome = ReservationService::confirmViaLine(Vendor::find($vendorId));
+
+        $this->assertSame('none', $outcome['status']);
     }
 }

@@ -75,14 +75,61 @@ class ReservationService
         return ['success' => true];
     }
 
+    /** The vendor confirming via the emailed (or admin-shared) link. */
     public static function confirm(string $token): array
+    {
+        return self::confirmWhere('reserved_token', $token, 'link', null);
+    }
+
+    /**
+     * Admin recording that the vendor confirmed some other way — typically by phone. Skips the
+     * confirm-deadline check on purpose: that deadline exists to auto-release lots nobody has
+     * heard back about, and an admin who has just spoken to the vendor is the opposite of that
+     * (the lot is still 'reserved' only because the daily release hasn't run yet).
+     */
+    public static function confirmByAdmin(int $lotId, ?int $adminId): array
+    {
+        return self::confirmWhere('id', $lotId, 'admin', $adminId);
+    }
+
+    /**
+     * A LINE-linked vendor replying "ยืนยัน" in the OA chat. Never guesses between several
+     * pending reservations — "confirm" with more than one is ambiguous, so that case hands
+     * back the individual links instead of confirming anything.
+     * @return array{status: 'none'|'confirmed'|'multiple'|'error', lot?: array, lots?: array, error?: string}
+     */
+    public static function confirmViaLine(array $vendor): array
+    {
+        $pending = [];
+        foreach (Lot::reservedForVendor((int) $vendor['id']) as $lot) {
+            if (!self::pastDeadline(Event::find((int) $lot['event_id']))) {
+                $pending[] = $lot;
+            }
+        }
+
+        if (!$pending) {
+            return ['status' => 'none'];
+        }
+        if (count($pending) > 1) {
+            return ['status' => 'multiple', 'lots' => $pending];
+        }
+
+        $result = self::confirmWhere('id', (int) $pending[0]['id'], 'line', null);
+
+        return $result['success']
+            ? ['status' => 'confirmed', 'lot' => $result['lot']]
+            : ['status' => 'error', 'error' => $result['error']];
+    }
+
+    /** @param 'reserved_token'|'id' $column */
+    private static function confirmWhere(string $column, string|int $value, string $channel, ?int $adminId): array
     {
         $pdo = Database::connection();
         $pdo->beginTransaction();
 
         try {
-            $stmt = $pdo->prepare('SELECT * FROM lots WHERE reserved_token = :token FOR UPDATE');
-            $stmt->execute(['token' => $token]);
+            $stmt = $pdo->prepare('SELECT * FROM lots WHERE ' . ($column === 'id' ? 'id' : 'reserved_token') . ' = :value FOR UPDATE');
+            $stmt->execute(['value' => $value]);
             $lot = $stmt->fetch();
 
             if (!$lot) {
@@ -97,7 +144,7 @@ class ReservationService
             }
 
             $event = Event::find((int) $lot['event_id']);
-            if (self::pastDeadline($event)) {
+            if ($channel !== 'admin' && self::pastDeadline($event)) {
                 $pdo->rollBack();
                 return ['success' => false, 'error' => __('reservation.expired_or_invalid')];
             }
@@ -119,7 +166,18 @@ class ReservationService
 
             Lot::setStatus((int) $lot['id'], 'booked');
             Lot::markReservationConfirmed((int) $lot['id']);
-            BookingStatusLog::record($bookingId, null, 'booked', 'guest', null, __('reservation.log_confirmed'));
+            BookingStatusLog::record(
+                $bookingId,
+                null,
+                'booked',
+                $channel === 'admin' ? 'admin' : 'guest',
+                $adminId,
+                match ($channel) {
+                    'admin' => __('reservation.log_confirmed_admin'),
+                    'line' => __('reservation.log_confirmed_line'),
+                    default => __('reservation.log_confirmed'),
+                }
+            );
 
             $pdo->commit();
         } catch (\Throwable $e) {
@@ -133,7 +191,10 @@ class ReservationService
         $booking = Booking::find($bookingId);
         $event = Event::find((int) $lot['event_id']);
         NotificationService::sendBookingConfirmation($booking, $lot, $event);
-        NotificationService::sendAdminBookingAlert($booking, $lot, $event);
+        // The admin who just clicked confirm doesn't need an alert telling them a booking came in.
+        if ($channel !== 'admin') {
+            NotificationService::sendAdminBookingAlert($booking, $lot, $event);
+        }
 
         return ['success' => true, 'lot' => $lot, 'booking' => $booking];
     }
@@ -173,24 +234,36 @@ class ReservationService
         return time() >= $deadline;
     }
 
+    /**
+     * Invites go out by email when the vendor has one, and by LINE too when their LINE
+     * account is linked — either alone is enough, and the admin can always share the link
+     * (or record a phone confirmation) from the lot page.
+     */
     private static function sendVendorInvite(array $lot): void
     {
-        if (empty($lot['reserved_vendor_email'])) {
-            return;
-        }
-
         $settings = Setting::get();
         $eventName = $lot['event_name_th'] ?: ($lot['event_name_en'] ?? '');
 
-        $html = View::renderToString('emails/vendor_reservation_invite', [
-            'lot' => $lot,
-            'settings' => $settings,
-        ]);
+        if (!empty($lot['reserved_vendor_email'])) {
+            $html = View::renderToString('emails/vendor_reservation_invite', [
+                'lot' => $lot,
+                'settings' => $settings,
+            ]);
 
-        Mailer::send(
-            $lot['reserved_vendor_email'],
-            __('email.vendor_reservation_invite_subject', ['event' => $eventName]),
-            $html
-        );
+            Mailer::send(
+                $lot['reserved_vendor_email'],
+                __('email.vendor_reservation_invite_subject', ['event' => $eventName]),
+                $html
+            );
+        }
+
+        $vendor = !empty($lot['reserved_vendor_id']) ? Vendor::find((int) $lot['reserved_vendor_id']) : null;
+        if ($vendor && !empty($vendor['line_user_id']) && LineService::isEnabled()) {
+            LineService::push($vendor['line_user_id'], __('line.vendor_reservation_invite', [
+                'event' => $eventName,
+                'lot' => $lot['code'],
+                'link' => full_url('reserve/' . $lot['reserved_token']),
+            ]));
+        }
     }
 }

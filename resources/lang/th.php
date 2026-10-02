@@ -25,6 +25,7 @@ return [
     'common.prev' => 'ก่อนหน้า',
     'common.next' => 'ถัดไป',
     'common.page_of' => 'หน้า :page จาก :total',
+    'common.staging_banner' => 'ไม่ใช่เว็บจริง ห้ามใช้ข้อมูล/บัตรจริง',
     'common.date' => 'วันที่',
     'common.note' => 'หมายเหตุ',
     'common.back_to_home' => 'กลับหน้าแรก',

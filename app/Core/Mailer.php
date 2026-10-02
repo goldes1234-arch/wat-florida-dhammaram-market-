@@ -18,6 +18,13 @@ class Mailer
     {
         self::logToFile($to, $subject, $html);
 
+        // Staging never delivers a real email — whatever's in Settings there (even if someone
+        // copied production's real SMTP creds in by mistake) stays local to storage/logs/emails/,
+        // so testing a booking flow on staging can't spam a real vendor's inbox.
+        if (App::config('app.env') === 'staging') {
+            return true;
+        }
+
         $settings = Setting::get();
         $config = App::config('mail');
         $fromName = $settings['smtp_from_name'] ?? '' ?: $config['from_name'];

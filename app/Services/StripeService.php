@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Core\App;
 use App\Models\Setting;
 
 /**
@@ -15,7 +16,20 @@ class StripeService
     public static function isEnabled(): bool
     {
         $settings = Setting::get();
-        return !empty($settings['stripe_secret_key']) && empty($settings['stripe_suspended']);
+        $key = $settings['stripe_secret_key'] ?? '';
+
+        if (empty($key) || !empty($settings['stripe_suspended'])) {
+            return false;
+        }
+
+        // On staging, a live key (sk_live_...) is refused even if someone pastes one into
+        // Settings by mistake — staging is for testing, never for moving real money. Only
+        // Stripe's own sk_test_... sandbox keys work there.
+        if (App::config('app.env') === 'staging' && !str_starts_with($key, 'sk_test_')) {
+            return false;
+        }
+
+        return true;
     }
 
     public static function passesFeeToCustomer(): bool

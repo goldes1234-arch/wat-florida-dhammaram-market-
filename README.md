@@ -66,6 +66,28 @@ uploads/               ไฟล์รูปภาพที่อัปโหล
 - **Waitlist**: เมื่อล็อกในงานเต็มหมด หน้ารายละเอียดงานจะโชว์ฟอร์ม "ขอแจ้งเตือนเมื่อมีล็อกว่าง" แทน และจะส่งอีเมลแจ้งอัตโนมัติทันทีที่มีล็อกว่างจากการยกเลิก/ปฏิเสธการจอง
 - **ประวัติการใช้งาน**: หน้า `/admin/activity-log` (เฉพาะ super_admin) บันทึกการลบงาน/โซน/ล็อก และการจัดการบัญชีผู้ใช้งาน แยกจาก `booking_status_logs` ที่บันทึกเฉพาะการเปลี่ยนสถานะการจอง
 
+## Staging environment
+
+สภาพแวดล้อมทดสอบแยกจาก production เต็มรูปแบบ (subdomain + database ของตัวเอง) สำหรับลองฟีเจอร์ใหม่ก่อนขึ้นเว็บจริง รันบน Plesk เดียวกับ production
+
+**ตั้งครั้งแรก:**
+
+1. Plesk → Websites & Domains → เพิ่ม Subdomain เช่น `staging.floridatemplemarket.org` (document root แยกจาก production คนละโฟลเดอร์)
+2. สร้างฐานข้อมูลใหม่แยกต่างหาก เช่น `florida_templemarket_staging` (ห้ามใช้ฐานเดียวกับ production)
+3. Plesk → Git ของ subdomain นี้ → เชื่อม repo เดียวกับ production แต่เลือก branch `staging` แทน `main`
+4. สร้าง `.env` บน staging เอง (ไม่ก็อปจาก production) โดยตั้ง `APP_ENV=staging` และชี้ `DB_*` ไปที่ฐานข้อมูล staging ที่สร้างไว้
+5. รัน `mysql ... < database/schema.sql` แล้ว `php database/seed.php` บนฐานข้อมูล staging — **ห้ามก็อปปี้ข้อมูลจริงจาก production มา** ใช้ข้อมูลตัวอย่างจาก seed เท่านั้น
+6. ตั้ง `BACKUP_CRON_SECRET` ของ staging เป็นคนละค่ากับ production แล้วตั้ง `/cron/post-deploy` ของ staging แยกต่างหาก (เหมือน production แต่ host คนละตัว)
+
+**Deploy:** `git push origin staging` แล้วดึงขึ้น Plesk subdomain นั้น (ตั้ง auto-deploy ของ Plesk Git integration ได้ถ้าต้องการให้ pull อัตโนมัติ) — คนละ flow กับ production ที่ deploy จาก `main`
+
+**ความปลอดภัยที่ระบบช่วยกันเองเมื่อ `APP_ENV=staging`:**
+
+- ขึ้นแถบสีแดง "⚠ STAGING" บนทุกหน้า กันสับสนกับเว็บจริง
+- Stripe: รับเฉพาะ secret key ที่ขึ้นต้นด้วย `sk_test_` เท่านั้น ถ้าใส่ live key (`sk_live_...`) ระบบจะถือว่ายังไม่เปิดใช้งานเสมอ (กันเงินจริงเคลื่อนบน staging โดยไม่ตั้งใจ)
+- อีเมล: ไม่ส่งออกจริงไม่ว่าจะตั้ง SMTP ไว้หรือไม่ — บันทึกเป็นไฟล์ที่ `storage/logs/emails/` เหมือนตอน dev เท่านั้น (กันสแปมอีเมลจริงของลูกค้า/ผู้ติดตาม)
+- LINE: **ระบบป้องกันให้ไม่ได้** — ถ้ากรอก LINE Channel Access Token เดียวกับ production ใน Settings ของ staging ข้อความจะ broadcast ไปหาผู้ติดตาม LINE OA ตัวจริงทันที ถ้าจะทดสอบฟีเจอร์ LINE บน staging ต้องสร้าง LINE OA แยกต่างหากสำหรับทดสอบเท่านั้น ห้ามใช้ token ของจริง
+
 ## เฟสถัดไป (ยังไม่ได้ทำในเฟสนี้ ตามสเปก)
 
 - ระบบแจ้งเตือนผ่าน SMS

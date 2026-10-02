@@ -24,6 +24,7 @@
 </style>
 </head>
 <body>
+  <?= partial('staging_banner') ?>
   <div class="auth-card">
     <div class="auth-brand">
       <div class="brand-mark"><?= icon('store') ?></div>

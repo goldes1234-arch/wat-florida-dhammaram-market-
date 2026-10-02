@@ -14,6 +14,7 @@ $locale = \App\Core\Lang::locale();
 <link rel="stylesheet" href="<?= asset('css/admin.css') ?>">
 </head>
 <body>
+<?= partial('staging_banner') ?>
 <div class="admin-shell">
   <aside class="admin-sidebar" id="adminSidebar">
     <div class="admin-brand"><span class="brand-mark"><?= icon('store') ?></span> <span><?= e(__('common.app_name')) ?></span></div>

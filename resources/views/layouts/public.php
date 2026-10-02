@@ -33,6 +33,7 @@ $metaUrl = current_url();
 <link rel="stylesheet" href="<?= asset('css/public.css') ?>">
 </head>
 <body>
+<?= partial('staging_banner') ?>
 <nav class="public-nav">
   <div class="container nav-inner">
     <a href="<?= base_url('') ?>" class="public-brand">

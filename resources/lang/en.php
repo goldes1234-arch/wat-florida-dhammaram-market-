@@ -25,6 +25,7 @@ return [
     'common.prev' => 'Previous',
     'common.next' => 'Next',
     'common.page_of' => 'Page :page of :total',
+    'common.staging_banner' => 'Not the real site — do not enter real data or real cards',
     'common.date' => 'Date',
     'common.note' => 'Note',
     'common.back_to_home' => 'Back to home',

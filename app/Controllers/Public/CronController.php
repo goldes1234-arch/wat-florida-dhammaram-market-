@@ -7,6 +7,7 @@ use App\Core\Request;
 use App\Services\BackupService;
 use App\Services\EventReminderService;
 use App\Services\MigrationService;
+use App\Services\NotificationService;
 use App\Services\ReservationService;
 
 /**
@@ -38,6 +39,7 @@ class CronController
         } else {
             http_response_code(500);
             echo 'FAILED: ' . $result . ' | reservations released: ' . $released . ' | events reminded: ' . $reminded;
+            NotificationService::sendAdminErrorAlert('Daily backup failed: ' . $result);
         }
     }
 

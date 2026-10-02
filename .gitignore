@@ -9,6 +9,7 @@ uploads/**/*.webp
 uploads/**/*.gif
 uploads/downloads/*
 storage/logs/emails/*.html
+storage/logs/last_error_alert.txt
 storage/backups/*.sql.gz
 
 # OS/editor cruft

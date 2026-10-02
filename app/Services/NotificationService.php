@@ -107,6 +107,36 @@ class NotificationService
         }
     }
 
+    /**
+     * Alerts admins (email + LINE) that an uncaught error happened — the only signal anyone
+     * gets today besides error_log(), which nobody is watching live. Throttled to at most one
+     * alert per 15 minutes via a marker file, so an error storm (e.g. the DB going down, which
+     * would otherwise fire this on every single request) doesn't flood every channel at once.
+     */
+    public static function sendAdminErrorAlert(string $message): void
+    {
+        $throttleFile = BASE_PATH . '/storage/logs/last_error_alert.txt';
+        if (is_file($throttleFile) && time() - (int) file_get_contents($throttleFile) < 900) {
+            return;
+        }
+        @file_put_contents($throttleFile, (string) time());
+
+        $settings = Setting::get();
+        $summary = mb_substr($message, 0, 300);
+
+        if (!empty($settings['org_email'])) {
+            Mailer::send(
+                $settings['org_email'],
+                __('email.system_error_alert_subject'),
+                '<pre style="white-space:pre-wrap;font-family:monospace;">' . e($summary) . '</pre>'
+            );
+        }
+
+        if (LineService::isEnabled()) {
+            LineService::broadcast(__('line.system_error_alert', ['message' => $summary]));
+        }
+    }
+
     public static function notifyEventOpen(array $event): void
     {
         $subscribers = InterestSubscriber::notNotifiedForEvent((int) $event['id']);

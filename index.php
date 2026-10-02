@@ -74,6 +74,11 @@ set_exception_handler(function (\Throwable $e) use ($debug) {
             . e($e->getMessage()) . "\n\n" . e($e->getTraceAsString()) . '</pre>';
     } else {
         echo '<h1>Something went wrong</h1><p>Please try again later.</p>';
+        try {
+            \App\Services\NotificationService::sendAdminErrorAlert($e->getMessage());
+        } catch (\Throwable $alertFailed) {
+            // Alerting itself failed (e.g. the DB is what's down) — already in error_log above.
+        }
     }
 });
 

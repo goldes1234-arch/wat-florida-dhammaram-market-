@@ -33,6 +33,7 @@ $router->get('/vendor/portal/{token}', [Public\VendorPortalController::class, 's
 $router->get('/checkin-link/{token}', [Public\CheckinLinkController::class, 'show']);
 $router->get('/reserve/{token}', [Public\ReservationController::class, 'show']);
 $router->post('/reserve/{token}/confirm', [Public\ReservationController::class, 'confirm']);
+$router->get('/health', [Public\HealthController::class, 'check']);
 $router->get('/cron/backup', [Public\CronController::class, 'backup']);
 $router->get('/cron/post-deploy', [Public\CronController::class, 'postDeploy']);
 

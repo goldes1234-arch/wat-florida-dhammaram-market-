@@ -91,6 +91,31 @@ class NotificationService
         }
     }
 
+    /** Lets admins know a vendor asked (via their self-service portal) for their data to be
+     *  deleted — nothing is deleted automatically, this just surfaces it for manual review. */
+    public static function sendAdminVendorDeletionRequestAlert(array $vendor): void
+    {
+        $settings = Setting::get();
+
+        if (!empty($settings['org_email'])) {
+            Mailer::send(
+                $settings['org_email'],
+                __('email.vendor_deletion_request_subject', ['name' => $vendor['name']]),
+                '<p>' . e(__('email.vendor_deletion_request_body', [
+                    'name' => $vendor['name'],
+                    'phone' => $vendor['phone'],
+                ])) . '</p>'
+            );
+        }
+
+        if (LineService::isEnabled()) {
+            LineService::broadcast(__('line.vendor_deletion_request_alert', [
+                'name' => $vendor['name'],
+                'phone' => $vendor['phone'],
+            ]));
+        }
+    }
+
     /** Lets waitlisted vendors know a lot just freed up on an event they're waiting for. */
     public static function sendWaitlistAlert(array $entry, array $event): void
     {

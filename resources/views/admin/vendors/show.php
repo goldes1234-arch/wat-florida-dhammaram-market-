@@ -3,11 +3,26 @@
 /** @var array $history */
 ?>
 <div class="page-header">
-  <h1><?= e($vendor['name']) ?></h1>
+  <h1>
+    <?= e($vendor['name']) ?>
+    <?php if (!empty($vendor['deletion_requested_at'])): ?>
+      <span class="badge badge-red">🗑️ <?= __('vendor.deletion_requested_badge') ?></span>
+    <?php endif; ?>
+  </h1>
   <div class="header-actions">
     <a href="<?= base_url('admin/vendors') ?>" class="btn btn-secondary">&larr; <?= __('common.back') ?></a>
   </div>
 </div>
+
+<?php if (!empty($vendor['deletion_requested_at'])): ?>
+  <div class="card mb-6" style="border-color:var(--color-danger-light);background:var(--color-danger-light);max-width:520px;">
+    <p class="text-sm mb-4"><?= __('vendor.deletion_requested_at', ['date' => date('d/m/Y H:i', strtotime($vendor['deletion_requested_at']))]) ?></p>
+    <form method="post" action="<?= base_url('admin/vendors/' . $vendor['id'] . '/dismiss-deletion-request') ?>" data-confirm="<?= e(__('vendor.dismiss_deletion_request_confirm')) ?>" style="margin:0;">
+      <?= csrf_field() ?>
+      <button type="submit" class="btn btn-secondary btn-sm"><?= __('vendor.dismiss_deletion_request_button') ?></button>
+    </form>
+  </div>
+<?php endif; ?>
 
 <div class="card mb-6" style="max-width:520px;">
   <form method="post" action="<?= base_url('admin/vendors/' . $vendor['id']) ?>">

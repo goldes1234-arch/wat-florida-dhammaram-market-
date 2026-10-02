@@ -314,6 +314,10 @@ CREATE TABLE vendors (
   phone VARCHAR(30) NOT NULL,
   email VARCHAR(150) NULL,
   notes TEXT NULL,
+  -- Set when the vendor asks (via their self-service portal) for their data to be
+  -- deleted — surfaced to admins to action manually (see VendorController::destroy()),
+  -- not auto-deleted, since bookings/payment history may need to be kept regardless.
+  deletion_requested_at DATETIME NULL,
   -- Set once the vendor links their LINE account by messaging the temple's LINE
   -- Official Account with their phone number (see LineWebhookController) — lets
   -- admins push a targeted message to this one vendor instead of only broadcasting

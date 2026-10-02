@@ -31,6 +31,8 @@ $router->get('/advertise', [Public\AdvertisementController::class, 'form']);
 $router->post('/advertise', [Public\AdvertisementController::class, 'store']);
 $router->get('/downloads/{id}', [Public\DownloadController::class, 'show']);
 $router->get('/vendor/portal/{token}', [Public\VendorPortalController::class, 'show']);
+$router->get('/vendor/portal/{token}/export', [Public\VendorPortalController::class, 'exportData']);
+$router->post('/vendor/portal/{token}/request-deletion', [Public\VendorPortalController::class, 'requestDeletion']);
 $router->get('/checkin-link/{token}', [Public\CheckinLinkController::class, 'show']);
 $router->get('/reserve/{token}', [Public\ReservationController::class, 'show']);
 $router->post('/reserve/{token}/confirm', [Public\ReservationController::class, 'confirm']);
@@ -139,6 +141,7 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->get('/admin/vendors/{id}', [Admin\VendorController::class, 'show']);
             $router->post('/admin/vendors/{id}', [Admin\VendorController::class, 'update']);
             $router->post('/admin/vendors/{id}/delete', [Admin\VendorController::class, 'destroy']);
+            $router->post('/admin/vendors/{id}/dismiss-deletion-request', [Admin\VendorController::class, 'dismissDeletionRequest']);
             $router->post('/admin/vendors/{id}/line-message', [Admin\VendorController::class, 'sendLineMessage']);
 
             $router->get('/admin/line-messages', [Admin\LineMessageController::class, 'index']);

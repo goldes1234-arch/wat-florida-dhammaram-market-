@@ -114,6 +114,21 @@ class Vendor extends Model
         self::db()->prepare('DELETE FROM vendors WHERE id = :id')->execute(['id' => $id]);
     }
 
+    /** The vendor (via their self-service portal) asking for their data to be deleted — not
+     *  acted on automatically, just flagged for an admin to review (see VendorController). */
+    public static function requestDeletion(int $id): void
+    {
+        self::db()->prepare('UPDATE vendors SET deletion_requested_at = NOW() WHERE id = :id')
+            ->execute(['id' => $id]);
+    }
+
+    /** Admin acknowledging a deletion request without actually deleting the vendor. */
+    public static function clearDeletionRequest(int $id): void
+    {
+        self::db()->prepare('UPDATE vendors SET deletion_requested_at = NULL WHERE id = :id')
+            ->execute(['id' => $id]);
+    }
+
     public static function findByLineUserId(string $lineUserId): ?array
     {
         $stmt = self::db()->prepare('SELECT * FROM vendors WHERE line_user_id = :line_user_id');

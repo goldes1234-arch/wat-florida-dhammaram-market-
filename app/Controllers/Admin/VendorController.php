@@ -93,6 +93,16 @@ class VendorController
         redirect('admin/vendors');
     }
 
+    public function dismissDeletionRequest(Request $request, string $id): void
+    {
+        $vendor = Vendor::find((int) $id);
+        if ($vendor) {
+            Vendor::clearDeletionRequest((int) $id);
+            Flash::success(__('vendor.dismiss_deletion_request_success'));
+        }
+        redirect('admin/vendors/' . $id);
+    }
+
     public function sendLineMessage(Request $request, string $id): void
     {
         $vendor = Vendor::find((int) $id);

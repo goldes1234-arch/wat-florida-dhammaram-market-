@@ -143,6 +143,8 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->post('/admin/vendors/{id}', [Admin\VendorController::class, 'update']);
             $router->post('/admin/vendors/{id}/delete', [Admin\VendorController::class, 'destroy']);
             $router->post('/admin/vendors/{id}/dismiss-deletion-request', [Admin\VendorController::class, 'dismissDeletionRequest']);
+            $router->post('/admin/vendors/{id}/approve-line-link', [Admin\VendorController::class, 'approveLineLink']);
+            $router->post('/admin/vendors/{id}/reject-line-link', [Admin\VendorController::class, 'rejectLineLink']);
             $router->post('/admin/vendors/{id}/line-message', [Admin\VendorController::class, 'sendLineMessage']);
 
             $router->get('/admin/line-messages', [Admin\LineMessageController::class, 'index']);

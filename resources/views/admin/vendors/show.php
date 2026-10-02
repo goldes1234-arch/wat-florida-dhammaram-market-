@@ -56,6 +56,24 @@
 
 <div class="card mb-6" style="max-width:520px;">
   <div class="card-header"><h3><?= __('vendor.line_title') ?></h3></div>
+  <?php if (!empty($vendor['line_pending_user_id'])): ?>
+    <div class="alert alert-warning mb-4">
+      <p class="text-sm mb-4"><?= __('vendor.line_link_pending', ['date' => date('d/m/Y H:i', strtotime($vendor['line_link_requested_at']))]) ?></p>
+      <?php if (!empty($vendor['line_user_id'])): ?>
+        <p class="text-sm mb-4"><strong><?= __('vendor.line_link_replaces_warning') ?></strong></p>
+      <?php endif; ?>
+      <div style="display:flex;gap:8px;">
+        <form method="post" action="<?= base_url('admin/vendors/' . $vendor['id'] . '/approve-line-link') ?>" data-confirm="<?= e(__('vendor.line_link_approve_confirm')) ?>" style="margin:0;">
+          <?= csrf_field() ?>
+          <button type="submit" class="btn btn-primary btn-sm"><?= __('vendor.line_link_approve_button') ?></button>
+        </form>
+        <form method="post" action="<?= base_url('admin/vendors/' . $vendor['id'] . '/reject-line-link') ?>" style="margin:0;">
+          <?= csrf_field() ?>
+          <button type="submit" class="btn btn-secondary btn-sm"><?= __('vendor.line_link_reject_button') ?></button>
+        </form>
+      </div>
+    </div>
+  <?php endif; ?>
   <?php if (!empty($vendor['line_user_id'])): ?>
     <p class="text-sm mb-4">✅ <?= __('vendor.line_connected') ?></p>
     <form method="post" action="<?= base_url('admin/vendors/' . $vendor['id'] . '/line-message') ?>">

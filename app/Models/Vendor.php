@@ -142,6 +142,48 @@ class Vendor extends Model
             ->execute(['line_user_id' => $lineUserId, 'id' => $id]);
     }
 
+    /** Records a LINE account asking to be linked to this vendor, pending admin approval.
+     *  A LINE user can only have one open request, so any earlier one by them is dropped. */
+    public static function requestLineLink(int $id, string $lineUserId): void
+    {
+        self::db()->prepare(
+            'UPDATE vendors SET line_pending_user_id = NULL, line_link_requested_at = NULL
+             WHERE line_pending_user_id = :line_user_id AND id <> :id'
+        )->execute(['line_user_id' => $lineUserId, 'id' => $id]);
+
+        self::db()->prepare(
+            'UPDATE vendors SET line_pending_user_id = :line_user_id, line_link_requested_at = NOW() WHERE id = :id'
+        )->execute(['line_user_id' => $lineUserId, 'id' => $id]);
+    }
+
+    public static function clearLineLinkRequest(int $id): void
+    {
+        self::db()->prepare('UPDATE vendors SET line_pending_user_id = NULL, line_link_requested_at = NULL WHERE id = :id')
+            ->execute(['id' => $id]);
+    }
+
+    /** Promotes the pending LINE account to the linked one. Returns the LINE user id, or null if none pending. */
+    public static function approveLineLink(int $id): ?string
+    {
+        $vendor = self::find($id);
+        $pending = $vendor['line_pending_user_id'] ?? null;
+        if (!$pending) {
+            return null;
+        }
+
+        // line_user_id is unique: if this LINE account is somehow already linked to another vendor, refuse.
+        $owner = self::findByLineUserId($pending);
+        if ($owner && (int) $owner['id'] !== $id) {
+            self::clearLineLinkRequest($id);
+            return null;
+        }
+
+        self::db()->prepare(
+            'UPDATE vendors SET line_user_id = line_pending_user_id, line_pending_user_id = NULL, line_link_requested_at = NULL WHERE id = :id'
+        )->execute(['id' => $id]);
+        return $pending;
+    }
+
     public static function unlinkLine(int $id): void
     {
         self::db()->prepare('UPDATE vendors SET line_user_id = NULL WHERE id = :id')->execute(['id' => $id]);

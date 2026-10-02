@@ -116,6 +116,24 @@ class NotificationService
         }
     }
 
+    /** A LINE account asked to be linked to a vendor — admin must approve it on the vendor page. */
+    public static function sendAdminLineLinkRequestAlert(array $vendor): void
+    {
+        $settings = Setting::get();
+
+        if (!empty($settings['org_email'])) {
+            Mailer::send(
+                $settings['org_email'],
+                __('email.line_link_request_subject', ['name' => $vendor['name']]),
+                '<p>' . e(__('email.line_link_request_body', [
+                    'name' => $vendor['name'],
+                    'phone' => $vendor['phone'],
+                    'link' => full_url('admin/vendors/' . $vendor['id']),
+                ])) . '</p>'
+            );
+        }
+    }
+
     /** Lets waitlisted vendors know a lot just freed up on an event they're waiting for. */
     public static function sendWaitlistAlert(array $entry, array $event): void
     {

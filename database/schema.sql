@@ -326,6 +326,11 @@ CREATE TABLE vendors (
   -- admins push a targeted message to this one vendor instead of only broadcasting
   -- to every OA follower.
   line_user_id VARCHAR(64) NULL,
+  -- A LINE account that messaged the OA with this vendor's phone number but isn't
+  -- linked yet: a phone number alone proves nothing, so an admin must approve the
+  -- request (see VendorController::approveLineLink) before it becomes line_user_id.
+  line_pending_user_id VARCHAR(64) NULL,
+  line_link_requested_at DATETIME NULL,
   -- Self-service portal access (see VendorPortalController) — a short-lived,
   -- hashed magic-link token a linked vendor gets by messaging the LINE OA with a
   -- keyword (see LineWebhookController), mirroring how admin password resets work.

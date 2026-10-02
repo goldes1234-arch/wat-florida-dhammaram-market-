@@ -6,14 +6,16 @@ use App\Core\Request;
 use App\Models\Setting;
 use App\Models\Vendor;
 use App\Services\LineService;
+use App\Services\NotificationService;
 use App\Services\ReservationService;
 
 /**
  * Receives events from the temple's LINE Official Account (same Messaging API
  * channel as LineService::broadcast()/push()) and links a vendor's LINE account
- * to their vendors row when they message the OA with their phone number — the
- * only way to learn a vendor's LINE user id, since LINE never exposes it to us
- * otherwise. Once linked, admins can push a targeted message to that vendor.
+ * to their vendors row: the vendor messages the OA with their phone number (the only
+ * way to learn their LINE user id, since LINE never exposes it otherwise), which opens
+ * a link request that an admin approves. Once linked, admins can push targeted messages
+ * and the vendor can confirm reservations / open their portal from the chat.
  */
 class LineWebhookController
 {
@@ -106,8 +108,11 @@ class LineWebhookController
         }
 
         if ($vendor) {
-            Vendor::linkLine((int) $vendor['id'], $userId);
-            LineService::reply($replyToken, __('line.link_success', ['name' => $vendor['name']]));
+            // A phone number is easy to learn or guess, so it only starts a request —
+            // an admin has to approve it before this LINE account is trusted as the vendor.
+            Vendor::requestLineLink((int) $vendor['id'], $userId);
+            NotificationService::sendAdminLineLinkRequestAlert($vendor);
+            LineService::reply($replyToken, __('line.link_pending'));
         } else {
             LineService::reply($replyToken, __('line.link_not_found'));
         }

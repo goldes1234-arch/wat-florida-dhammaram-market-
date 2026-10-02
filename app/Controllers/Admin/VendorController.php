@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Admin;
 
+use App\Core\ActivityLog;
 use App\Core\Flash;
 use App\Core\Request;
 use App\Core\View;
@@ -99,6 +100,34 @@ class VendorController
         if ($vendor) {
             Vendor::clearDeletionRequest((int) $id);
             Flash::success(__('vendor.dismiss_deletion_request_success'));
+        }
+        redirect('admin/vendors/' . $id);
+    }
+
+    public function approveLineLink(Request $request, string $id): void
+    {
+        $vendor = Vendor::find((int) $id);
+        $lineUserId = $vendor ? Vendor::approveLineLink((int) $id) : null;
+
+        if ($lineUserId === null) {
+            Flash::error(__('vendor.line_link_approve_failed'));
+            redirect('admin/vendors/' . $id);
+        }
+
+        ActivityLog::record('vendor.line_link_approved', 'vendor', (int) $id, __('activity.vendor_line_link_approved', ['name' => $vendor['name']]));
+        LineService::push($lineUserId, __('line.link_success', ['name' => $vendor['name']]));
+        Flash::success(__('vendor.line_link_approve_success'));
+        redirect('admin/vendors/' . $id);
+    }
+
+    public function rejectLineLink(Request $request, string $id): void
+    {
+        $vendor = Vendor::find((int) $id);
+        if ($vendor && $vendor['line_pending_user_id']) {
+            Vendor::clearLineLinkRequest((int) $id);
+            ActivityLog::record('vendor.line_link_rejected', 'vendor', (int) $id, __('activity.vendor_line_link_rejected', ['name' => $vendor['name']]));
+            LineService::push($vendor['line_pending_user_id'], __('line.link_rejected'));
+            Flash::success(__('vendor.line_link_reject_success'));
         }
         redirect('admin/vendors/' . $id);
     }

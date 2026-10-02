@@ -60,8 +60,14 @@ class Router
             }
         }
 
+        // HEAD is "GET without the body": uptime monitors and link previewers use it, so it
+        // must reach the GET routes rather than 404. The headers/status are kept; the body
+        // is discarded here so nothing depends on the web server stripping it.
+        $isHead = $request->method === 'HEAD';
+        $method = $isHead ? 'GET' : $request->method;
+
         foreach ($this->routes as $route) {
-            if ($route['method'] !== $request->method) {
+            if ($route['method'] !== $method) {
                 continue;
             }
             if (!preg_match($this->compile($route['pattern']), $request->path, $matches)) {
@@ -75,6 +81,10 @@ class Router
                 if ($result === false) {
                     return;
                 }
+            }
+
+            if ($isHead) {
+                ob_start(static fn (): string => '');
             }
 
             [$controllerClass, $methodName] = $route['action'];

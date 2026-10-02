@@ -106,6 +106,10 @@ foreach (\App\Models\SocialLink::all() as $extraLink) {
         <?php endforeach; ?>
       </div>
     <?php endif; ?>
+    <div class="footer-links">
+      <a href="<?= base_url('privacy') ?>">Privacy Policy</a>
+      <a href="<?= base_url('terms') ?>">Terms of Use</a>
+    </div>
     &copy; <?= date('Y') ?> <?= e($settings['org_name'] ?: __('common.app_name')) ?>
   </div>
 </footer>

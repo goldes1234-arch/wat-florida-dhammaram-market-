@@ -74,6 +74,7 @@
     </div>
 
     <div class="mb-4"><?= partial('cancellation_policy') ?></div>
+    <p class="text-sm text-muted mb-4">By booking you agree to the <a href="<?= base_url('terms') ?>" target="_blank" rel="noopener">Terms of Use</a> and <a href="<?= base_url('privacy') ?>" target="_blank" rel="noopener">Privacy Policy</a>.</p>
     <button type="submit" class="btn btn-primary btn-lg btn-block"><?= __('public.submit_booking') ?></button>
   </form>
 </div>

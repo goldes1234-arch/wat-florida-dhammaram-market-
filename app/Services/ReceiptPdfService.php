@@ -102,9 +102,20 @@ class ReceiptPdfService
     {
         $orgName = $settings['org_name'] ?: __('common.app_name');
 
+        $logoPath = self::resolveLogoPath($settings['logo_path'] ?? null);
+        $logoSize = 18;
+        $startY = $pdf->GetY();
+        $textX = self::PAGE_MARGIN;
+        if ($logoPath) {
+            $pdf->Image($logoPath, self::PAGE_MARGIN, $startY, $logoSize, $logoSize);
+            $textX = self::PAGE_MARGIN + $logoSize + 4;
+        }
+        $textWidth = 210 - self::PAGE_MARGIN - $textX;
+
+        $pdf->SetXY($textX, $startY + ($logoPath ? 1 : 0));
         $pdf->SetFont('NotoSansThai', 'B', 15);
         $pdf->SetTextColor(36, 28, 16);
-        $pdf->Cell(0, 7, $orgName, 0, 1);
+        $pdf->Cell($textWidth, 7, $orgName, 0, 1);
 
         $meta = trim(($settings['org_address'] ?? '') . (
             !empty($settings['org_address']) && !empty($settings['org_phone']) ? ' · ' : ''
@@ -112,8 +123,12 @@ class ReceiptPdfService
         if ($meta !== '') {
             $pdf->SetFont('NotoSansThai', '', 9);
             $pdf->SetTextColor(122, 106, 84);
-            $pdf->SetX(self::PAGE_MARGIN);
-            self::renderWrappedText($pdf, 210 - 2 * self::PAGE_MARGIN, 5, $meta);
+            $pdf->SetX($textX);
+            self::renderWrappedText($pdf, $textWidth, 5, $meta);
+        }
+
+        if ($logoPath) {
+            $pdf->SetY(max($pdf->GetY(), $startY + $logoSize));
         }
 
         $pdf->SetDrawColor(234, 217, 186);
@@ -121,6 +136,22 @@ class ReceiptPdfService
         $pdf->Ln(2);
         $pdf->Line(self::PAGE_MARGIN, $pdf->GetY(), 210 - self::PAGE_MARGIN, $pdf->GetY());
         $pdf->Ln(5);
+    }
+
+    /** tFPDF only embeds JPEG/PNG — a logo in any other format (e.g. WebP) is skipped, text-only header. */
+    private static function resolveLogoPath(?string $logoPath): ?string
+    {
+        if (!$logoPath) {
+            return null;
+        }
+
+        $uploads = realpath(BASE_PATH . '/uploads');
+        $file = realpath(BASE_PATH . '/uploads/' . ltrim($logoPath, '/'));
+        if (!$uploads || !$file || !str_starts_with($file, $uploads . DIRECTORY_SEPARATOR) || !is_file($file)) {
+            return null;
+        }
+
+        return in_array(strtolower(pathinfo($file, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png'], true) ? $file : null;
     }
 
     private static function renderTitle(\tFPDF $pdf): void

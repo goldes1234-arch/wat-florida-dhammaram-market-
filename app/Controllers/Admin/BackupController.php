@@ -66,4 +66,37 @@ class BackupController
         Flash::success(__('backup.deleted_success'));
         redirect('admin/backups');
     }
+
+    public function verify(Request $request, string $filename): void
+    {
+        [$ok, $message] = BackupService::verify($filename);
+        if ($ok) {
+            Flash::success(__('backup.verify_success', ['message' => $message]));
+        } else {
+            Flash::error(__('backup.verify_failed', ['error' => $message]));
+        }
+        redirect('admin/backups');
+    }
+
+    /**
+     * Overwrites the live database — the form makes the admin type the exact filename as a
+     * confirmation, but that's only ever enforced client-side by the page's own JS, so it's
+     * re-checked here too before anything destructive runs.
+     */
+    public function restore(Request $request, string $filename): void
+    {
+        if ($request->trimmed('confirm_filename') !== $filename) {
+            Flash::error(__('backup.restore_confirm_mismatch'));
+            redirect('admin/backups');
+        }
+
+        [$ok, $result] = BackupService::restore($filename);
+        if ($ok) {
+            ActivityLog::record('backup.restore', 'backup', null, __('activity.backup_restored', ['filename' => $filename]));
+            Flash::success(__('backup.restore_success', ['filename' => $filename]));
+        } else {
+            Flash::error(__('backup.restore_failed', ['error' => $result]));
+        }
+        redirect('admin/backups');
+    }
 }

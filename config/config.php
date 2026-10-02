@@ -22,6 +22,7 @@ return [
     ],
     'backup' => [
         'mysqldump_path' => Env::get('MYSQLDUMP_PATH', ''),
+        'mysql_path' => Env::get('MYSQL_PATH', ''),
         'retention' => (int) Env::get('BACKUP_RETENTION', 14),
         'cron_secret' => Env::get('BACKUP_CRON_SECRET', ''),
     ],

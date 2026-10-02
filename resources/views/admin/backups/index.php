@@ -41,6 +41,14 @@
             <td class="text-sm text-muted"><?= e(date('d/m/Y H:i', $b['created_at'])) ?></td>
             <td>
               <a href="<?= base_url('admin/backups/' . urlencode($b['filename']) . '/download') ?>" class="btn btn-secondary btn-sm"><?= __('backup.download') ?></a>
+              <button type="submit" form="backup-verify-<?= e($b['filename']) ?>" class="btn btn-secondary btn-sm"><?= __('backup.verify_button') ?></button>
+              <button
+                type="button"
+                class="btn btn-danger btn-sm backup-restore-trigger"
+                data-form="backup-restore-<?= e($b['filename']) ?>"
+                data-filename="<?= e($b['filename']) ?>"
+                data-prompt="<?= e(__('backup.restore_prompt', ['filename' => $b['filename']])) ?>"
+              ><?= __('backup.restore_button') ?></button>
               <button type="submit" form="backup-delete-<?= e($b['filename']) ?>" class="btn btn-danger btn-sm"><?= __('common.delete') ?></button>
             </td>
           </tr>
@@ -52,7 +60,30 @@
 
 <?php foreach ($backups as $b): ?>
   <form id="backup-delete-<?= e($b['filename']) ?>" method="post" action="<?= base_url('admin/backups/' . urlencode($b['filename']) . '/delete') ?>" data-confirm="<?= e(__('zone.delete_confirm')) ?>" style="display:none;"><?= csrf_field() ?></form>
+  <form id="backup-verify-<?= e($b['filename']) ?>" method="post" action="<?= base_url('admin/backups/' . urlencode($b['filename']) . '/verify') ?>" style="display:none;"><?= csrf_field() ?></form>
+  <form id="backup-restore-<?= e($b['filename']) ?>" method="post" action="<?= base_url('admin/backups/' . urlencode($b['filename']) . '/restore') ?>" style="display:none;">
+    <?= csrf_field() ?>
+    <input type="hidden" name="confirm_filename" value="">
+  </form>
 <?php endforeach; ?>
+
+<script>
+(function () {
+  // Restoring overwrites the live database, so a plain confirm() isn't enough friction —
+  // the admin has to type the exact filename back before the form is even submitted.
+  document.querySelectorAll('.backup-restore-trigger').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var typed = window.prompt(btn.getAttribute('data-prompt'));
+      if (typed === null || typed !== btn.getAttribute('data-filename')) {
+        return;
+      }
+      var form = document.getElementById(btn.getAttribute('data-form'));
+      form.querySelector('input[name="confirm_filename"]').value = typed;
+      form.submit();
+    });
+  });
+})();
+</script>
 
 <div class="page-header mt-6">
   <h1><?= __('backup.migrations_title') ?></h1>

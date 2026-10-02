@@ -105,6 +105,14 @@ return [
     'backup.size' => 'Size',
     'backup.created_at' => 'Created',
     'backup.download' => 'Download',
+    'backup.verify_button' => 'Verify file',
+    'backup.verify_success' => 'Backup file is valid: :message',
+    'backup.verify_failed' => 'Backup file has a problem: :error',
+    'backup.restore_button' => 'Restore from this file',
+    'backup.restore_prompt' => 'This will OVERWRITE THE ENTIRE LIVE DATABASE with this file\'s contents. This cannot be undone. To confirm, type the filename exactly:\n\n:filename',
+    'backup.restore_confirm_mismatch' => 'The filename you typed to confirm didn\'t match — restore cancelled.',
+    'backup.restore_success' => 'Database restored from :filename.',
+    'backup.restore_failed' => 'Restore failed: :error',
     'backup.cron_not_configured' => 'Scheduled automatic backups aren\'t set up yet — use "Back up now" in the meantime, or see the README for how to schedule one via a cron job.',
     'backup.cron_setup_hint' => 'Add this URL as a scheduled cron job on your hosting (e.g. cPanel → Cron Jobs) so backups run automatically on a schedule (keep this URL secret — don\'t share it):',
     'backup.migrations_title' => 'Database migration history',
@@ -146,6 +154,7 @@ return [
     'activity.staff_checkin_link_revoked' => 'Revoked the checkin link for ":name"',
     'activity.backup_deleted' => 'Deleted backup file :filename',
     'activity.migration_rolled_back' => 'Rolled back database migration :filename',
+    'activity.backup_restored' => 'Restored the database from backup :filename',
 
     // dashboard
     'dashboard.title' => 'Overview',

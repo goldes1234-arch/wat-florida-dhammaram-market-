@@ -105,6 +105,14 @@ return [
     'backup.size' => 'ขนาด',
     'backup.created_at' => 'วันที่สร้าง',
     'backup.download' => 'ดาวน์โหลด',
+    'backup.verify_button' => 'ตรวจสอบไฟล์',
+    'backup.verify_success' => 'ไฟล์สำรองใช้ได้: :message',
+    'backup.verify_failed' => 'ไฟล์สำรองมีปัญหา: :error',
+    'backup.restore_button' => 'กู้คืนจากไฟล์นี้',
+    'backup.restore_prompt' => 'คำสั่งนี้จะ "เขียนทับฐานข้อมูลที่ใช้งานจริงทั้งหมด" ด้วยข้อมูลจากไฟล์นี้ ย้อนกลับไม่ได้ เพื่อยืนยัน พิมพ์ชื่อไฟล์ให้ตรงทุกตัวอักษร:\n\n:filename',
+    'backup.restore_confirm_mismatch' => 'ชื่อไฟล์ที่พิมพ์ยืนยันไม่ตรงกัน ยกเลิกการกู้คืน',
+    'backup.restore_success' => 'กู้คืนฐานข้อมูลจาก :filename สำเร็จแล้ว',
+    'backup.restore_failed' => 'กู้คืนไม่สำเร็จ: :error',
     'backup.cron_not_configured' => 'ยังไม่ได้ตั้งค่าให้สำรองข้อมูลอัตโนมัติตามตารางเวลา — กดปุ่ม "สำรองข้อมูลตอนนี้" เพื่อสำรองด้วยตัวเองได้ก่อน หรือดูวิธีตั้งเวลาอัตโนมัติผ่าน cron job ได้ใน README',
     'backup.cron_setup_hint' => 'นำ URL นี้ไปตั้งเป็น cron job บนโฮสติ้งของคุณ (เช่นใน cPanel → Cron Jobs) เพื่อให้สำรองข้อมูลอัตโนมัติตามตารางเวลาที่ตั้งไว้ (เก็บ URL นี้เป็นความลับ ห้ามเผยแพร่):',
     'backup.migrations_title' => 'ประวัติการอัปเดตฐานข้อมูล (Migrations)',
@@ -146,6 +154,7 @@ return [
     'activity.staff_checkin_link_revoked' => 'ยกเลิกลิงก์เช็คอินของบัญชี ":name"',
     'activity.backup_deleted' => 'ลบไฟล์สำรองข้อมูล :filename',
     'activity.migration_rolled_back' => 'ย้อนกลับการอัปเดตฐานข้อมูล :filename',
+    'activity.backup_restored' => 'กู้คืนฐานข้อมูลจากไฟล์สำรอง :filename',
 
     // dashboard
     'dashboard.title' => 'ภาพรวมระบบ',

@@ -1,0 +1,85 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    # Matches production (MariaDB 10.11, PHP 8.0.28 — see README) rather than
+    # whatever's newest, so CI actually catches what would break on deploy.
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_ROOT_PASSWORD: root
+          MARIADB_DATABASE: temple_market
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="healthcheck.sh --connect --innodb_initialized"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.0'
+          extensions: pdo_mysql, gd, fileinfo, curl, mbstring
+          coverage: none
+
+      - name: Write .env
+        run: |
+          cat > .env <<'EOF'
+          APP_ENV=testing
+          APP_DEBUG=true
+          APP_URL=http://localhost
+          DB_HOST=127.0.0.1
+          DB_PORT=3306
+          DB_DATABASE=temple_market
+          DB_USERNAME=root
+          DB_PASSWORD=root
+          DB_SOCKET=
+          MAIL_FROM_ADDRESS=no-reply@example.test
+          MAIL_FROM_NAME=CI
+          MYSQLDUMP_PATH=
+          BACKUP_RETENTION=14
+          BACKUP_CRON_SECRET=ci-test-secret
+          EOF
+
+      - name: Load schema
+        run: mysql -h 127.0.0.1 -u root -proot temple_market < database/schema.sql
+
+      # A fresh schema_migrations table makes MigrationService::runPending() take its
+      # bootstrap path (mark every existing upgrades/*.sql as already-applied, since
+      # schema.sql already reflects them) instead of actually trying to replay 20 files
+      # of history on columns that already exist — same first-run behavior production
+      # goes through once on deploy. MigrationServiceTest's own docblock documents that
+      # it assumes this has already happened; skipping it makes that test fail.
+      - name: Bootstrap migration tracking
+        run: php -r '
+          define("BASE_PATH", getcwd());
+          require BASE_PATH . "/app/Core/autoload.php";
+          use App\Core\App;
+          use App\Core\Env;
+          use App\Services\MigrationService;
+          Env::load(BASE_PATH . "/.env");
+          App::boot(require BASE_PATH . "/config/config.php");
+          MigrationService::runPending();
+          '
+
+      - name: Seed sample data
+        run: php database/seed.php
+
+      - name: Lint PHP syntax
+        run: find app config database tests index.php -name '*.php' -print0 | xargs -0 -n1 -P4 php -l
+
+      - name: Run test suite
+        run: php tests/run.php

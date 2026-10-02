@@ -77,6 +77,52 @@ class BookingServiceRefundTest extends TestCase
         $this->assertFalse($result['success']);
     }
 
+    public function testRefundWindowIsOpenWithTenOrMoreDaysLeftAndClosedBelowThat(): void
+    {
+        $bookingId = $this->createBooking('cancelled', 'stripe', 'pi_test_win');
+
+        $this->setEventStartInDays(60);
+        $this->assertTrue(BookingService::isRefundWindowOpen(Booking::find($bookingId), 10));
+
+        // Exactly 10 days out still counts (the deadline runs to the end of that day).
+        $this->setEventStartInDays(10);
+        $this->assertTrue(BookingService::isRefundWindowOpen(Booking::find($bookingId), 10));
+
+        $this->setEventStartInDays(9);
+        $this->assertFalse(BookingService::isRefundWindowOpen(Booking::find($bookingId), 10));
+    }
+
+    public function testRefundIsBlockedPastTheWindowBeforeAnythingReachesStripe(): void
+    {
+        $bookingId = $this->createBooking('cancelled', 'stripe', 'pi_test_late');
+        $this->setEventStartInDays(5);
+
+        $result = BookingService::refund($bookingId, null);
+
+        $this->assertFalse($result['success']);
+        $this->assertNull(Booking::find($bookingId)['refunded_at']);
+    }
+
+    public function testAnOverrideAlwaysNeedsAReason(): void
+    {
+        $bookingId = $this->createBooking('cancelled', 'stripe', 'pi_test_override');
+        $this->setEventStartInDays(5);
+
+        foreach (['', '   '] as $blankReason) {
+            $result = BookingService::refund($bookingId, null, $blankReason);
+            $this->assertFalse($result['success']);
+        }
+        $this->assertNull(Booking::find($bookingId)['refunded_at']);
+    }
+
+    private function setEventStartInDays(int $days): void
+    {
+        $date = date('Y-m-d', strtotime("+{$days} days"));
+        Database::connection()
+            ->prepare('UPDATE events SET start_date = ?, end_date = ? WHERE id = ?')
+            ->execute([$date, $date, $this->eventId]);
+    }
+
     private function createBooking(string $status, string $paymentMethod, ?string $paymentIntentId): int
     {
         $id = Booking::create([

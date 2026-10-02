@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Admin;
 
+use App\Core\ActivityLog;
 use App\Core\Auth;
 use App\Core\EventAccess;
 use App\Core\Flash;
@@ -127,7 +128,21 @@ class BookingController
     {
         $this->denyUnlessAllowedForBooking((int) $id);
 
-        $result = BookingService::refund((int) $id, Auth::user()['id'] ?? null);
+        // Refunding past the window is a super_admin-only judgment call (finance can't), and
+        // the reason is mandatory — BookingService enforces the reason, this enforces who.
+        $overrideReason = null;
+        if (($request->post['override_window'] ?? '') === '1') {
+            if (!Auth::isSuperAdmin()) {
+                Flash::error(__('booking.refund_override_denied'));
+                redirect('admin/bookings/' . $id);
+            }
+            $overrideReason = $request->trimmed('override_reason');
+        }
+
+        $result = BookingService::refund((int) $id, Auth::user()['id'] ?? null, $overrideReason);
+        if ($result['success'] && $overrideReason !== null) {
+            ActivityLog::record('booking.refund_override', 'booking', (int) $id, __('activity.refund_override', ['reason' => $overrideReason]));
+        }
         $this->respond($result, 'booking.refund_success', $id);
     }
 

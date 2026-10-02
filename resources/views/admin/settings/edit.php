@@ -141,6 +141,11 @@
         <input type="number" min="0" name="cancellation_cutoff_days" class="form-control" value="<?= e((string) ($settings['cancellation_cutoff_days'] ?? 3)) ?>">
       </div>
       <div class="form-group">
+        <label><?= __('settings.refund_cutoff_days') ?></label>
+        <input type="number" min="0" name="refund_cutoff_days" class="form-control" value="<?= e((string) ($settings['refund_cutoff_days'] ?? 10)) ?>">
+        <p class="form-hint"><?= __('settings.refund_cutoff_days_hint') ?></p>
+      </div>
+      <div class="form-group">
         <label><?= __('settings.reserved_confirm_deadline_days') ?></label>
         <input type="number" min="1" name="reserved_confirm_deadline_days" class="form-control" value="<?= e((string) ($settings['reserved_confirm_deadline_days'] ?? 10)) ?>">
         <p class="form-hint"><?= __('settings.reserved_confirm_deadline_days_hint') ?></p>

@@ -45,6 +45,9 @@ CREATE TABLE settings (
   currency_code CHAR(3) NOT NULL DEFAULT 'THB',
   default_locale ENUM('th','en') NOT NULL DEFAULT 'th',
   cancellation_cutoff_days SMALLINT UNSIGNED NOT NULL DEFAULT 3,
+  -- Stripe refunds are only allowed this many days (or more) before the event starts, measured
+  -- from the moment an admin presses refund — see BookingService::isRefundWindowOpen().
+  refund_cutoff_days SMALLINT UNSIGNED NOT NULL DEFAULT 10,
   reserved_confirm_deadline_days SMALLINT UNSIGNED NOT NULL DEFAULT 10,
   booking_rate_limit_per_hour SMALLINT UNSIGNED NOT NULL DEFAULT 5,
   vendor_reminder_days_before SMALLINT UNSIGNED NOT NULL DEFAULT 3,

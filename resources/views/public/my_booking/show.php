@@ -42,6 +42,9 @@
       <?= csrf_field() ?>
       <button type="submit" class="btn btn-danger btn-block"><?= __('public.cancel_button') ?></button>
       <p class="form-hint text-center mt-2"><?= __('public.cutoff_notice', ['days' => $cutoffDays]) ?></p>
+      <?php if ($booking['payment_method'] === 'stripe'): ?>
+        <p class="form-hint text-center mt-2"><?= __('public.refund_policy_notice', ['days' => (int) ($settings['refund_cutoff_days'] ?? 10)]) ?></p>
+      <?php endif; ?>
     </form>
   <?php elseif (in_array($booking['status'], ['pending_payment', 'booked'], true)): ?>
     <p class="text-muted text-center"><?= __('public.cannot_cancel') ?></p>

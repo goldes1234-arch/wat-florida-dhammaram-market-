@@ -107,8 +107,14 @@ class BookingService
      * action (never an automatic side effect of cancel()), since it's real,
      * irreversible money movement. Requires the booking to be cancelled, paid via
      * Stripe, have a captured payment intent on file, and not already refunded.
+     *
+     * Also requires the refund window to still be open (see isRefundWindowOpen()) — measured
+     * from the moment this is called, not from when the guest cancelled. $overrideReason is how
+     * a super_admin deliberately refunds past that window: it must be non-empty and is written
+     * into the booking's status log. Whether the caller is *allowed* to override is the
+     * controller's call; this only enforces that an override always carries a reason.
      */
-    public static function refund(int $bookingId, ?int $adminId): array
+    public static function refund(int $bookingId, ?int $adminId, ?string $overrideReason = null): array
     {
         $pdo = Database::connection();
         $pdo->beginTransaction();
@@ -135,6 +141,18 @@ class BookingService
                 return ['success' => false, 'error' => __('booking.refund_already_refunded')];
             }
 
+            $override = $overrideReason !== null;
+            if ($override && trim($overrideReason) === '') {
+                $pdo->rollBack();
+                return ['success' => false, 'error' => __('booking.refund_override_reason_required')];
+            }
+            if (!$override && !self::isRefundWindowOpen(Booking::find($bookingId))) {
+                $pdo->rollBack();
+                return ['success' => false, 'error' => __('booking.refund_window_closed', [
+                    'days' => (int) (Setting::get()['refund_cutoff_days'] ?? 10),
+                ])];
+            }
+
             $pdo->rollBack(); // release the row lock before the outbound Stripe API call
 
             $refund = StripeService::createRefund($booking['stripe_payment_intent_id']);
@@ -147,7 +165,16 @@ class BookingService
                 'refunded_at' => date('Y-m-d H:i:s'),
                 'stripe_refund_id' => $refund['id'],
             ]);
-            BookingStatusLog::record($bookingId, 'cancelled', 'cancelled', 'admin', $adminId, __('booking.log_refunded'));
+            BookingStatusLog::record(
+                $bookingId,
+                'cancelled',
+                'cancelled',
+                'admin',
+                $adminId,
+                $override
+                    ? __('booking.log_refunded_override', ['reason' => trim($overrideReason)])
+                    : __('booking.log_refunded')
+            );
             $pdo->commit();
 
             return ['success' => true, 'booking' => Booking::find($bookingId)];
@@ -244,6 +271,20 @@ class BookingService
             NotificationService::sendWaitlistAlert($entry, $event);
             WaitlistEntry::markNotified((int) $entry['id']);
         }
+    }
+
+    /**
+     * Whether a refund is still allowed for this booking's event: only while at least
+     * refund_cutoff_days remain before it starts (counted to the end of that day, same as
+     * canGuestCancel()). Deliberately independent of when the guest cancelled — see refund().
+     * $cutoffDays is only a parameter so tests don't depend on whatever the live setting is.
+     */
+    public static function isRefundWindowOpen(array $booking, ?int $cutoffDays = null): bool
+    {
+        $cutoffDays ??= (int) (Setting::get()['refund_cutoff_days'] ?? 10);
+        $deadline = strtotime((string) $booking['event_start_date']) - ($cutoffDays * 86400) + 86399;
+
+        return time() <= $deadline;
     }
 
     /** Whether a guest is still within the self-cancel cutoff window for their booking's event. */

@@ -67,12 +67,32 @@
     <?php if ($booking['status'] === 'cancelled' && $booking['payment_method'] === 'stripe' && !empty($booking['stripe_payment_intent_id']) && empty($booking['refunded_at'])): ?>
       <div class="card mb-6">
         <div class="card-header"><h3><?= __('booking.refund_action') ?></h3></div>
+        <?php
+          $refundDays = (int) (\App\Models\Setting::get()['refund_cutoff_days'] ?? 10);
+          $refundWindowOpen = \App\Services\BookingService::isRefundWindowOpen($booking);
+        ?>
         <?php if (\App\Core\Auth::isSuperAdmin() || \App\Core\Auth::isFinance()): ?>
           <p class="form-hint mb-4"><?= __('booking.refund_hint') ?></p>
-          <form method="post" action="<?= base_url('admin/bookings/' . $booking['id'] . '/refund') ?>" data-confirm="<?= e(__('booking.refund_confirm')) ?>">
-            <?= csrf_field() ?>
-            <button type="submit" class="btn btn-danger"><?= __('booking.refund_action') ?></button>
-          </form>
+          <?php if ($refundWindowOpen): ?>
+            <p class="form-hint mb-4">✅ <?= __('booking.refund_window_open', ['days' => $refundDays]) ?></p>
+            <form method="post" action="<?= base_url('admin/bookings/' . $booking['id'] . '/refund') ?>" data-confirm="<?= e(__('booking.refund_confirm')) ?>">
+              <?= csrf_field() ?>
+              <button type="submit" class="btn btn-danger"><?= __('booking.refund_action') ?></button>
+            </form>
+          <?php elseif (\App\Core\Auth::isSuperAdmin()): ?>
+            <p class="form-hint mb-4" style="color:var(--color-danger-dark);">⛔ <?= __('booking.refund_window_closed', ['days' => $refundDays]) ?></p>
+            <form method="post" action="<?= base_url('admin/bookings/' . $booking['id'] . '/refund') ?>" data-confirm="<?= e(__('booking.refund_confirm')) ?>">
+              <?= csrf_field() ?>
+              <input type="hidden" name="override_window" value="1">
+              <div class="form-group">
+                <label><?= __('booking.refund_override_label') ?></label>
+                <textarea name="override_reason" class="form-control" rows="2" required></textarea>
+              </div>
+              <button type="submit" class="btn btn-danger"><?= __('booking.refund_override_button') ?></button>
+            </form>
+          <?php else: ?>
+            <p class="form-hint mb-0" style="color:var(--color-danger-dark);">⛔ <?= __('booking.refund_window_closed_finance', ['days' => $refundDays]) ?></p>
+          <?php endif; ?>
         <?php else: ?>
           <p class="form-hint mb-0"><?= __('booking.refund_super_admin_only') ?></p>
         <?php endif; ?>

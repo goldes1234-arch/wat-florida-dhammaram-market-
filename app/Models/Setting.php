@@ -21,7 +21,7 @@ class Setting extends Model
             'org_name', 'org_address', 'org_phone', 'org_email', 'logo_path', 'hero_banner_image',
             'facebook_url', 'line_oa_id', 'google_maps_url', 'website_url', 'youtube_url',
             'bank_name', 'bank_account_name', 'bank_account_number', 'promptpay_id',
-            'currency_code', 'default_locale', 'cancellation_cutoff_days', 'reserved_confirm_deadline_days', 'booking_rate_limit_per_hour',
+            'currency_code', 'default_locale', 'cancellation_cutoff_days', 'refund_cutoff_days', 'reserved_confirm_deadline_days', 'booking_rate_limit_per_hour',
             'vendor_reminder_days_before',
             'stripe_publishable_key', 'stripe_secret_key', 'stripe_webhook_secret', 'stripe_suspended',
             'stripe_pass_fee_to_customer', 'stripe_fee_percent', 'stripe_fee_fixed',

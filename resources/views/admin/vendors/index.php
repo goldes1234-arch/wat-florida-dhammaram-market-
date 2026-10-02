@@ -65,7 +65,11 @@
             <td><?= e($vendor['phone']) ?></td>
             <td><?= e($vendor['email'] ?? '—') ?></td>
             <td><span class="badge badge-indigo"><?= (int) $vendor['booking_count'] ?></span></td>
-            <td><?= !empty($vendor['line_user_id']) ? '<span class="badge badge-green">✓</span>' : '—' ?></td>
+            <td>
+              <?php if (!empty($vendor['line_user_id'])): ?><span class="badge badge-green">✓</span><?php endif; ?>
+              <?php if (!empty($vendor['line_pending_user_id'])): ?><span class="badge badge-amber" title="<?= e(__('vendor.line_link_pending_tooltip')) ?>">⏳ <?= __('vendor.line_link_pending_badge') ?></span><?php endif; ?>
+              <?php if (empty($vendor['line_user_id']) && empty($vendor['line_pending_user_id'])): ?>—<?php endif; ?>
+            </td>
             <td><a href="<?= base_url('admin/vendors/' . $vendor['id']) ?>" class="btn btn-secondary btn-sm"><?= __('common.view') ?></a></td>
           </tr>
         <?php endforeach; ?>

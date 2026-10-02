@@ -840,6 +840,8 @@ return [
     'line.link_prompt' => 'Hi! Please type the phone number you registered with the temple to link this LINE account to your vendor profile.',
     'line.link_success' => 'Linked this LINE account to vendor ":name". The temple can now send you messages here. Type "status" any time to see your booking history.',
     'line.link_not_found' => "That phone number isn't in our regular-vendor list. Please double-check it, or contact the temple directly.",
+    'vendor.line_link_pending_badge' => 'Pending',
+    'vendor.line_link_pending_tooltip' => 'A LINE account asked to link to this vendor — open the vendor to approve or reject',
     'vendor.line_link_pending' => 'A LINE account asked to link to this vendor (:date) by sending their phone number. Verify who it is (e.g. call the vendor back) before approving.',
     'vendor.line_link_replaces_warning' => 'This vendor already has a LINE account linked — approving replaces it.',
     'vendor.line_link_approve_button' => 'Approve link',

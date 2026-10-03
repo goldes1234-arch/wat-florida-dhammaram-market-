@@ -36,6 +36,11 @@
         </div>
       </div>
       <div class="form-group">
+        <label><?= __('booking.items_for_sale_label') ?></label>
+        <input type="text" name="items_for_sale" class="form-control" maxlength="200" value="<?= e(old('items_for_sale')) ?>" placeholder="<?= e(__('public.items_for_sale_placeholder')) ?>" required>
+        <p class="form-hint"><?= __('public.items_for_sale_hint') ?></p>
+      </div>
+      <div class="form-group">
         <label><?= __('public.shop_photo_label') ?> <span class="optional-tag">(<?= __('common.optional') ?>)</span></label>
         <input type="file" name="shop_photo" class="form-control" accept="image/jpeg,image/png,image/webp">
         <p class="form-hint"><?= __('public.shop_photo_hint') ?></p>

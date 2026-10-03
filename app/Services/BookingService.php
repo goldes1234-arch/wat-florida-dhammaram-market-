@@ -45,6 +45,7 @@ class BookingService
                 'booker_name' => $input['booker_name'],
                 'booker_phone' => $input['booker_phone'],
                 'booker_email' => $input['booker_email'] ?? null,
+                'items_for_sale' => $input['items_for_sale'] ?? null,
                 'payment_method' => $input['payment_method'],
                 'status' => 'pending_payment',
                 'price_at_booking' => $lot['price'],

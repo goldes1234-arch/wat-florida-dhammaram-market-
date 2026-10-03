@@ -42,6 +42,11 @@
       </div>
     </div>
     <div class="form-group">
+      <label><?= __('booking.items_for_sale_label') ?> <span class="optional-tag">(<?= __('common.optional') ?>)</span></label>
+      <input type="text" name="items_for_sale" class="form-control" maxlength="200" value="<?= e($vendor['items_for_sale'] ?? '') ?>">
+      <p class="form-hint"><?= __('vendor.items_for_sale_hint') ?></p>
+    </div>
+    <div class="form-group">
       <label><?= __('vendor.notes') ?> <span class="optional-tag">(<?= __('common.optional') ?>)</span></label>
       <textarea name="notes" class="form-control" rows="3"><?= e($vendor['notes'] ?? '') ?></textarea>
     </div>

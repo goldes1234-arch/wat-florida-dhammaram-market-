@@ -150,6 +150,7 @@ class ReservationService
             }
 
             $code = BookingCodeGenerator::generate();
+            $reservedVendor = $lot['reserved_vendor_id'] ? Vendor::find((int) $lot['reserved_vendor_id']) : null;
             $bookingId = Booking::create([
                 'booking_code' => $code,
                 'event_id' => $lot['event_id'],
@@ -158,6 +159,7 @@ class ReservationService
                 'booker_phone' => $lot['reserved_vendor_phone'],
                 'booker_email' => $lot['reserved_vendor_email'],
                 'vendor_id' => $lot['reserved_vendor_id'],
+                'items_for_sale' => $reservedVendor['items_for_sale'] ?? null,
                 'payment_method' => 'onsite_cash',
                 'status' => 'booked',
                 'price_at_booking' => $lot['price'],

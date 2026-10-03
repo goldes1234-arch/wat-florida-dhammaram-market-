@@ -1,0 +1,2 @@
+ALTER TABLE bookings ADD COLUMN IF NOT EXISTS items_for_sale VARCHAR(200) NULL AFTER shop_photo;
+ALTER TABLE vendors ADD COLUMN IF NOT EXISTS items_for_sale VARCHAR(200) NULL AFTER notes;

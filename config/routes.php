@@ -86,6 +86,7 @@ $router->group(['middleware' => ['auth']], function ($router) {
         $router->post('/admin/bookings/{id}/confirm', [Admin\BookingController::class, 'confirm']);
         $router->post('/admin/bookings/{id}/reject', [Admin\BookingController::class, 'reject']);
         $router->post('/admin/bookings/{id}/cancel', [Admin\BookingController::class, 'cancel']);
+        $router->post('/admin/bookings/{id}/items', [Admin\BookingController::class, 'updateItems']);
 
         $router->group(['middleware' => ['finance_or_super_admin']], function ($router) {
             $router->post('/admin/bookings/{id}/refund', [Admin\BookingController::class, 'refund']);

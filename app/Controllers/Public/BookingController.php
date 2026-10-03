@@ -81,8 +81,14 @@ class BookingController
         $phone = $request->trimmed('booker_phone');
         $email = $request->trimmed('booker_email');
         $method = $request->trimmed('payment_method');
+        $items = $request->trimmed('items_for_sale');
 
         $errors = [];
+        if (!Validator::required($items)) {
+            $errors[] = __('validation.required', ['field' => __('booking.items_for_sale_label')]);
+        } elseif (mb_strlen($items) > 200) {
+            $errors[] = __('booking.items_for_sale_too_long');
+        }
         if (!Validator::required($name)) {
             $errors[] = __('validation.required', ['field' => __('booking.booker_name')]);
         }
@@ -110,6 +116,7 @@ class BookingController
             'booker_name' => $name,
             'booker_phone' => $phone,
             'booker_email' => $email ?: null,
+            'items_for_sale' => $items,
             'payment_method' => $method,
             'currency_code' => $settings['currency_code'],
         ]);

@@ -137,10 +137,10 @@ class Booking extends Model
         $stmt = self::db()->prepare(
             'INSERT INTO bookings
                 (booking_code, event_id, lot_id, booker_name, booker_phone, booker_email, vendor_id,
-                 payment_method, status, price_at_booking, currency_code)
+                 items_for_sale, payment_method, status, price_at_booking, currency_code)
              VALUES
                 (:booking_code, :event_id, :lot_id, :booker_name, :booker_phone, :booker_email, :vendor_id,
-                 :payment_method, :status, :price_at_booking, :currency_code)'
+                 :items_for_sale, :payment_method, :status, :price_at_booking, :currency_code)'
         );
         $stmt->execute([
             'booking_code' => $data['booking_code'],
@@ -150,12 +150,21 @@ class Booking extends Model
             'booker_phone' => $data['booker_phone'],
             'booker_email' => $data['booker_email'] ?: null,
             'vendor_id' => $data['vendor_id'] ?? null,
+            'items_for_sale' => ($data['items_for_sale'] ?? '') !== '' ? $data['items_for_sale'] : null,
             'payment_method' => $data['payment_method'],
             'status' => $data['status'] ?? 'pending_payment',
             'price_at_booking' => $data['price_at_booking'],
             'currency_code' => $data['currency_code'],
         ]);
         return (int) self::db()->lastInsertId();
+    }
+
+    /** What the stall sells, shown publicly on the event page. Blank clears it. */
+    public static function setItemsForSale(int $id, ?string $items): void
+    {
+        $items = trim((string) $items);
+        self::db()->prepare('UPDATE bookings SET items_for_sale = :items WHERE id = :id')
+            ->execute(['items' => $items !== '' ? $items : null, 'id' => $id]);
     }
 
     public static function updateStatus(int $id, string $status, array $extra = []): void

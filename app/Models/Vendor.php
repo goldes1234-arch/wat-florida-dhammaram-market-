@@ -101,12 +101,15 @@ class Vendor extends Model
         return self::create($name, $phone, $email);
     }
 
-    public static function update(int $id, string $name, string $phone, ?string $email, ?string $notes): void
+    public static function update(int $id, string $name, string $phone, ?string $email, ?string $notes, ?string $itemsForSale = null): void
     {
         $stmt = self::db()->prepare(
-            'UPDATE vendors SET name = :name, phone = :phone, email = :email, notes = :notes WHERE id = :id'
+            'UPDATE vendors SET name = :name, phone = :phone, email = :email, notes = :notes, items_for_sale = :items WHERE id = :id'
         );
-        $stmt->execute(['name' => $name, 'phone' => $phone, 'email' => $email ?: null, 'notes' => $notes ?: null, 'id' => $id]);
+        $stmt->execute([
+            'name' => $name, 'phone' => $phone, 'email' => $email ?: null, 'notes' => $notes ?: null,
+            'items' => $itemsForSale ?: null, 'id' => $id,
+        ]);
     }
 
     public static function delete(int $id): void

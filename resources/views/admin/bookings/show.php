@@ -28,6 +28,18 @@
       <?php endif; ?>
     </div>
 
+    <div class="card mb-6">
+      <div class="card-header"><h3><?= __('booking.items_for_sale_label') ?></h3></div>
+      <form method="post" action="<?= base_url('admin/bookings/' . $booking['id'] . '/items') ?>">
+        <?= csrf_field() ?>
+        <div class="form-group">
+          <input type="text" name="items_for_sale" class="form-control" maxlength="200" value="<?= e($booking['items_for_sale'] ?? '') ?>">
+          <p class="form-hint"><?= __('booking.items_for_sale_admin_hint') ?></p>
+        </div>
+        <button type="submit" class="btn btn-secondary"><?= __('common.save') ?></button>
+      </form>
+    </div>
+
     <?php if ($booking['status'] === 'pending_payment'): ?>
       <div class="card mb-6">
         <div class="card-header"><h3><?= __('booking.confirm_action') ?></h3></div>

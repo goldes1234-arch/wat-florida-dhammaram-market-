@@ -62,6 +62,21 @@ if (\App\Core\Lang::locale() === 'en') {
       </div>
     <?php endif; ?>
 
+    <?php if (!empty($sellers)): ?>
+      <div class="card mb-6">
+        <div class="card-header"><h3>🛍️ <?= __('public.whats_for_sale_title') ?></h3></div>
+        <p class="form-hint mb-4"><?= __('public.whats_for_sale_hint') ?></p>
+        <ul class="sellers-list" style="list-style:none;margin:0;padding:0;">
+          <?php foreach ($sellers as $seller): ?>
+            <li class="info-row">
+              <span class="info-label"><?= e($seller['code']) ?></span>
+              <span class="info-value"><?= e($seller['items_for_sale']) ?></span>
+            </li>
+          <?php endforeach; ?>
+        </ul>
+      </div>
+    <?php endif; ?>
+
     <div class="card">
       <div class="card-header">
         <h3><?= __('public.lots_title') ?></h3>
@@ -94,6 +109,9 @@ if (\App\Core\Lang::locale() === 'en') {
           $title = e($lot['code']) . ' · ' . money((float) $lot['price']);
           if ($occupied) {
               $title .= ' · ' . e(__('public.booked_by', ['name' => mask_booker_name($lot['booker_name'])]));
+              if (trim((string) ($lot['items_for_sale'] ?? '')) !== '') {
+                  $title .= ' · ' . e($lot['items_for_sale']);
+              }
           }
           return compact('clickable', 'href', 'tag', 'displayPhoto', 'title');
       };
@@ -167,6 +185,9 @@ if (\App\Core\Lang::locale() === 'en') {
                 <span class="lot-price"><?= money((float) $lot['price']) ?></span>
                 <?php if (in_array($lot['status'], ['pending_payment', 'booked'], true) && !empty($lot['booker_name'])): ?>
                   <span class="lot-booker"><?= __('public.booked_by', ['name' => mask_booker_name($lot['booker_name'])]) ?></span>
+                  <?php if (trim((string) ($lot['items_for_sale'] ?? '')) !== ''): ?>
+                    <span class="lot-items text-sm"><?= e($lot['items_for_sale']) ?></span>
+                  <?php endif; ?>
                 <?php endif; ?>
               </<?= $tag ?>>
             <?php endforeach; ?>

@@ -317,6 +317,8 @@ CREATE TABLE vendors (
   phone VARCHAR(30) NOT NULL,
   email VARCHAR(150) NULL,
   notes TEXT NULL,
+  -- Default 'what I sell' for this regular vendor, copied onto each confirmed reservation.
+  items_for_sale VARCHAR(200) NULL,
   -- Set when the vendor asks (via their self-service portal) for their data to be
   -- deleted — surfaced to admins to action manually (see VendorController::destroy()),
   -- not auto-deleted, since bookings/payment history may need to be kept regardless.
@@ -401,6 +403,9 @@ CREATE TABLE bookings (
   -- is the permanent link a vendor's booking history is built from.
   vendor_id INT UNSIGNED NULL,
   shop_photo VARCHAR(255) NULL,
+  -- What the stall sells (free text, shown to visitors on the event page). Required for
+  -- public bookings; for regular vendors it is copied from vendors.items_for_sale.
+  items_for_sale VARCHAR(200) NULL,
   payment_method ENUM('onsite_cash','bank_transfer','stripe') NOT NULL,
   status ENUM('pending_payment','booked','rejected','cancelled') NOT NULL DEFAULT 'pending_payment',
   price_at_booking DECIMAL(10,2) NOT NULL,

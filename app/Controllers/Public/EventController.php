@@ -70,6 +70,11 @@ class EventController
             $grouped[$key]['lots'][] = $lot;
         }
 
+        // What visitors can expect to find: every occupied stall that said what it sells.
+        $sellers = array_values(array_filter($lots, static fn (array $l) =>
+            in_array($l['status'], ['pending_payment', 'booked'], true) && trim((string) ($l['items_for_sale'] ?? '')) !== ''));
+        usort($sellers, static fn (array $a, array $b) => strnatcasecmp($a['code'], $b['code']));
+
         $status = EventStatusService::compute($event);
         $isSoldOut = $status === EventStatusService::OPEN && count($lots) > 0
             && !array_filter($lots, static fn (array $l) => $l['status'] === 'available');
@@ -78,6 +83,7 @@ class EventController
             'title' => $eventName,
             'event' => $event,
             'status' => $status,
+            'sellers' => $sellers,
             'groupedLots' => $grouped,
             'mappedLots' => $mappedLots,
             'photoLots' => $photoLots,

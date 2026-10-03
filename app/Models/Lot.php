@@ -10,7 +10,7 @@ class Lot extends Model
         // have one pending_payment/booked booking at a time, so this never duplicates rows.
         $stmt = self::db()->prepare(
             'SELECT lots.*, zones.name AS zone_name, active_booking.booker_name AS booker_name,
-                    active_booking.shop_photo AS shop_photo
+                    active_booking.shop_photo AS shop_photo, active_booking.items_for_sale AS items_for_sale
              FROM lots
              LEFT JOIN zones ON zones.id = lots.zone_id
              LEFT JOIN bookings AS active_booking

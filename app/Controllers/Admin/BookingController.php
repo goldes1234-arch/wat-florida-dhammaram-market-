@@ -146,6 +146,20 @@ class BookingController
         $this->respond($result, 'booking.refund_success', $id);
     }
 
+    public function updateItems(Request $request, string $id): void
+    {
+        $this->denyUnlessAllowedForBooking((int) $id);
+
+        $items = $request->trimmed('items_for_sale');
+        if (mb_strlen($items) > 200) {
+            Flash::error(__('booking.items_for_sale_too_long'));
+        } else {
+            Booking::setItemsForSale((int) $id, $items);
+            Flash::success(__('booking.items_for_sale_saved'));
+        }
+        redirect('admin/bookings/' . $id);
+    }
+
     public function destroySelected(Request $request): void
     {
         $ids = $request->post['ids'] ?? [];

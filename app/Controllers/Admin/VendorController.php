@@ -73,13 +73,15 @@ class VendorController
         $phone = $request->trimmed('phone');
         $email = $request->trimmed('email');
         $notes = $request->trimmed('notes');
+        $items = $request->trimmed('items_for_sale');
 
-        if (!Validator::required($name) || !Validator::required($phone) || ($email !== '' && !Validator::email($email))) {
+        if (!Validator::required($name) || !Validator::required($phone) || ($email !== '' && !Validator::email($email))
+            || mb_strlen($items) > 200) {
             Flash::error(__('validation.generic_error'));
             redirect('admin/vendors/' . $id);
         }
 
-        Vendor::update((int) $id, $name, $phone, $email ?: null, $notes ?: null);
+        Vendor::update((int) $id, $name, $phone, $email ?: null, $notes ?: null, $items ?: null);
         Flash::success(__('vendor.updated_success'));
         redirect('admin/vendors/' . $id);
     }

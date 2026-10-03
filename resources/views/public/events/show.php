@@ -78,7 +78,7 @@ $eventImages = event_images($event);
       </div>
     <?php endif; ?>
 
-    <div class="card">
+    <div class="card scroll-anchor" id="lots">
       <div class="card-header">
         <h3><?= __('public.lots_title') ?></h3>
       </div>

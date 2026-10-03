@@ -31,6 +31,8 @@ $metaUrl = current_url();
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="<?= asset('css/design-system.css') ?>">
 <link rel="stylesheet" href="<?= asset('css/public.css') ?>">
+<script>document.documentElement.classList.add('js');</script>
+<noscript><style>.public-nav-links{display:flex !important}.nav-toggle{display:none !important}</style></noscript>
 </head>
 <body>
 <?= partial('staging_banner') ?>
@@ -44,7 +46,10 @@ $metaUrl = current_url();
       <?php endif; ?>
       <span><?= e($settings['org_name'] ?: __('common.app_name')) ?></span>
     </a>
-    <div class="public-nav-links">
+    <button type="button" class="nav-toggle" id="navToggle" aria-controls="navLinks" aria-expanded="false" aria-label="<?= e(__('nav.menu')) ?>">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="public-nav-links" id="navLinks">
       <a href="<?= base_url('') ?>"><?= __('nav.home') ?></a>
       <?php $downloadCategories = \App\Models\DownloadCategory::allWithFiles(); ?>
       <?php if ($downloadCategories): ?>
@@ -74,6 +79,12 @@ $metaUrl = current_url();
     <?= $content ?>
   </div>
 </main>
+
+<?php if (!empty($mobileCta)): ?>
+  <div class="mobile-cta" id="mobileCta" data-watch="<?= e($mobileCta['watch']) ?>" hidden>
+    <a href="<?= e($mobileCta['url']) ?>" class="btn btn-primary btn-lg btn-block"><?= e($mobileCta['label']) ?></a>
+  </div>
+<?php endif; ?>
 
 <?php
 $footerLinks = [];
@@ -116,12 +127,14 @@ foreach (\App\Models\SocialLink::all() as $extraLink) {
 
 <div class="lightbox-overlay" id="lightbox">
   <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
+  <button class="lightbox-share" type="button" data-copied="<?= e(__('public.link_copied')) ?>">⤴ <?= __('public.share') ?></button>
   <button class="lightbox-nav lightbox-prev" type="button" aria-label="Previous">&lsaquo;</button>
   <figure class="lightbox-figure">
-    <img src="" alt="">
+    <div class="lightbox-stage"><img src="" alt="" draggable="false"></div>
     <figcaption class="lightbox-caption"></figcaption>
   </figure>
   <button class="lightbox-nav lightbox-next" type="button" aria-label="Next">&rsaquo;</button>
+  <div class="lightbox-thumbs" hidden></div>
 </div>
 
 <script src="<?= asset('js/app.js') ?>"></script>

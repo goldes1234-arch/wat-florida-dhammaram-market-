@@ -61,11 +61,11 @@ $primaryCtaUrl = $featuredEvent ? base_url('events/' . $featuredEvent['slug']) :
 
         <div class="hero-stats">
           <div class="hero-stat">
-            <span class="hero-stat-value"><?= (int) $statEventsCount ?></span>
+            <span class="hero-stat-value" data-count="<?= (int) $statEventsCount ?>"><?= (int) $statEventsCount ?></span>
             <span class="hero-stat-label"><?= __('public.stat_events') ?></span>
           </div>
           <div class="hero-stat">
-            <span class="hero-stat-value"><?= (int) $statAvailableLots ?></span>
+            <span class="hero-stat-value" data-count="<?= (int) $statAvailableLots ?>"><?= (int) $statAvailableLots ?></span>
             <span class="hero-stat-label"><?= __('public.stat_available_lots') ?></span>
           </div>
           <?php if ($showBooked): ?>
@@ -109,46 +109,8 @@ $primaryCtaUrl = $featuredEvent ? base_url('events/' . $featuredEvent['slug']) :
   </div>
 </div>
 
-<?php if ($visitorEvent || $galleryPhotos || !empty($settings['line_oa_id'])): ?>
-  <div class="visitor-strip">
-    <strong><?= __('public.visitor_title') ?></strong>
-    <div class="visitor-links">
-      <?php if ($visitorEvent): ?>
-        <a href="<?= base_url('events/' . $visitorEvent['slug']) ?>"><?= __('public.visitor_event') ?></a>
-      <?php endif; ?>
-      <?php if ($galleryPhotos): ?>
-        <a href="<?= base_url('gallery') ?>"><?= __('public.visitor_gallery') ?></a>
-      <?php endif; ?>
-      <?php if (!empty($settings['line_oa_id'])): ?>
-        <a href="https://line.me/R/ti/p/<?= rawurlencode($settings['line_oa_id']) ?>" target="_blank" rel="noopener noreferrer"><?= __('public.visitor_line') ?></a>
-      <?php endif; ?>
-    </div>
-  </div>
-<?php endif; ?>
-
-<h2 class="section-title"><?= __('public.how_it_works_title') ?></h2>
-<div class="how-it-works">
-  <div class="how-it-works-step">
-    <span class="step-number">1</span>
-    <span class="step-icon-badge"><?= icon('store') ?></span>
-    <h4><?= __('public.how_it_works_step1_title') ?></h4>
-    <p><?= __('public.how_it_works_step1_desc') ?></p>
-  </div>
-  <div class="how-it-works-step">
-    <span class="step-number">2</span>
-    <span class="step-icon-badge"><?= icon('ticket') ?></span>
-    <h4><?= __('public.how_it_works_step2_title') ?></h4>
-    <p><?= __('public.how_it_works_step2_desc') ?></p>
-  </div>
-  <div class="how-it-works-step">
-    <span class="step-number">3</span>
-    <span class="step-icon-badge"><?= icon('credit-card') ?></span>
-    <h4><?= __('public.how_it_works_step3_title') ?></h4>
-    <p><?= __('public.how_it_works_step3_desc') ?></p>
-  </div>
-</div>
-
-<div id="events"></div>
+<div id="events" class="scroll-anchor"></div>
+<h2 class="section-title"><?= __('public.events_section_title') ?></h2>
 <?php if (!$gridEvents): ?>
   <?php if (!$featuredEvent): ?>
     <div class="empty-state">
@@ -202,6 +164,17 @@ $primaryCtaUrl = $featuredEvent ? base_url('events/' . $featuredEvent['slug']) :
   </div>
 <?php endif; ?>
 
+<?php if (!empty($pastEvents)): ?>
+  <details class="past-events">
+    <summary><?= __('public.past_events_title', ['count' => (string) count($pastEvents)]) ?></summary>
+    <ul>
+      <?php foreach ($pastEvents as $pe): ?>
+        <li><a href="<?= base_url('events/' . $pe['slug']) ?>"><?= e($pe['name_th']) ?></a> <span class="text-muted"><?= e(date('d/m/Y', strtotime($pe['start_date']))) ?></span></li>
+      <?php endforeach; ?>
+    </ul>
+  </details>
+<?php endif; ?>
+
 <?php if (!empty($settings['line_oa_id']) || !empty($settings['org_email'])): ?>
   <div class="follow-banner">
     <div>
@@ -219,14 +192,58 @@ $primaryCtaUrl = $featuredEvent ? base_url('events/' . $featuredEvent['slug']) :
   </div>
 <?php endif; ?>
 
+<?php if ($visitorEvent || $galleryPhotos || !empty($settings['line_oa_id'])): ?>
+  <div class="visitor-strip">
+    <strong><?= __('public.visitor_title') ?></strong>
+    <div class="visitor-links">
+      <?php if ($visitorEvent): ?>
+        <a href="<?= base_url('events/' . $visitorEvent['slug']) ?>"><?= __('public.visitor_event') ?></a>
+      <?php endif; ?>
+      <?php if ($galleryPhotos): ?>
+        <a href="<?= base_url('gallery') ?>"><?= __('public.visitor_gallery') ?></a>
+      <?php endif; ?>
+      <?php if (!empty($settings['line_oa_id'])): ?>
+        <a href="https://line.me/R/ti/p/<?= rawurlencode($settings['line_oa_id']) ?>" target="_blank" rel="noopener noreferrer"><?= __('public.visitor_line') ?></a>
+      <?php endif; ?>
+    </div>
+  </div>
+<?php endif; ?>
+
+<h2 class="section-title"><?= __('public.how_it_works_title') ?></h2>
+<div class="how-it-works">
+  <div class="how-it-works-step">
+    <span class="step-number">1</span>
+    <span class="step-icon-badge"><?= icon('store') ?></span>
+    <h4><?= __('public.how_it_works_step1_title') ?></h4>
+    <p><?= __('public.how_it_works_step1_desc') ?></p>
+  </div>
+  <div class="how-it-works-step">
+    <span class="step-number">2</span>
+    <span class="step-icon-badge"><?= icon('ticket') ?></span>
+    <h4><?= __('public.how_it_works_step2_title') ?></h4>
+    <p><?= __('public.how_it_works_step2_desc') ?></p>
+  </div>
+  <div class="how-it-works-step">
+    <span class="step-number">3</span>
+    <span class="step-icon-badge"><?= icon('credit-card') ?></span>
+    <h4><?= __('public.how_it_works_step3_title') ?></h4>
+    <p><?= __('public.how_it_works_step3_desc') ?></p>
+  </div>
+</div>
+
 <?= partial('ads_section', ['advertisements' => $advertisements]) ?>
 
 <?php
-// Atmosphere photos only (event posters live on their own event cards). The first five fill the
-// mosaic; the rest stay in the page as hidden lightbox entries so the viewer can step through all.
-$mosaicShown = array_slice($galleryPhotos, 0, 5);
-$mosaicRest = array_slice($galleryPhotos, 5);
+// Atmosphere photos only (event posters live on their own event cards). With 8+ photos the big tile
+// cross-fades through the first three; otherwise it is a single photo. The rest sit in the page as hidden
+// lightbox entries so the viewer can step through every photo.
 $galleryTotal = count($galleryPhotos);
+$rotating = $galleryTotal >= 8;
+$bigPhotos = array_slice($galleryPhotos, 0, $rotating ? 3 : 1);
+$smallPhotos = array_slice($galleryPhotos, count($bigPhotos), 4);
+$restPhotos = array_slice($galleryPhotos, count($bigPhotos) + 4);
+$thumbOf = static fn (array $gp): string => upload_url($gp['thumb_path'] ?: $gp['image_path']);
+$lightboxAttrs = static fn (array $gp): string => 'data-lightbox-src="' . e(upload_url($gp['image_path'])) . '" data-lightbox-group="home-gallery" data-caption="' . e($gp['caption'] ?? '') . '" data-thumb="' . e($thumbOf($gp)) . '"';
 ?>
 <?php if ($galleryTotal): ?>
   <div class="ads-section-header">
@@ -235,18 +252,35 @@ $galleryTotal = count($galleryPhotos);
       <a href="<?= base_url('gallery') ?>" class="ads-list-shop-link"><?= __('public.gallery_view_all', ['count' => (string) $galleryTotal]) ?> &rarr;</a>
     <?php endif; ?>
   </div>
-  <div class="photo-mosaic mosaic-n-<?= count($mosaicShown) ?>">
-    <?php foreach ($mosaicShown as $i => $gp): ?>
-      <?php $isLastWithMore = ($i === 4 && $mosaicRest); ?>
-      <a href="<?= $isLastWithMore ? e(base_url('gallery')) : '#' ?>" class="mosaic-tile"
-         <?php if (!$isLastWithMore): ?>data-lightbox-src="<?= e(upload_url($gp['image_path'])) ?>" data-lightbox-group="home-gallery" data-caption="<?= e($gp['caption'] ?? '') ?>"<?php endif; ?>>
-        <img src="<?= e(upload_url($i === 0 ? $gp['image_path'] : ($gp['thumb_path'] ?: $gp['image_path']))) ?>" alt="<?= e($gp['caption'] ?: __('public.gallery_title')) ?>" loading="lazy">
-        <?php if (!empty($gp['caption']) && !$isLastWithMore): ?><span class="mosaic-caption"><?= e($gp['caption']) ?></span><?php endif; ?>
-        <?php if ($isLastWithMore): ?><span class="mosaic-more">+<?= count($mosaicRest) ?><small><?= __('public.gallery_see_all') ?></small></span><?php endif; ?>
+  <div class="photo-mosaic mosaic-n-<?= 1 + count($smallPhotos) ?>">
+    <?php if ($rotating): ?>
+      <div class="mosaic-tile is-rotating" id="mosaicRotator">
+        <?php foreach ($bigPhotos as $k => $gp): ?>
+          <a href="#" class="mosaic-slide<?= $k === 0 ? ' is-active' : '' ?>" <?= $lightboxAttrs($gp) ?>>
+            <img src="<?= e(upload_url($k === 0 ? $gp['image_path'] : $thumbOf($gp))) ?>" alt="<?= e($gp['caption'] ?: __('public.gallery_title')) ?>" loading="<?= $k === 0 ? 'eager' : 'lazy' ?>">
+            <?php if (!empty($gp['caption'])): ?><span class="mosaic-caption"><?= e($gp['caption']) ?></span><?php endif; ?>
+          </a>
+        <?php endforeach; ?>
+      </div>
+    <?php else: ?>
+      <?php $gp = $bigPhotos[0]; ?>
+      <a href="#" class="mosaic-tile" <?= $lightboxAttrs($gp) ?>>
+        <img src="<?= e(upload_url($gp['image_path'])) ?>" alt="<?= e($gp['caption'] ?: __('public.gallery_title')) ?>" loading="lazy">
+        <?php if (!empty($gp['caption'])): ?><span class="mosaic-caption"><?= e($gp['caption']) ?></span><?php endif; ?>
+      </a>
+    <?php endif; ?>
+
+    <?php foreach ($smallPhotos as $i => $gp): ?>
+      <?php $isMoreTile = ($i === count($smallPhotos) - 1 && $restPhotos); ?>
+      <a href="<?= $isMoreTile ? e(base_url('gallery')) : '#' ?>" class="mosaic-tile" <?= $isMoreTile ? '' : $lightboxAttrs($gp) ?>>
+        <img src="<?= e($thumbOf($gp)) ?>" alt="<?= e($gp['caption'] ?: __('public.gallery_title')) ?>" loading="lazy">
+        <?php if (!empty($gp['caption']) && !$isMoreTile): ?><span class="mosaic-caption"><?= e($gp['caption']) ?></span><?php endif; ?>
+        <?php if ($isMoreTile): ?><span class="mosaic-more">+<?= count($restPhotos) ?><small><?= __('public.gallery_see_all') ?></small></span><?php endif; ?>
       </a>
     <?php endforeach; ?>
-    <?php foreach (($mosaicRest ? array_slice($galleryPhotos, 4) : []) as $gp): ?>
-      <a href="#" hidden data-lightbox-src="<?= e(upload_url($gp['image_path'])) ?>" data-lightbox-group="home-gallery" data-caption="<?= e($gp['caption'] ?? '') ?>"></a>
+
+    <?php foreach (($restPhotos ? array_merge([end($smallPhotos)], $restPhotos) : []) as $gp): ?>
+      <a href="#" hidden <?= $lightboxAttrs($gp) ?>></a>
     <?php endforeach; ?>
   </div>
 <?php endif; ?>

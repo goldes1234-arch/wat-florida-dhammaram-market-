@@ -84,6 +84,9 @@ class EventController
             'event' => $event,
             'status' => $status,
             'sellers' => $sellers,
+            'mobileCta' => $status === EventStatusService::OPEN
+                ? ['url' => '#lots', 'label' => __('public.mobile_cta_pick_lot'), 'watch' => '.page-header']
+                : null,
             'groupedLots' => $grouped,
             'mappedLots' => $mappedLots,
             'photoLots' => $photoLots,

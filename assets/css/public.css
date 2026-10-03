@@ -62,10 +62,46 @@
 }
 .nav-dropdown-menu a:hover { background: var(--color-primary-light); color: var(--color-primary); text-decoration: none; }
 
+.nav-toggle { display: none; }
+
 @media (max-width: 640px) {
-  .public-nav .nav-inner { flex-wrap: wrap; padding: 6px 0; row-gap: 0; }
-  .public-brand { flex: 1 1 100%; font-size: 15px; padding: 6px 0; }
-  .public-nav-links { flex: 1 1 100%; flex-wrap: wrap; justify-content: flex-start; row-gap: 0; column-gap: 6px; font-size: 13px; }
+  .public-nav .nav-inner { flex-wrap: wrap; padding: 6px 0; row-gap: 0; align-items: center; }
+  .public-brand { flex: 1 1 auto; min-width: 0; font-size: 15px; padding: 6px 0; }
+  .public-brand span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* One row with a hamburger; the links open as a panel below it. Without JS the links stay visible (see <noscript> in the layout). */
+  .nav-toggle {
+    display: inline-flex; flex-direction: column; justify-content: center; gap: 4px;
+    width: 42px; height: 42px; padding: 0 10px; border: 1px solid var(--glass-border); border-radius: var(--radius-md);
+    background: var(--glass-bg); cursor: pointer;
+  }
+  .nav-toggle span { display: block; height: 2px; border-radius: 2px; background: var(--color-text); transition: transform .2s ease, opacity .2s ease; }
+  .nav-toggle[aria-expanded="true"] span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .nav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .nav-toggle[aria-expanded="true"] span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  .public-nav-links {
+    flex: 1 1 100%; display: none; flex-direction: column; align-items: stretch; gap: 0;
+    padding: 4px 0 10px; font-size: 15px; border-top: 1px solid var(--glass-border);
+  }
+  .public-nav-links.is-open { display: flex; }
+  .public-nav-links > a, .public-nav-links .nav-dropdown-toggle { padding: 12px 4px; }
+  .public-nav-links .lang-switch { padding: 8px 4px; }
+}
+
+/* Sticky "book a stall" bar for phones: appears once the page's own call-to-action has scrolled out of view. */
+.mobile-cta { display: none; }
+@media (max-width: 768px) {
+  .mobile-cta {
+    display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 40;
+    padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+    background: var(--glass-bg-strong); -webkit-backdrop-filter: var(--glass-blur); backdrop-filter: var(--glass-blur);
+    border-top: 1px solid var(--glass-border); box-shadow: 0 -6px 18px rgba(40, 24, 8, .12);
+    transform: translateY(110%); transition: transform .25s ease;
+  }
+  .mobile-cta[hidden] { display: none; }
+  .mobile-cta.is-visible { transform: translateY(0); }
+  body.has-mobile-cta .site-footer { padding-bottom: 96px; }
 }
 
 .hero-band {
@@ -163,6 +199,12 @@
     font-size: 20px; color: var(--color-text-faint); font-weight: 700;
   }
 }
+
+.scroll-anchor { scroll-margin-top: 80px; }
+.past-events { margin: -8px 0 28px; font-size: 14px; }
+.past-events summary { cursor: pointer; font-weight: 700; color: var(--color-text-muted); padding: 6px 0; }
+.past-events ul { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; }
+.past-events li { padding: 2px 0; }
 
 /* Slim strip under the hero for visitors/merit-makers (the hero itself speaks to stall vendors). */
 .visitor-strip {
@@ -451,6 +493,24 @@
 .lightbox-overlay.is-open { display: flex; }
 .lightbox-overlay img { max-width: 92vw; max-height: 82vh; border-radius: var(--radius-md); display: block; margin: 0 auto; }
 .lightbox-figure { margin: 0; max-width: 92vw; }
+.lightbox-stage { overflow: hidden; border-radius: var(--radius-md); touch-action: none; cursor: zoom-in; }
+.lightbox-stage.is-zoomed { cursor: grab; }
+.lightbox-stage img { transform-origin: center; transition: transform .12s ease-out; will-change: transform; user-select: none; -webkit-user-drag: none; }
+.lightbox-share {
+  position: absolute; top: 20px; left: 24px; height: 40px; padding: 0 16px; border-radius: 20px; border: none; cursor: pointer;
+  background: rgba(255,255,255,.15); color: #fff; font-size: 14px; font-weight: 600;
+}
+.lightbox-share:hover { background: rgba(255,255,255,.3); }
+.lightbox-thumbs {
+  position: absolute; left: 0; right: 0; bottom: 0; display: flex; gap: 8px; overflow-x: auto; padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.6)); scrollbar-width: none;
+}
+.lightbox-thumbs::-webkit-scrollbar { display: none; }
+.lightbox-thumbs[hidden] { display: none; }
+.lightbox-thumb { flex: 0 0 auto; width: 64px; height: 48px; padding: 0; border: 2px solid transparent; border-radius: 6px; overflow: hidden; opacity: .65; cursor: pointer; background: #000; }
+.lightbox-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 0; max-width: none; max-height: none; }
+.lightbox-thumb.is-active { opacity: 1; border-color: #fff; }
+.lightbox-overlay img { max-height: 76vh; }
 .lightbox-caption { margin-top: 10px; text-align: center; color: #fff; font-size: 14px; min-height: 1.2em; }
 .lightbox-nav {
   position: absolute; top: 50%; transform: translateY(-50%);
@@ -467,6 +527,22 @@
   background: rgba(255,255,255,.15); color: #fff; border: none; font-size: 20px; cursor: pointer;
 }
 .lightbox-close:hover { background: rgba(255,255,255,.3); }
+
+/* Rotating big mosaic tile: slides stacked, the active one fades in and drifts slowly (Ken Burns). */
+.mosaic-tile.is-rotating { cursor: pointer; }
+.mosaic-slide { position: absolute; inset: 0; display: block; opacity: 0; z-index: 0; transition: opacity 1s ease; }
+.mosaic-slide.is-active { opacity: 1; z-index: 1; }
+.mosaic-slide img { width: 100%; height: 100%; object-fit: cover; display: block; }
+@media (prefers-reduced-motion: no-preference) {
+  .mosaic-slide.is-active img { animation: kenburns 9s ease-out both; }
+}
+@keyframes kenburns { from { transform: scale(1); } to { transform: scale(1.07); } }
+
+/* Fade-in for images and sections — only when JS is on (html.js), so nothing stays invisible without it. */
+.js .fade-img { opacity: 0; transition: opacity .5s ease; }
+.js .fade-img.is-loaded { opacity: 1; }
+.js .reveal { opacity: 0; transform: translateY(16px); transition: opacity .55s ease, transform .55s ease; }
+.js .reveal.in { opacity: 1; transform: none; }
 
 /* Home page photo mosaic: one big tile plus up to four small ones (fewer photos, simpler shapes). */
 .photo-mosaic {

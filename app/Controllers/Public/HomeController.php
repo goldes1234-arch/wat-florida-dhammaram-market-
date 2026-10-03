@@ -17,7 +17,11 @@ class HomeController
 {
     public function index(Request $request): void
     {
-        $events = Event::publishedForPublic();
+        // Events that have already ended are not offered for booking: they move to a collapsed "past events" list.
+        $today = date('Y-m-d');
+        $publishedEvents = Event::publishedForPublic();
+        $events = array_values(array_filter($publishedEvents, static fn (array $e) => $e['end_date'] >= $today));
+        $pastEvents = array_values(array_filter($publishedEvents, static fn (array $e) => $e['end_date'] < $today));
 
         foreach ($events as $event) {
             EventStatusService::maybeNotifyIfJustOpened($event);
@@ -46,12 +50,18 @@ class HomeController
             'title' => __('nav.home'),
             'events' => $events,
             'gridEvents' => $gridEvents,
+            'pastEvents' => $pastEvents,
+            'mobileCta' => $events ? [
+                'url' => $featuredEvent ? base_url('events/' . $featuredEvent['slug']) : '#events',
+                'label' => __('public.hero_cta_book'),
+                'watch' => '.hero-actions',
+            ] : null,
             'featuredEvent' => $featuredEvent,
             'galleryPhotos' => GalleryPhoto::all(),
             'advertisements' => Advertisement::approved(),
             'lotCounts' => $lotCounts,
             'statEventsCount' => count($events),
-            'statAvailableLots' => array_sum(array_column($lotCounts, 'available')),
+            'statAvailableLots' => array_sum(array_map(static fn (array $e) => (int) ($lotCounts[$e['id']]['available'] ?? 0), $events)),
             'statBookedCount' => Booking::bookedCount(),
             'settings' => Setting::get(),
             'stripeEnabled' => StripeService::isEnabled(),

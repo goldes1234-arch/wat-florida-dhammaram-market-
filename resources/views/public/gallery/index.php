@@ -28,7 +28,7 @@ $locale = \App\Core\Lang::locale();
   <div class="photo-grid">
     <?php foreach ($photos as $photo): ?>
       <a href="#" class="photo-grid-item" data-lightbox-src="<?= e(upload_url($photo['image_path'])) ?>"
-         data-lightbox-group="gallery-page" data-caption="<?= e($photo['caption'] ?? '') ?>">
+         data-lightbox-group="gallery-page" data-caption="<?= e($photo['caption'] ?? '') ?>" data-thumb="<?= e(upload_url($photo['thumb_path'] ?: $photo['image_path'])) ?>">
         <img src="<?= e(upload_url($photo['thumb_path'] ?: $photo['image_path'])) ?>" alt="<?= e($photo['caption'] ?: __('public.gallery_title')) ?>" loading="lazy">
         <?php if (!empty($photo['caption'])): ?><span class="photo-grid-caption"><?= e($photo['caption']) ?></span><?php endif; ?>
       </a>

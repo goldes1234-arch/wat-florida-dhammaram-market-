@@ -2,6 +2,7 @@
 /** @var array $galleryPhotos */
 /** @var array $events */
 /** @var array<string,int> $pendingImages */
+/** @var array<int,int> $duplicates */
 $total = count($galleryPhotos);
 ?>
 <div class="page-header">
@@ -9,9 +10,9 @@ $total = count($galleryPhotos);
 </div>
 
 <?php if (!empty($pendingImages)): ?>
-  <div class="alert alert-warning mb-6">
+  <div class="alert alert-warning mb-6" style="display:block;">
     <strong><?= __('images.pending_title', ['count' => (string) array_sum($pendingImages)]) ?></strong>
-    <p class="text-sm mb-4"><?= __('images.pending_body') ?></p>
+    <p class="text-sm mb-4 mt-2"><?= __('images.pending_body') ?></p>
     <p class="text-sm mb-4">
       <?php foreach ($pendingImages as $kind => $n): ?>
         <span class="badge badge-indigo"><?= __('images.kind_' . $kind) ?>: <?= (int) $n ?></span>
@@ -53,43 +54,48 @@ $total = count($galleryPhotos);
   </form>
 </div>
 
+<?php
+$mainCount = $total >= 8 ? 3 : 1; // the home mosaic's big tile shows (and rotates through) these first photos
+?>
 <?php if ($galleryPhotos): ?>
   <div class="card">
     <div class="card-header"><h3><?= __('gallery.all_photos', ['count' => (string) $total]) ?></h3></div>
-    <p class="form-hint mb-4"><?= __('gallery.order_hint') ?></p>
-    <div class="grid grid-cols-4">
+    <p class="form-hint mb-4"><?= __('gallery.order_hint_drag') ?></p>
+    <div class="gallery-admin-grid" id="galleryGrid" data-reorder-url="<?= base_url('admin/gallery/reorder') ?>" data-main-count="<?= (int) $mainCount ?>">
       <?php foreach ($galleryPhotos as $i => $photo): ?>
-        <div class="card" style="padding:10px;">
-          <div class="text-sm text-muted mb-2">#<?= $i + 1 ?></div>
-          <img src="<?= upload_url($photo['thumb_path'] ?: $photo['image_path']) ?>" class="thumb-sm mb-2" style="width:100%;height:110px;object-fit:cover;" alt="">
-
-          <form method="post" action="<?= base_url('admin/gallery/' . $photo['id']) ?>" class="mb-2">
-            <?= csrf_field() ?>
-            <input type="text" name="caption" class="form-control mb-2" maxlength="150" value="<?= e($photo['caption'] ?? '') ?>" placeholder="<?= e(__('settings.gallery_caption_placeholder')) ?>">
-            <select name="event_id" class="form-control mb-2">
-              <option value=""><?= __('gallery.no_album') ?></option>
-              <?php foreach ($events as $ev): ?>
-                <option value="<?= (int) $ev['id'] ?>"<?= (int) ($photo['event_id'] ?? 0) === (int) $ev['id'] ? ' selected' : '' ?>><?= e($ev['name_th']) ?></option>
-              <?php endforeach; ?>
-            </select>
-            <button type="submit" class="btn btn-secondary btn-sm" style="width:100%;"><?= __('common.save') ?></button>
-          </form>
-
-          <div style="display:flex;gap:6px;margin-bottom:6px;">
-            <form method="post" action="<?= base_url('admin/gallery/' . $photo['id'] . '/move') ?>" style="flex:1;margin:0;">
-              <?= csrf_field() ?><input type="hidden" name="direction" value="up">
-              <button type="submit" class="btn btn-secondary btn-sm" style="width:100%;" title="<?= e(__('gallery.move_earlier')) ?>"<?= $i === 0 ? ' disabled' : '' ?>>&larr;</button>
-            </form>
-            <form method="post" action="<?= base_url('admin/gallery/' . $photo['id'] . '/move') ?>" style="flex:1;margin:0;">
-              <?= csrf_field() ?><input type="hidden" name="direction" value="down">
-              <button type="submit" class="btn btn-secondary btn-sm" style="width:100%;" title="<?= e(__('gallery.move_later')) ?>"<?= $i === $total - 1 ? ' disabled' : '' ?>>&rarr;</button>
+        <?php $isMain = $i < $mainCount; ?>
+        <div class="gallery-admin-card<?= $isMain ? ' is-main' : '' ?>" draggable="true" data-id="<?= (int) $photo['id'] ?>">
+          <div class="gallery-admin-thumb">
+            <img src="<?= upload_url($photo['thumb_path'] ?: $photo['image_path']) ?>" alt="" loading="lazy" draggable="false">
+            <span class="gallery-admin-pos">#<?= $i + 1 ?></span>
+            <span class="gallery-admin-main-badge"<?= $isMain ? '' : ' hidden' ?>>★ <?= __('gallery.main_photo') ?></span>
+            <form method="post" action="<?= base_url('admin/gallery/' . $photo['id'] . '/delete') ?>" data-confirm="<?= e(__('zone.delete_confirm')) ?>" class="gallery-admin-delete">
+              <?= csrf_field() ?>
+              <button type="submit" title="<?= e(__('common.delete')) ?>" aria-label="<?= e(__('common.delete')) ?>">&times;</button>
             </form>
           </div>
-
-          <form method="post" action="<?= base_url('admin/gallery/' . $photo['id'] . '/delete') ?>" data-confirm="<?= e(__('zone.delete_confirm')) ?>">
-            <?= csrf_field() ?>
-            <button type="submit" class="btn btn-danger btn-sm" style="width:100%;"><?= __('common.delete') ?></button>
-          </form>
+          <?php if (isset($duplicates[(int) $photo['id']])): ?>
+            <div class="gallery-admin-dup">⚠ <?= __('gallery.duplicate_of', ['pos' => (string) (array_search($duplicates[(int) $photo['id']], array_map('intval', array_column($galleryPhotos, 'id')), true) + 1)]) ?></div>
+          <?php endif; ?>
+          <div class="gallery-admin-caption text-sm"><?= e($photo['caption'] ?? '') ?: '<span class="text-muted">' . e(__('gallery.no_caption')) . '</span>' ?></div>
+          <details class="gallery-admin-edit">
+            <summary><?= __('common.edit') ?></summary>
+            <form method="post" action="<?= base_url('admin/gallery/' . $photo['id']) ?>">
+              <?= csrf_field() ?>
+              <input type="text" name="caption" class="form-control mb-2" maxlength="150" value="<?= e($photo['caption'] ?? '') ?>" placeholder="<?= e(__('settings.gallery_caption_placeholder')) ?>">
+              <select name="event_id" class="form-control mb-2">
+                <option value=""><?= __('gallery.no_album') ?></option>
+                <?php foreach ($events as $ev): ?>
+                  <option value="<?= (int) $ev['id'] ?>"<?= (int) ($photo['event_id'] ?? 0) === (int) $ev['id'] ? ' selected' : '' ?>><?= e($ev['name_th']) ?></option>
+                <?php endforeach; ?>
+              </select>
+              <button type="submit" class="btn btn-secondary btn-sm" style="width:100%;"><?= __('common.save') ?></button>
+            </form>
+            <div class="gallery-admin-arrows">
+              <form method="post" action="<?= base_url('admin/gallery/' . $photo['id'] . '/move') ?>"><?= csrf_field() ?><input type="hidden" name="direction" value="up"><button type="submit" class="btn btn-secondary btn-sm"<?= $i === 0 ? ' disabled' : '' ?> title="<?= e(__('gallery.move_earlier')) ?>">&larr;</button></form>
+              <form method="post" action="<?= base_url('admin/gallery/' . $photo['id'] . '/move') ?>"><?= csrf_field() ?><input type="hidden" name="direction" value="down"><button type="submit" class="btn btn-secondary btn-sm"<?= $i === $total - 1 ? ' disabled' : '' ?> title="<?= e(__('gallery.move_later')) ?>">&rarr;</button></form>
+            </div>
+          </details>
         </div>
       <?php endforeach; ?>
     </div>
@@ -151,6 +157,53 @@ $total = count($galleryPhotos);
     }, Promise.resolve()).then(function () {
       if (!failed) { window.location.reload(); } else { btn.disabled = false; }
     });
+  });
+})();
+</script>
+
+<script>
+(function () {
+  var grid = document.getElementById('galleryGrid');
+  if (!grid) return;
+  var token = document.querySelector('input[name="_csrf"]').value;
+  var dragging = null;
+
+  function renumber() {
+    var mainCount = parseInt(grid.getAttribute('data-main-count'), 10);
+    Array.prototype.forEach.call(grid.children, function (card, i) {
+      card.querySelector('.gallery-admin-pos').textContent = '#' + (i + 1);
+      var main = i < mainCount;
+      card.classList.toggle('is-main', main);
+      card.querySelector('.gallery-admin-main-badge').hidden = !main;
+    });
+  }
+
+  grid.addEventListener('dragstart', function (e) {
+    dragging = e.target.closest('.gallery-admin-card');
+    if (!dragging) return;
+    dragging.classList.add('is-dragging');
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', dragging.getAttribute('data-id'));
+  });
+  grid.addEventListener('dragover', function (e) {
+    if (!dragging) return;
+    e.preventDefault();
+    var over = e.target.closest('.gallery-admin-card');
+    if (!over || over === dragging) return;
+    var rect = over.getBoundingClientRect();
+    var after = (e.clientX - rect.left) > rect.width / 2;
+    grid.insertBefore(dragging, after ? over.nextSibling : over);
+    renumber();
+  });
+  grid.addEventListener('dragend', function () {
+    if (!dragging) return;
+    dragging.classList.remove('is-dragging');
+    dragging = null;
+    var fd = new FormData();
+    fd.append('_csrf', token);
+    Array.prototype.forEach.call(grid.children, function (card) { fd.append('order[]', card.getAttribute('data-id')); });
+    fetch(grid.getAttribute('data-reorder-url'), { method: 'POST', body: fd, credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+      .catch(function () { window.location.reload(); });
   });
 })();
 </script>

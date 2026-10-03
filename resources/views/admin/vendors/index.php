@@ -6,8 +6,19 @@
   <h1><?= __('nav.vendors') ?></h1>
 </div>
 
-<div class="card mb-6" style="max-width:520px;">
-  <div class="card-header"><h3><?= __('vendor.add_title') ?></h3></div>
+<form method="get" action="<?= base_url('admin/vendors') ?>" class="filter-bar">
+  <div class="form-group">
+    <label><?= __('vendor.search_label') ?></label>
+    <input type="text" name="q" class="form-control" value="<?= e($search) ?>" placeholder="<?= e(__('vendor.search_placeholder')) ?>">
+  </div>
+  <div class="form-group" style="flex:0 0 auto;align-self:flex-end;">
+    <button type="submit" class="btn btn-secondary"><?= __('common.search') ?></button>
+  </div>
+</form>
+
+<details class="card add-vendor mb-6" style="max-width:520px;"<?= (!$vendors && $search === '') ? ' open' : '' ?>>
+  <summary class="btn btn-primary">+ <?= __('vendor.add_title') ?></summary>
+  <div class="add-vendor-body">
   <form method="post" action="<?= base_url('admin/vendors') ?>">
     <?= csrf_field() ?>
     <div class="form-group">
@@ -27,16 +38,7 @@
     <button type="submit" class="btn btn-primary"><?= __('vendor.add_button') ?></button>
   </form>
 </div>
-
-<form method="get" action="<?= base_url('admin/vendors') ?>" class="filter-bar">
-  <div class="form-group">
-    <label><?= __('vendor.search_label') ?></label>
-    <input type="text" name="q" class="form-control" value="<?= e($search) ?>" placeholder="<?= e(__('vendor.search_placeholder')) ?>">
-  </div>
-  <div class="form-group" style="flex:0 0 auto;align-self:flex-end;">
-    <button type="submit" class="btn btn-secondary"><?= __('common.search') ?></button>
-  </div>
-</form>
+</details>
 
 <?php if (!$vendors): ?>
   <div class="empty-state"><div class="empty-icon">🧑‍🌾</div><?= __('vendor.none') ?></div>

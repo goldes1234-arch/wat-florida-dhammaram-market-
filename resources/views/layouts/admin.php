@@ -2,6 +2,16 @@
 $user = \App\Core\Auth::user();
 $active = $active ?? '';
 $locale = \App\Core\Lang::locale();
+
+// The page usually repeats its title as an <h1>; when it does, the top bar names the section instead.
+$topbarTitle = $title ?? __('nav.dashboard');
+if ($active !== '' && str_contains((string) $content, '<h1')) {
+    $sectionLabel = __('nav.' . $active);
+    if ($sectionLabel !== 'nav.' . $active) {
+        // Same words as the page heading → say it once (the heading), leave the bar's title empty.
+        $topbarTitle = $sectionLabel === $topbarTitle ? '' : $sectionLabel;
+    }
+}
 ?><!doctype html>
 <html lang="<?= e($locale) ?>">
 <head>
@@ -74,7 +84,7 @@ $locale = \App\Core\Lang::locale();
     <header class="admin-topbar">
       <div class="topbar-title-group">
         <button type="button" class="sidebar-toggle" data-toggle="#adminSidebar"><?= icon('menu') ?></button>
-        <h1><?= e($title ?? __('nav.dashboard')) ?></h1>
+        <h1><?= e($topbarTitle) ?></h1>
       </div>
       <div class="topbar-user">
         <div class="lang-switch">

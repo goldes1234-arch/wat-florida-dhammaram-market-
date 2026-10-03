@@ -7,6 +7,7 @@ use App\Core\View;
 use App\Models\Booking;
 use App\Models\Event;
 use App\Models\Lot;
+use App\Services\AttentionService;
 
 class DashboardController
 {
@@ -21,7 +22,12 @@ class DashboardController
             'lotStatusCounts' => Lot::statusCountsGlobal(),
             'revenueByMethod' => Booking::revenueByPaymentMethod(),
             'recentBookings' => Booking::recentForAdmin(8),
-            'upcomingEvents' => array_slice(Event::allForAdmin(), 0, 5),
+            // Only events that have not ended yet, soonest first.
+            'upcomingEvents' => array_slice(array_values(array_filter(
+                Event::allForAdmin(),
+                static fn (array $e) => $e['end_date'] >= date('Y-m-d')
+            )), 0, 5),
+            'attention' => AttentionService::items(),
         ], 'admin');
     }
 }

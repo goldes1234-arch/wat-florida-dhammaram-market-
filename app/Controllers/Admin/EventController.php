@@ -12,6 +12,7 @@ use App\Core\View;
 use App\Models\Event;
 use App\Models\EventContact;
 use App\Models\EventPhoto;
+use App\Models\Lot;
 use App\Services\GalleryImageService;
 use App\Support\Validator;
 
@@ -19,10 +20,19 @@ class EventController
 {
     public function index(Request $request): void
     {
+        // Running/upcoming events soonest first; events that have ended are tucked into a collapsed list.
+        $all = EventAccess::filterEvents(Event::allForAdmin());
+        $today = date('Y-m-d');
+        $upcoming = array_values(array_filter($all, static fn (array $e) => $e['end_date'] >= $today));
+        $past = array_values(array_filter($all, static fn (array $e) => $e['end_date'] < $today));
+        usort($upcoming, static fn (array $a, array $b) => strcmp($a['start_date'], $b['start_date']));
+
         View::render('admin/events/index', [
             'title' => __('event.list_title'),
             'active' => 'events',
-            'events' => EventAccess::filterEvents(Event::allForAdmin()),
+            'events' => $upcoming,
+            'pastEvents' => $past,
+            'lotCounts' => Lot::availableCountsByEvent(),
         ], 'admin');
     }
 

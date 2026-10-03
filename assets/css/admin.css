@@ -327,3 +327,113 @@
 .staff-pw-row { display: none; }
 .staff-pw-row.is-open { display: table-row; }
 .staff-pw-row td { padding-top: 0; background: var(--color-bg); }
+
+
+/* ---- Admin list tools (search, status chips, overflow menu, one-click actions) ---- */
+.filter-bar .search-field { flex: 1 1 240px; min-width: 200px; }
+.status-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.status-chip {
+  display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: var(--radius-full);
+  font-size: 13.5px; font-weight: 700; color: var(--color-text); text-decoration: none;
+  background: var(--glass-bg); border: 1px solid var(--glass-border);
+}
+.status-chip span { font-size: 12px; font-weight: 800; padding: 1px 8px; border-radius: var(--radius-full); background: var(--color-primary-light); color: var(--color-primary); }
+.status-chip:hover { text-decoration: none; background: #fff; }
+.status-chip.is-active { background: var(--color-primary); border-color: var(--color-primary); color: #fff; }
+.status-chip.is-active span { background: rgba(255,255,255,.25); color: #fff; }
+
+.menu-more { position: relative; display: inline-block; }
+.menu-more > summary { list-style: none; cursor: pointer; padding: 0 14px; font-size: 18px; line-height: 1.6; }
+.menu-more > summary::-webkit-details-marker { display: none; }
+.menu-more-panel {
+  position: absolute; right: 0; top: calc(100% + 6px); z-index: 20; min-width: 240px; padding: 12px;
+  background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-md); box-shadow: var(--shadow-lg);
+}
+.menu-more-danger { width: 100%; padding: 9px 12px; border: 1px solid var(--color-danger-light); border-radius: var(--radius-sm); background: var(--color-danger-light); color: var(--color-danger-dark); font-weight: 700; cursor: pointer; margin-bottom: 8px; }
+
+.cell-actions { white-space: nowrap; text-align: right; }
+.cell-actions .btn + .btn { margin-left: 6px; }
+
+/* Wide tables turn into one card per row on phones, so nothing is hidden behind sideways scrolling. */
+@media (max-width: 700px) {
+  .table-cards, .table-cards tbody, .table-cards tr, .table-cards td { display: block; width: 100%; }
+  .table-cards thead { display: none; }
+  .table-cards tr { padding: 12px 14px; margin-bottom: 12px; border: 1px solid var(--color-border-light); border-radius: var(--radius-md); background: var(--color-surface, #fff); }
+  .table-cards td { display: flex; justify-content: space-between; gap: 16px; padding: 6px 0; border: 0; text-align: right; }
+  .table-cards td::before { content: attr(data-label); flex: 0 0 38%; text-align: left; font-size: 12px; font-weight: 700; color: var(--color-text-muted); }
+  .table-cards td.cell-select, .table-cards td.cell-actions { justify-content: flex-start; text-align: left; }
+  .table-cards td.cell-select::before, .table-cards td.cell-actions::before { content: none; }
+  .table-cards td.cell-actions { padding-top: 10px; }
+}
+
+
+/* ---- Dashboard "needs attention" ---- */
+.attention-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.attention-item a {
+  display: flex; align-items: center; gap: 12px; padding: 11px 14px; border-radius: var(--radius-md);
+  text-decoration: none; color: var(--color-text); font-weight: 600; font-size: 14.5px;
+  background: #fff; border: 1px solid var(--color-border-light); border-left-width: 5px;
+}
+.attention-item a:hover { text-decoration: none; box-shadow: var(--shadow-sm); }
+.attention-label { flex: 1 1 auto; }
+.attention-go { color: var(--color-text-muted); }
+.attention-dot { display: none; }
+.attention-item.is-warn a { border-left-color: #E08B1D; }
+.attention-item.is-danger a { border-left-color: #E23D5F; background: var(--color-danger-light); }
+.attention-item.is-info a { border-left-color: #5B4FE8; }
+.attention-clear { color: var(--color-success-dark); font-weight: 600; }
+
+/* The three dashboard charts line up: same top edge, same height. */
+.grid.grid-cols-3 { align-items: stretch; }
+.chart-card { display: flex; flex-direction: column; }
+.chart-card .chart-legend { margin-top: auto; }
+
+
+/* ---- Events list: lot progress and compact "more" menu ---- */
+.lots-progress { display: grid; gap: 4px; min-width: 130px; }
+.lots-progress-bar { height: 8px; border-radius: 999px; background: var(--color-border-light); overflow: hidden; }
+.lots-progress-bar span { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, #E08B1D, #B4561F); }
+.menu-more-sm > summary { padding: 0 10px; line-height: 1.4; }
+.menu-more-link { display: block; padding: 9px 12px; border-radius: var(--radius-sm); color: var(--color-text); font-weight: 600; text-decoration: none; margin-bottom: 6px; }
+.menu-more-link:hover { background: var(--color-primary-light); text-decoration: none; }
+.past-events-admin > summary { cursor: pointer; font-weight: 700; color: var(--color-text-muted); padding: 6px 0; }
+.cell-actions .menu-more { vertical-align: middle; margin-left: 6px; }
+
+
+/* Add-vendor form is a collapsed panel under the search bar instead of pushing the list down. */
+.add-vendor { padding: 0; }
+.add-vendor > summary { list-style: none; cursor: pointer; display: inline-flex; margin: 0; }
+.add-vendor > summary::-webkit-details-marker { display: none; }
+.add-vendor[open] > summary { margin: 14px 0 0 14px; }
+.add-vendor .add-vendor-body { padding: 14px 18px 18px; }
+.add-vendor:not([open]) { background: transparent; border: 0; box-shadow: none; }
+
+
+/* ---- Gallery admin: compact cards, main-photo badge, drag to reorder ---- */
+.gallery-admin-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; }
+.gallery-admin-card { background: #fff; border: 1px solid var(--color-border-light); border-radius: var(--radius-md); padding: 8px; cursor: grab; }
+.gallery-admin-card.is-main { border-color: #E08B1D; box-shadow: 0 0 0 2px rgba(224,139,29,.25); }
+.gallery-admin-card.is-dragging { opacity: .4; }
+.gallery-admin-thumb { position: relative; aspect-ratio: 4/3; border-radius: var(--radius-sm); overflow: hidden; background: var(--color-slate-light); }
+.gallery-admin-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gallery-admin-pos { position: absolute; left: 6px; top: 6px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #fff; background: rgba(15,23,42,.65); }
+.gallery-admin-main-badge { position: absolute; left: 6px; bottom: 6px; padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 800; color: #fff; background: #B4561F; }
+.gallery-admin-main-badge[hidden] { display: none; }
+.gallery-admin-delete { position: absolute; right: 6px; top: 6px; margin: 0; }
+.gallery-admin-delete button { width: 24px; height: 24px; border-radius: 50%; border: 0; cursor: pointer; line-height: 1; font-size: 16px; color: #fff; background: rgba(226,61,95,.9); }
+.gallery-admin-caption { margin: 6px 2px 4px; min-height: 1.3em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gallery-admin-dup { margin: 4px 0; padding: 3px 8px; border-radius: var(--radius-sm); background: var(--color-warning-light); color: var(--color-warning-dark); font-size: 12px; font-weight: 700; }
+.gallery-admin-edit summary { cursor: pointer; font-size: 13px; font-weight: 700; color: var(--color-primary); padding: 4px 2px; }
+.gallery-admin-edit[open] summary { margin-bottom: 8px; }
+.gallery-admin-arrows { display: flex; gap: 6px; margin-top: 8px; }
+.gallery-admin-arrows form { flex: 1; margin: 0; }
+.gallery-admin-arrows .btn { width: 100%; }
+
+/* Cards inside a grid sit on one line: the stacked-card spacing rule must not push siblings down. */
+.grid > .card + .card, .grid > .card { margin-top: 0; }
+
+/* Stacked one-click actions keep the bookings table inside its frame. */
+.cell-actions-stack { white-space: normal; min-width: 104px; }
+.cell-actions-stack .btn { display: block; width: 100%; }
+.cell-actions-stack .btn + .btn { margin: 6px 0 0; }
+@media (max-width: 700px) { .cell-actions-stack .btn { display: inline-block; width: auto; } .cell-actions-stack .btn + .btn { margin: 0 0 0 6px; } }

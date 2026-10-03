@@ -1,3 +1,23 @@
+<?php /** @var array $attention */ ?>
+<div class="card attention-card mb-6">
+  <div class="card-header"><h3><?= __('attention.title') ?></h3></div>
+  <?php if (!$attention): ?>
+    <p class="attention-clear mb-0">✅ <?= __('attention.all_clear') ?></p>
+  <?php else: ?>
+    <ul class="attention-list">
+      <?php foreach ($attention as $item): ?>
+        <li class="attention-item is-<?= e($item['level']) ?>">
+          <a href="<?= e($item['url']) ?>">
+            <span class="attention-dot" aria-hidden="true"></span>
+            <span class="attention-label"><?= e($item['label']) ?></span>
+            <span class="attention-go">&rarr;</span>
+          </a>
+        </li>
+      <?php endforeach; ?>
+    </ul>
+  <?php endif; ?>
+</div>
+
 <div class="grid grid-cols-4 mb-6">
   <div class="stat-card">
     <div class="stat-label"><?= __('dashboard.published_events') ?></div>

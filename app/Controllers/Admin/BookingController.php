@@ -22,6 +22,7 @@ class BookingController
         $sort = ($request->query['sort'] ?? '') === 'asc' ? 'asc' : 'desc';
         $filterEventId = $eventId !== '' ? (int) $eventId : null;
         $perPage = 50;
+        $search = trim((string) ($request->query['q'] ?? ''));
 
         if ($filterEventId && !EventAccess::allowed($filterEventId)) {
             $filterEventId = null;
@@ -30,14 +31,16 @@ class BookingController
 
         $allowedEventIds = EventAccess::assignedEventIds();
         $statusFilter = $status !== '' ? $status : null;
-        $total = Booking::countForAdmin($filterEventId, $statusFilter, $allowedEventIds);
+        $total = Booking::countForAdmin($filterEventId, $statusFilter, $allowedEventIds, $search);
         $totalPages = max(1, (int) ceil($total / $perPage));
         $page = min(max(1, (int) ($request->query['page'] ?? 1)), $totalPages);
 
         View::render('admin/bookings/index', [
             'title' => __('booking.list_title'),
             'active' => 'bookings',
-            'bookings' => Booking::forAdmin($filterEventId, $statusFilter, $sort, $allowedEventIds, $page, $perPage),
+            'bookings' => Booking::forAdmin($filterEventId, $statusFilter, $sort, $allowedEventIds, $page, $perPage, $search),
+            'search' => $search,
+            'statusCounts' => Booking::statusCountsForAdmin($filterEventId, $allowedEventIds, $search),
             'events' => EventAccess::filterEvents(Event::allForAdmin()),
             'selectedEvent' => $eventId,
             'selectedStatus' => $status,
@@ -58,7 +61,10 @@ class BookingController
             $filterEventId = null;
         }
 
-        $bookings = Booking::forAdmin($filterEventId, $status !== '' ? $status : null, $sort, EventAccess::assignedEventIds());
+        $bookings = Booking::forAdmin(
+            $filterEventId, $status !== '' ? $status : null, $sort, EventAccess::assignedEventIds(),
+            null, 50, trim((string) ($request->query['q'] ?? ''))
+        );
 
         header('Content-Type: text/csv; charset=utf-8');
         header('Content-Disposition: attachment; filename="bookings-' . date('Y-m-d-His') . '.csv"');
@@ -68,13 +74,13 @@ class BookingController
         fputcsv($out, [
             __('booking.code'), __('event.singular'), __('lot.singular'), __('booking.booker_name'),
             __('booking.booker_phone'), __('booking.booker_email'), __('booking.payment_method'),
-            __('common.status'), __('lot.price'), __('common.date'),
+            __('common.status'), __('lot.price'), __('common.date'), __('booking.items_for_sale_label'),
         ]);
         foreach ($bookings as $b) {
             fputcsv($out, [
                 $b['booking_code'], $b['event_name_th'], $b['lot_code'], $b['booker_name'],
                 $b['booker_phone'], $b['booker_email'], payment_method_label($b['payment_method']),
-                booking_status_label($b['status']), $b['price_at_booking'], $b['created_at'],
+                booking_status_label($b['status']), $b['price_at_booking'], $b['created_at'], $b['items_for_sale'] ?? '',
             ]);
         }
         fclose($out);
@@ -223,6 +229,12 @@ class BookingController
             Flash::success(__($successKey));
         } else {
             Flash::error($result['error']);
+        }
+
+        // One-click actions from the list send the current list URL back so the admin stays where they were.
+        $back = (string) ($_POST['return'] ?? '');
+        if ($back !== '' && str_starts_with($back, 'admin/bookings') && !str_contains($back, '//') && !str_contains($back, '..')) {
+            redirect($back);
         }
         redirect('admin/bookings/' . $id);
     }

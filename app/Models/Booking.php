@@ -62,13 +62,14 @@ class Booking extends Model
         string $sort = 'desc',
         ?array $allowedEventIds = null,
         ?int $page = null,
-        int $perPage = 50
+        int $perPage = 50,
+        ?string $search = null
     ): array {
         if ($allowedEventIds !== null && !$allowedEventIds) {
             return [];
         }
 
-        [$where, $params] = self::forAdminWhere($eventId, $status, $allowedEventIds);
+        [$where, $params] = self::forAdminWhere($eventId, $status, $allowedEventIds, $search);
         $sql = self::baseSelect() . $where . ' ORDER BY bookings.created_at ' . ($sort === 'asc' ? 'ASC' : 'DESC');
 
         if ($page !== null) {
@@ -82,13 +83,13 @@ class Booking extends Model
     }
 
     /** Total rows matching forAdmin()'s filters — drives the admin list's pagination controls. */
-    public static function countForAdmin(?int $eventId, ?string $status, ?array $allowedEventIds = null): int
+    public static function countForAdmin(?int $eventId, ?string $status, ?array $allowedEventIds = null, ?string $search = null): int
     {
         if ($allowedEventIds !== null && !$allowedEventIds) {
             return 0;
         }
 
-        [$where, $params] = self::forAdminWhere($eventId, $status, $allowedEventIds);
+        [$where, $params] = self::forAdminWhere($eventId, $status, $allowedEventIds, $search);
         $stmt = self::db()->prepare(
             'SELECT COUNT(*) FROM bookings
              JOIN lots ON lots.id = bookings.lot_id
@@ -98,11 +99,40 @@ class Booking extends Model
         return (int) $stmt->fetchColumn();
     }
 
+    /** Booking count per status for the same event/search filters (the status chips above the list); no status filter applied. @return array<string,int> */
+    public static function statusCountsForAdmin(?int $eventId, ?array $allowedEventIds = null, ?string $search = null): array
+    {
+        $counts = ['pending_payment' => 0, 'booked' => 0, 'rejected' => 0, 'cancelled' => 0];
+        if ($allowedEventIds !== null && !$allowedEventIds) {
+            return $counts;
+        }
+
+        [$where, $params] = self::forAdminWhere($eventId, null, $allowedEventIds, $search);
+        $stmt = self::db()->prepare(
+            'SELECT bookings.status, COUNT(*) AS n FROM bookings
+             JOIN lots ON lots.id = bookings.lot_id
+             JOIN events ON events.id = bookings.event_id' . $where . ' GROUP BY bookings.status'
+        );
+        $stmt->execute($params);
+        foreach ($stmt->fetchAll() as $row) {
+            $counts[$row['status']] = (int) $row['n'];
+        }
+        return $counts;
+    }
+
     /** @return array{0: string, 1: array<string, mixed>} shared WHERE clause + bound params for forAdmin()/countForAdmin() */
-    private static function forAdminWhere(?int $eventId, ?string $status, ?array $allowedEventIds): array
+    private static function forAdminWhere(?int $eventId, ?string $status, ?array $allowedEventIds, ?string $search = null): array
     {
         $sql = ' WHERE 1=1';
         $params = [];
+        $search = trim((string) $search);
+        if ($search !== '') {
+            // Code, name, phone or email — whichever the admin happens to have in hand.
+            $sql .= ' AND (bookings.booking_code LIKE :s1 OR bookings.booker_name LIKE :s2'
+                  . ' OR bookings.booker_phone LIKE :s3 OR bookings.booker_email LIKE :s4)';
+            $like = '%' . addcslashes($search, '%_\\') . '%';
+            $params += ['s1' => $like, 's2' => $like, 's3' => $like, 's4' => $like];
+        }
         if ($eventId) {
             $sql .= ' AND bookings.event_id = :event_id';
             $params['event_id'] = $eventId;

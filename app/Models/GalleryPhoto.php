@@ -103,6 +103,60 @@ class GalleryPhoto extends Model
         }
     }
 
+    /** Applies a drag-and-drop order: the ids listed come first in that order, anything not listed keeps its relative place after them. */
+    public static function setOrder(array $ids): void
+    {
+        $listed = array_values(array_unique(array_map('intval', $ids)));
+        $rest = array_values(array_filter(
+            array_map(static fn (array $r) => (int) $r['id'], self::all()),
+            static fn (int $id) => !in_array($id, $listed, true)
+        ));
+        $final = array_merge($listed, $rest);
+
+        $pdo = self::db();
+        $pdo->beginTransaction();
+        try {
+            $stmt = $pdo->prepare('UPDATE gallery_photos SET sort_order = :n WHERE id = :id');
+            foreach ($final as $i => $id) {
+                $stmt->execute(['n' => $i + 1, 'id' => $id]);
+            }
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            $pdo->rollBack();
+            throw $e;
+        }
+    }
+
+    /** sha1 of a stored image, used to spot the same photo uploaded twice (same source re-encodes to identical bytes). */
+    public static function fingerprint(?string $relativePath): ?string
+    {
+        if (!$relativePath) {
+            return null;
+        }
+        $root = realpath(BASE_PATH . '/uploads');
+        $file = $root ? realpath($root . '/' . ltrim($relativePath, '/')) : false;
+        return ($file && is_file($file) && str_starts_with($file, $root . DIRECTORY_SEPARATOR)) ? sha1_file($file) : null;
+    }
+
+    /** @param array<int,array> $photos @return array<int,int> photo id => id of the earlier photo it duplicates */
+    public static function duplicatesAmong(array $photos): array
+    {
+        $seen = [];
+        $dups = [];
+        foreach ($photos as $photo) {
+            $hash = self::fingerprint($photo['image_path']);
+            if ($hash === null) {
+                continue;
+            }
+            if (isset($seen[$hash])) {
+                $dups[(int) $photo['id']] = $seen[$hash];
+            } else {
+                $seen[$hash] = (int) $photo['id'];
+            }
+        }
+        return $dups;
+    }
+
     public static function delete(int $id): void
     {
         self::db()->prepare('DELETE FROM gallery_photos WHERE id = :id')->execute(['id' => $id]);

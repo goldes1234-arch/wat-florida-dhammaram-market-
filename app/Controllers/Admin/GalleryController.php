@@ -19,7 +19,8 @@ class GalleryController
         View::render('admin/gallery/index', [
             'title' => __('nav.gallery'),
             'active' => 'gallery',
-            'galleryPhotos' => GalleryPhoto::all(),
+            'galleryPhotos' => $photos = GalleryPhoto::all(),
+            'duplicates' => GalleryPhoto::duplicatesAmong($photos),
             'events' => Event::allForAdmin(),
             'pendingImages' => ImageOptimizerService::pendingCounts(),
         ], 'admin');
@@ -33,6 +34,20 @@ class GalleryController
 
         $photoFile = $request->file('photo');
         $stored = $photoFile ? GalleryImageService::store($photoFile, 'gallery', $error) : null;
+
+        // The same photo uploaded twice re-encodes to identical bytes: refuse it instead of filling the gallery with copies.
+        if ($stored) {
+            $hash = GalleryPhoto::fingerprint($stored['path']);
+            foreach (GalleryPhoto::all() as $existing) {
+                if ($hash !== null && GalleryPhoto::fingerprint($existing['image_path']) === $hash) {
+                    Upload::delete($stored['path']);
+                    Upload::delete($stored['thumb'] ?? null);
+                    $stored = null;
+                    $error = __('gallery.duplicate_photo');
+                    break;
+                }
+            }
+        }
 
         if ($stored) {
             GalleryPhoto::create(
@@ -68,6 +83,17 @@ class GalleryController
             Flash::success(__('gallery.saved'));
         }
         redirect('admin/gallery');
+    }
+
+    /** Drag-and-drop on the admin page posts the whole new order as order[]=id&order[]=id… (XHR). */
+    public function reorder(Request $request): void
+    {
+        $order = $request->post['order'] ?? [];
+        if (is_array($order) && $order) {
+            GalleryPhoto::setOrder($order);
+        }
+        header('Content-Type: application/json');
+        echo json_encode(['ok' => true]);
     }
 
     public function move(Request $request, string $id): void

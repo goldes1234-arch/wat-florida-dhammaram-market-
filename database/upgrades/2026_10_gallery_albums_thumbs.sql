@@ -1,0 +1,2 @@
+ALTER TABLE gallery_photos ADD COLUMN IF NOT EXISTS thumb_path VARCHAR(255) NULL AFTER image_path;
+ALTER TABLE gallery_photos ADD COLUMN IF NOT EXISTS event_id INT UNSIGNED NULL AFTER caption;

@@ -88,7 +88,11 @@ CREATE TABLE social_links (
 CREATE TABLE gallery_photos (
   id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   image_path VARCHAR(255) NOT NULL,
+  -- ~600px preview used by the mosaic/grid so they stay light; NULL for older photos (the full image is used).
+  thumb_path VARCHAR(255) NULL,
   caption VARCHAR(150) NULL,
+  -- Optional album: the event these photos were taken at (drives the filter chips on /gallery).
+  event_id INT UNSIGNED NULL,
   sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -173,6 +173,8 @@ $router->group(['middleware' => ['auth']], function ($router) {
 
             $router->get('/admin/gallery', [Admin\GalleryController::class, 'index']);
             $router->post('/admin/gallery', [Admin\GalleryController::class, 'store']);
+            $router->post('/admin/gallery/{id}', [Admin\GalleryController::class, 'update']);
+            $router->post('/admin/gallery/{id}/move', [Admin\GalleryController::class, 'move']);
             $router->post('/admin/gallery/{id}/delete', [Admin\GalleryController::class, 'destroy']);
 
             $router->get('/admin/activity-log', [Admin\ActivityLogController::class, 'index']);

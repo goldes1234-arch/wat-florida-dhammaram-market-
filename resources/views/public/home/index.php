@@ -181,7 +181,7 @@ $galleryTotal = count($galleryPhotos);
       <?php $isLastWithMore = ($i === 4 && $mosaicRest); ?>
       <a href="<?= $isLastWithMore ? e(base_url('gallery')) : '#' ?>" class="mosaic-tile"
          <?php if (!$isLastWithMore): ?>data-lightbox-src="<?= e(upload_url($gp['image_path'])) ?>" data-lightbox-group="home-gallery" data-caption="<?= e($gp['caption'] ?? '') ?>"<?php endif; ?>>
-        <img src="<?= e(upload_url($gp['image_path'])) ?>" alt="<?= e($gp['caption'] ?: __('public.gallery_title')) ?>" loading="lazy">
+        <img src="<?= e(upload_url($i === 0 ? $gp['image_path'] : ($gp['thumb_path'] ?: $gp['image_path']))) ?>" alt="<?= e($gp['caption'] ?: __('public.gallery_title')) ?>" loading="lazy">
         <?php if (!empty($gp['caption']) && !$isLastWithMore): ?><span class="mosaic-caption"><?= e($gp['caption']) ?></span><?php endif; ?>
         <?php if ($isLastWithMore): ?><span class="mosaic-more">+<?= count($mosaicRest) ?><small><?= __('public.gallery_see_all') ?></small></span><?php endif; ?>
       </a>

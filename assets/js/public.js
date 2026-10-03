@@ -61,32 +61,32 @@
   var lightboxShare = lightbox ? lightbox.querySelector('.lightbox-share') : null;
   var lightboxItems = [];
   var lightboxIndex = 0;
-  var zoom = { scale: 1, x: 0, y: 0 };
-  var MAX_ZOOM = 4;
+  var lbZoom = { scale: 1, x: 0, y: 0 };
+  var LB_MAX_ZOOM = 4;
 
-  function applyZoom() {
-    lightboxImg.style.transform = 'translate(' + zoom.x + 'px,' + zoom.y + 'px) scale(' + zoom.scale + ')';
-    lightboxStage.classList.toggle('is-zoomed', zoom.scale > 1);
+  function lbApplyZoom() {
+    lightboxImg.style.transform = 'translate(' + lbZoom.x + 'px,' + lbZoom.y + 'px) scale(' + lbZoom.scale + ')';
+    lightboxStage.classList.toggle('is-zoomed', lbZoom.scale > 1);
   }
-  function resetZoom() { zoom = { scale: 1, x: 0, y: 0 }; applyZoom(); }
-  function clampPan() {
-    var maxX = lightboxImg.clientWidth * (zoom.scale - 1) / 2;
-    var maxY = lightboxImg.clientHeight * (zoom.scale - 1) / 2;
-    zoom.x = Math.max(-maxX, Math.min(maxX, zoom.x));
-    zoom.y = Math.max(-maxY, Math.min(maxY, zoom.y));
+  function lbResetZoom() { lbZoom = { scale: 1, x: 0, y: 0 }; lbApplyZoom(); }
+  function lbClampPan() {
+    var maxX = lightboxImg.clientWidth * (lbZoom.scale - 1) / 2;
+    var maxY = lightboxImg.clientHeight * (lbZoom.scale - 1) / 2;
+    lbZoom.x = Math.max(-maxX, Math.min(maxX, lbZoom.x));
+    lbZoom.y = Math.max(-maxY, Math.min(maxY, lbZoom.y));
   }
-  function setScale(next, originX, originY) {
-    next = Math.max(1, Math.min(MAX_ZOOM, next));
+  function lbSetScale(next, originX, originY) {
+    next = Math.max(1, Math.min(LB_MAX_ZOOM, next));
     // Keep the point under the finger/cursor fixed while the scale changes.
     var rect = lightboxImg.getBoundingClientRect();
     var cx = rect.left + rect.width / 2, cy = rect.top + rect.height / 2;
-    var ratio = next / zoom.scale;
-    zoom.x = (originX - cx) * (1 - ratio) + zoom.x * ratio;
-    zoom.y = (originY - cy) * (1 - ratio) + zoom.y * ratio;
-    zoom.scale = next;
-    if (next === 1) { zoom.x = 0; zoom.y = 0; }
-    clampPan();
-    applyZoom();
+    var ratio = next / lbZoom.scale;
+    lbZoom.x = (originX - cx) * (1 - ratio) + lbZoom.x * ratio;
+    lbZoom.y = (originY - cy) * (1 - ratio) + lbZoom.y * ratio;
+    lbZoom.scale = next;
+    if (next === 1) { lbZoom.x = 0; lbZoom.y = 0; }
+    lbClampPan();
+    lbApplyZoom();
   }
 
   function lightboxCaptionText() {
@@ -98,7 +98,7 @@
 
   function lightboxShow() {
     var item = lightboxItems[lightboxIndex];
-    resetZoom();
+    lbResetZoom();
     lightboxImg.src = item.getAttribute('data-lightbox-src');
     lightboxCaption.textContent = lightboxCaptionText();
     var multiple = lightboxItems.length > 1;
@@ -141,7 +141,7 @@
   function lightboxClose() {
     lightbox.classList.remove('is-open');
     lightboxImg.src = '';
-    resetZoom();
+    lbResetZoom();
   }
 
   document.querySelectorAll('[data-lightbox-src]').forEach(function (trigger) {
@@ -155,6 +155,7 @@
       lightboxIndex = Math.max(0, lightboxItems.indexOf(trigger));
       lightboxBuildThumbs();
       lightboxShow();
+      lightbox.classList.toggle('is-single', lightboxItems.length < 2);
       lightbox.classList.add('is-open');
     });
   });
@@ -174,8 +175,8 @@
     document.addEventListener('keydown', function (e) {
       if (!lightbox.classList.contains('is-open')) return;
       if (e.key === 'Escape') lightboxClose();
-      if (e.key === 'ArrowLeft' && zoom.scale === 1) lightboxStep(-1);
-      if (e.key === 'ArrowRight' && zoom.scale === 1) lightboxStep(1);
+      if (e.key === 'ArrowLeft' && lbZoom.scale === 1) lightboxStep(-1);
+      if (e.key === 'ArrowRight' && lbZoom.scale === 1) lightboxStep(1);
     });
 
     // Share: native share sheet on phones, otherwise copy the image link.
@@ -193,62 +194,95 @@
     });
 
     // Gestures on the image: pinch to zoom, double-tap to zoom in/out, drag to pan, swipe to change photo.
-    var pointers = {};
-    var pinchStartDist = 0, pinchStartScale = 1;
-    var swipeStartX = 0, swipeStartY = 0, swipeActive = false, moved = 0;
-    var lastTap = { time: 0, x: 0, y: 0 };
-    function dist() {
-      var ids = Object.keys(pointers);
-      var a = pointers[ids[0]], b = pointers[ids[1]];
-      return Math.hypot(a.x - b.x, a.y - b.y);
-    }
-    lightboxStage.addEventListener('pointerdown', function (e) {
-      pointers[e.pointerId] = { x: e.clientX, y: e.clientY };
-      lightboxStage.setPointerCapture(e.pointerId);
-      moved = 0;
-      if (Object.keys(pointers).length === 2) { pinchStartDist = dist(); pinchStartScale = zoom.scale; swipeActive = false; }
-      else { swipeActive = true; swipeStartX = e.clientX; swipeStartY = e.clientY; }
+    // Touch screens use touch events (the only thing iOS Safari delivers reliably for a two-finger pinch);
+    // a mouse uses pointer events (drag to pan while zoomed, double-click to zoom).
+    var touch = { pinching: false, startDist: 0, startScale: 1, x0: 0, y0: 0, lastX: 0, lastY: 0, moved: 0, lastTap: { time: 0, x: 0, y: 0 } };
+    function touchDist(t) { return Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY); }
+    function touchMid(t) { return { x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 }; }
+
+    // Stop the browser from zooming/scrolling the page underneath while the viewer is open (iOS fires gesture* events).
+    ['gesturestart', 'gesturechange', 'gestureend'].forEach(function (ev) {
+      lightbox.addEventListener(ev, function (e) { e.preventDefault(); });
     });
-    lightboxStage.addEventListener('pointermove', function (e) {
-      var p = pointers[e.pointerId];
-      if (!p) return;
-      var dx = e.clientX - p.x, dy = e.clientY - p.y;
-      moved += Math.abs(dx) + Math.abs(dy);
-      p.x = e.clientX; p.y = e.clientY;
-      if (Object.keys(pointers).length === 2) {
-        var ids = Object.keys(pointers);
-        var mx = (pointers[ids[0]].x + pointers[ids[1]].x) / 2, my = (pointers[ids[0]].y + pointers[ids[1]].y) / 2;
-        setScale(pinchStartScale * dist() / pinchStartDist, mx, my);
-      } else if (zoom.scale > 1) {
-        zoom.x += dx; zoom.y += dy;
-        clampPan();
-        applyZoom();
+
+    lightboxStage.addEventListener('touchstart', function (e) {
+      if (e.touches.length === 2) {
+        touch.pinching = true;
+        touch.startDist = touchDist(e.touches);
+        touch.startScale = lbZoom.scale;
+      } else if (e.touches.length === 1) {
+        var t = e.touches[0];
+        touch.pinching = false;
+        touch.x0 = touch.lastX = t.clientX;
+        touch.y0 = touch.lastY = t.clientY;
+        touch.moved = 0;
       }
-    });
-    function endPointer(e) {
-      var wasSingle = Object.keys(pointers).length === 1;
-      delete pointers[e.pointerId];
-      if (!wasSingle) return;
-      var dx = e.clientX - swipeStartX, dy = e.clientY - swipeStartY;
-      if (moved < 10) {
-        // a tap: second one within 300ms on roughly the same spot toggles zoom
-        var now = Date.now();
-        if (now - lastTap.time < 300 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) {
-          setScale(zoom.scale > 1 ? 1 : 2.5, e.clientX, e.clientY);
-          lastTap.time = 0;
-        } else {
-          lastTap = { time: now, x: e.clientX, y: e.clientY };
+    }, { passive: false });
+
+    lightboxStage.addEventListener('touchmove', function (e) {
+      e.preventDefault();
+      if (e.touches.length === 2 && touch.pinching) {
+        var mid = touchMid(e.touches);
+        lbSetScale(touch.startScale * touchDist(e.touches) / touch.startDist, mid.x, mid.y);
+      } else if (e.touches.length === 1 && !touch.pinching) {
+        var t = e.touches[0];
+        var dx = t.clientX - touch.lastX, dy = t.clientY - touch.lastY;
+        touch.moved += Math.abs(dx) + Math.abs(dy);
+        touch.lastX = t.clientX;
+        touch.lastY = t.clientY;
+        if (lbZoom.scale > 1) {
+          lbZoom.x += dx; lbZoom.y += dy;
+          lbClampPan();
+          lbApplyZoom();
         }
-      } else if (swipeActive && zoom.scale === 1 && Math.abs(dx) > 50 && Math.abs(dy) < 70) {
+      }
+    }, { passive: false });
+
+    lightboxStage.addEventListener('touchend', function (e) {
+      if (e.touches.length > 0) {
+        if (e.touches.length < 2) { touch.pinching = false; touch.moved = 99; } // lifted one finger of a pinch: not a tap
+        return;
+      }
+      if (touch.pinching) { touch.pinching = false; return; }
+      var t = e.changedTouches[0];
+      var dx = t.clientX - touch.x0, dy = t.clientY - touch.y0;
+      if (touch.moved < 10) {
+        var now = Date.now();
+        if (now - touch.lastTap.time < 300 && Math.hypot(t.clientX - touch.lastTap.x, t.clientY - touch.lastTap.y) < 40) {
+          lbSetScale(lbZoom.scale > 1 ? 1 : 2.5, t.clientX, t.clientY);
+          touch.lastTap.time = 0;
+          e.preventDefault(); // no synthesized click after a double-tap
+        } else {
+          touch.lastTap = { time: now, x: t.clientX, y: t.clientY };
+        }
+      } else if (lbZoom.scale === 1 && Math.abs(dx) > 50 && Math.abs(dy) < 70) {
         lightboxStep(dx < 0 ? 1 : -1);
       }
-      swipeActive = false;
-    }
-    lightboxStage.addEventListener('pointerup', endPointer);
-    lightboxStage.addEventListener('pointercancel', function (e) { delete pointers[e.pointerId]; swipeActive = false; });
+    }, { passive: false });
+
+    var mouseDown = false, mouseX = 0, mouseY = 0, mouseMoved = 0;
+    lightboxStage.addEventListener('pointerdown', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      mouseDown = true; mouseX = e.clientX; mouseY = e.clientY; mouseMoved = 0;
+      lightboxStage.setPointerCapture(e.pointerId);
+    });
+    lightboxStage.addEventListener('pointermove', function (e) {
+      if (e.pointerType !== 'mouse' || !mouseDown) return;
+      var dx = e.clientX - mouseX, dy = e.clientY - mouseY;
+      mouseMoved += Math.abs(dx) + Math.abs(dy);
+      mouseX = e.clientX; mouseY = e.clientY;
+      if (lbZoom.scale > 1) { lbZoom.x += dx; lbZoom.y += dy; lbClampPan(); lbApplyZoom(); }
+    });
+    lightboxStage.addEventListener('pointerup', function (e) {
+      if (e.pointerType !== 'mouse') return;
+      mouseDown = false;
+    });
+    lightboxStage.addEventListener('dblclick', function (e) {
+      lbSetScale(lbZoom.scale > 1 ? 1 : 2.5, e.clientX, e.clientY);
+    });
     lightboxStage.addEventListener('wheel', function (e) {
       e.preventDefault();
-      setScale(zoom.scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15), e.clientX, e.clientY);
+      lbSetScale(lbZoom.scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15), e.clientX, e.clientY);
     }, { passive: false });
   }
 

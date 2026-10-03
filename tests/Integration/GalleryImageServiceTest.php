@@ -50,6 +50,16 @@ class GalleryImageServiceTest extends TestCase
         $this->assertTrue(str_contains($result['thumb'], '/thumbs/'));
     }
 
+    public function testAPosterKeepsMoreResolutionAndNeedsNoThumbnail(): void
+    {
+        $result = GalleryImageService::store($this->fixture(3000, 4500), self::SUBDIR, $error, GalleryImageService::POSTER_SIZE, false);
+
+        $this->assertNotNull($result);
+        $this->assertNull($result['thumb']);
+        $this->assertSame([1333, 2000], array_slice(getimagesize(BASE_PATH . '/uploads/' . $result['path']), 0, 2));
+        $this->assertFalse(is_dir(BASE_PATH . '/uploads/' . self::SUBDIR . '/thumbs'), 'no thumbs folder should be made for posters');
+    }
+
     public function testASmallPhotoIsNeverEnlarged(): void
     {
         $result = GalleryImageService::store($this->fixture(400, 300, 'jpg'), self::SUBDIR);

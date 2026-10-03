@@ -15,9 +15,14 @@ class GalleryImageService
     public const MAX_SOURCE_PIXELS = 40_000_000;
     public const FULL_SIZE = 1600;
     public const THUMB_SIZE = 600;
+    public const POSTER_SIZE = 2000; // posters carry small print, so they keep more resolution
 
-    /** @return array{path: string, thumb: string}|null relative paths under uploads/, or null with $error set */
-    public static function store(array $file, string $subdir, ?string &$error = null): ?array
+    /**
+     * @param int  $fullSize  longest side of the stored web copy
+     * @param bool $withThumb also store a THUMB_SIZE preview (thumb is null when false)
+     * @return array{path: string, thumb: ?string}|null relative paths under uploads/, or null with $error set
+     */
+    public static function store(array $file, string $subdir, ?string &$error = null, int $fullSize = self::FULL_SIZE, bool $withThumb = true): ?array
     {
         if (($file['error'] ?? UPLOAD_ERR_NO_FILE) !== UPLOAD_ERR_OK) {
             $error = Lang::get('upload.failed');
@@ -57,18 +62,24 @@ class GalleryImageService
         $ext = $useWebp ? 'webp' : 'jpg';
         $name = bin2hex(random_bytes(16)) . '.' . $ext;
         $dir = BASE_PATH . '/uploads/' . trim($subdir, '/');
-        if (!is_dir($dir . '/thumbs')) {
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        if ($withThumb && !is_dir($dir . '/thumbs')) {
             mkdir($dir . '/thumbs', 0755, true);
         }
 
-        $full = self::resized($source, self::FULL_SIZE);
-        $thumb = self::resized($source, self::THUMB_SIZE);
-        imagedestroy($source);
-
+        $full = self::resized($source, $fullSize);
         $okFull = self::write($full, $dir . '/' . $name, $useWebp);
-        $okThumb = self::write($thumb, $dir . '/thumbs/' . $name, $useWebp);
         imagedestroy($full);
-        imagedestroy($thumb);
+
+        $okThumb = true;
+        if ($withThumb) {
+            $thumb = self::resized($source, self::THUMB_SIZE);
+            $okThumb = self::write($thumb, $dir . '/thumbs/' . $name, $useWebp);
+            imagedestroy($thumb);
+        }
+        imagedestroy($source);
 
         if (!$okFull || !$okThumb) {
             @unlink($dir . '/' . $name);
@@ -78,7 +89,7 @@ class GalleryImageService
         }
 
         $rel = trim($subdir, '/');
-        return ['path' => $rel . '/' . $name, 'thumb' => $rel . '/thumbs/' . $name];
+        return ['path' => $rel . '/' . $name, 'thumb' => $withThumb ? $rel . '/thumbs/' . $name : null];
     }
 
     /** Scales down so the longest side is at most $max (never enlarges), always returning a new image. */

@@ -63,6 +63,41 @@ function upload_aspect_ratio(?string $path): ?float
     return ($size && $size[1] > 0) ? $size[0] / $size[1] : null;
 }
 
+/**
+ * Works out which of an event's promo images to use where, from the banner/poster fields and
+ * the real shape of the files (older events only have one banner, which is often a portrait poster).
+ *
+ * @return array{
+ *   hero: ?string,            landscape banner for the event page header (web size)
+ *   poster: ?string,          poster/flyer shown with zoom + download
+ *   card: ?array{full: string, thumb: string, cover: bool}  image for cards/featured box; cover = fills the frame
+ * }
+ */
+function event_images(array $event): array
+{
+    $banner = $event['banner_image'] ?? null;
+    $posterField = $event['poster_image'] ?? null;
+    $ratio = upload_aspect_ratio($banner);
+    // An unreadable file is given the benefit of the doubt as a landscape banner.
+    $bannerIsLandscape = $banner && ($ratio === null || $ratio >= 1.25);
+
+    // A portrait/squarish "banner" from before the poster field existed is really a poster.
+    $poster = $posterField ?: (($banner && !$bannerIsLandscape) ? $banner : null);
+
+    $card = null;
+    if ($banner) {
+        $card = [
+            'full' => $banner,
+            'thumb' => ($event['banner_thumb'] ?? null) ?: $banner,
+            'cover' => $bannerIsLandscape && $ratio !== null && $ratio <= 2.4,
+        ];
+    } elseif ($posterField) {
+        $card = ['full' => $posterField, 'thumb' => $posterField, 'cover' => false];
+    }
+
+    return ['hero' => $bannerIsLandscape ? $banner : null, 'poster' => $poster, 'card' => $card];
+}
+
 function full_upload_url(?string $path): string
 {
     if (!$path) {

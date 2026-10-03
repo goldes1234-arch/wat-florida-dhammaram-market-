@@ -1,0 +1,2 @@
+ALTER TABLE events ADD COLUMN IF NOT EXISTS banner_thumb VARCHAR(255) NULL AFTER banner_image;
+ALTER TABLE events ADD COLUMN IF NOT EXISTS poster_image VARCHAR(255) NULL AFTER banner_thumb;

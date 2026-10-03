@@ -215,7 +215,11 @@ CREATE TABLE events (
   end_date DATE NOT NULL,
   booking_open_at DATETIME NOT NULL,
   booking_close_at DATETIME NOT NULL,
+  -- Landscape (16:9) promo banner, web-sized, plus a ~600px copy for the event cards.
   banner_image VARCHAR(255) NULL,
+  banner_thumb VARCHAR(255) NULL,
+  -- Optional poster/flyer (usually portrait): shown on the event page with zoom + download.
+  poster_image VARCHAR(255) NULL,
   floorplan_image VARCHAR(255) NULL,
   layout_mode ENUM('grid','photo') NOT NULL DEFAULT 'grid',
   is_published TINYINT(1) NOT NULL DEFAULT 0,

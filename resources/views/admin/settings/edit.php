@@ -44,7 +44,7 @@
           <label for="remove_hero_banner_image" style="margin:0;"><?= __('event.remove_image') ?></label>
         </div>
       <?php endif; ?>
-      <input type="file" name="hero_banner_image" class="form-control" accept="image/jpeg,image/png,image/webp">
+      <input type="file" name="hero_banner_image" class="form-control" accept="image/jpeg,image/png,image/webp" data-shrink-max="2400">
       <p class="form-hint"><?= __('settings.hero_banner_hint') ?></p>
     </div>
   </div>

@@ -149,32 +149,47 @@ $contactRows = $contacts ?? [];
   <?php endif; ?>
 
   <div class="card">
-    <div class="card-header"><h3><?= __('event.banner_image') ?> / <?= __('event.floorplan_image') ?></h3></div>
+    <div class="card-header"><h3><?= __('event.banner_image') ?> / <?= __('event.poster_image') ?> / <?= __('event.floorplan_image') ?></h3></div>
+    <div class="alert alert-warning mb-4">
+      <strong><?= __('event.image_sizes_title') ?>:</strong> <?= __('event.image_sizes_body') ?>
+    </div>
     <div class="form-row">
       <div class="form-group">
         <label><?= __('event.banner_image') ?></label>
         <?php if (!empty($e['banner_image'])): ?>
-          <img src="<?= upload_url($e['banner_image']) ?>" class="thumb-md mb-2" alt="">
+          <img src="<?= upload_url($e['banner_thumb'] ?? $e['banner_image']) ?>" class="thumb-md mb-2" alt="">
           <div class="checkbox-row mb-2">
             <input type="checkbox" id="remove_banner_image" name="remove_banner_image" value="1">
             <label for="remove_banner_image" style="margin:0;"><?= __('event.remove_image') ?></label>
           </div>
         <?php endif; ?>
-        <input type="file" name="banner_image" class="form-control" accept="image/jpeg,image/png,image/webp">
+        <input type="file" name="banner_image" class="form-control" accept="image/jpeg,image/png,image/webp" data-shrink-max="2400">
         <p class="form-hint"><?= __('event.banner_image_hint') ?></p>
       </div>
       <div class="form-group">
-        <label><?= __('event.floorplan_image') ?></label>
-        <?php if (!empty($e['floorplan_image'])): ?>
-          <img src="<?= upload_url($e['floorplan_image']) ?>" class="thumb-md mb-2" alt="">
+        <label><?= __('event.poster_image') ?> <span class="optional-tag">(<?= __('common.optional') ?>)</span></label>
+        <?php if (!empty($e['poster_image'])): ?>
+          <img src="<?= upload_url($e['poster_image']) ?>" class="thumb-md mb-2" alt="">
           <div class="checkbox-row mb-2">
-            <input type="checkbox" id="remove_floorplan_image" name="remove_floorplan_image" value="1">
-            <label for="remove_floorplan_image" style="margin:0;"><?= __('event.remove_image') ?></label>
+            <input type="checkbox" id="remove_poster_image" name="remove_poster_image" value="1">
+            <label for="remove_poster_image" style="margin:0;"><?= __('event.remove_image') ?></label>
           </div>
         <?php endif; ?>
-        <input type="file" name="floorplan_image" class="form-control" accept="image/jpeg,image/png,image/webp">
-        <p class="form-hint"><?= __('event.floorplan_image_hint') ?></p>
+        <input type="file" name="poster_image" class="form-control" accept="image/jpeg,image/png,image/webp" data-shrink-max="2600">
+        <p class="form-hint"><?= __('event.poster_image_hint') ?></p>
       </div>
+    </div>
+    <div class="form-group">
+      <label><?= __('event.floorplan_image') ?></label>
+      <?php if (!empty($e['floorplan_image'])): ?>
+        <img src="<?= upload_url($e['floorplan_image']) ?>" class="thumb-md mb-2" alt="">
+        <div class="checkbox-row mb-2">
+          <input type="checkbox" id="remove_floorplan_image" name="remove_floorplan_image" value="1">
+          <label for="remove_floorplan_image" style="margin:0;"><?= __('event.remove_image') ?></label>
+        </div>
+      <?php endif; ?>
+      <input type="file" name="floorplan_image" class="form-control" accept="image/jpeg,image/png,image/webp" data-shrink-max="3000">
+      <p class="form-hint"><?= __('event.floorplan_image_hint') ?></p>
     </div>
     <div class="form-group">
       <label><?= __('event.layout_mode') ?></label>

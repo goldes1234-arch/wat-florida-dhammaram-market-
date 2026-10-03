@@ -97,7 +97,7 @@ class EventController
             'waitlistCount' => $isSoldOut ? count(WaitlistEntry::notNotifiedForEvent((int) $event['id'])) : 0,
             'metaTitle' => $eventName,
             'metaDescription' => $metaDescription ?: __('public.tagline'),
-            'metaImage' => !empty($event['banner_image']) ? full_upload_url($event['banner_image']) : null,
+            'metaImage' => (($img = event_images($event)) && ($img['hero'] ?? $img['poster'])) ? full_upload_url($img['hero'] ?? $img['poster']) : null,
             'metaType' => 'article',
         ], 'public');
     }

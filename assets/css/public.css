@@ -161,6 +161,10 @@
 .featured-event-media { position: relative; flex: 0 0 42%; min-height: 220px; background: var(--color-slate-light); background-size: cover; background-position: center; overflow: hidden; }
 .featured-event-media.has-image::before { content: ''; position: absolute; inset: -12px; background: inherit; background-size: cover; background-position: center; filter: blur(18px) brightness(.92); }
 .featured-event-media img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; }
+/* A tall poster must not stretch the whole box to its own height: cap it and let the blurred backdrop fill the sides. */
+.featured-event-media { height: 400px; }
+.featured-event-media.is-cover::before { display: none; }
+.featured-event-media.is-cover img { object-fit: cover; }
 .featured-event-body { flex: 1; padding: 26px 30px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
 .featured-badge {
   align-self: flex-start; display: inline-flex; align-items: center; gap: 6px;
@@ -172,7 +176,7 @@
 .featured-event-body h3 { margin: 0; font-size: 22px; }
 .featured-event-body .featured-meta { font-size: 13.5px; color: var(--color-text-muted); display: flex; flex-wrap: wrap; gap: 14px; }
 .featured-event-body .featured-closing { font-weight: 700; color: var(--color-danger-dark); font-size: 14px; }
-@media (max-width: 768px) { .featured-event { flex-direction: column; } .featured-event-media { flex-basis: auto; aspect-ratio: 16/9; } }
+@media (max-width: 768px) { .featured-event { flex-direction: column; } .featured-event-media { flex-basis: auto; aspect-ratio: 16/9; height: auto; } }
 
 /* Follow-us banner */
 .follow-banner {
@@ -357,6 +361,8 @@
   filter: blur(18px) brightness(.92);
 }
 .event-card-media img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; transition: transform .4s ease; }
+.event-card-media.is-cover::before { display: none; }
+.event-card-media.is-cover img { object-fit: cover; }
 .event-card:hover .event-card-media img { transform: scale(1.06); }
 .event-card-media .status-overlay { position: absolute; top: 12px; right: 12px; z-index: 2; }
 .event-card-media .lots-left-overlay { position: absolute; bottom: 12px; left: 12px; z-index: 2; }
@@ -405,6 +411,16 @@
   filter: blur(24px) brightness(.85);
 }
 .event-hero-media img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; }
+
+/* Poster/flyer card on the event page: shown whole, tap to enlarge or download. */
+.poster-card { padding: 12px; }
+.poster-thumb { position: relative; display: block; cursor: zoom-in; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-border); }
+.poster-thumb img { width: 100%; max-height: 560px; object-fit: contain; display: block; background: var(--color-slate-light); }
+.poster-thumb .zoom-hint {
+  position: absolute; bottom: 10px; right: 10px;
+  background: rgba(15,23,42,.72); color: #fff; font-size: 12px; font-weight: 600;
+  padding: 5px 10px; border-radius: var(--radius-full);
+}
 
 /* display:block matters here, not just cosmetic — this <a> wraps a block-level
    <img>, and an inline element containing a block child breaks the predictable

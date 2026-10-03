@@ -12,6 +12,7 @@ use App\Core\View;
 use App\Models\Event;
 use App\Models\EventContact;
 use App\Models\EventPhoto;
+use App\Services\GalleryImageService;
 use App\Support\Validator;
 
 class EventController
@@ -184,21 +185,44 @@ class EventController
 
     private function applyUploads(Request $request, array &$data, ?array $existing): void
     {
+        // Banner and poster are re-encoded to web size (banner also gets a card thumbnail) so
+        // a multi-megabyte original is never what visitors download.
         $bannerFile = $request->file('banner_image');
         if ($bannerFile) {
             $error = null;
-            $path = Upload::storeImage($bannerFile, 'events', $error);
-            if ($path) {
+            $stored = GalleryImageService::store($bannerFile, 'events', $error);
+            if ($stored) {
                 if ($existing) {
                     Upload::delete($existing['banner_image']);
+                    Upload::delete($existing['banner_thumb'] ?? null);
                 }
-                $data['banner_image'] = $path;
+                $data['banner_image'] = $stored['path'];
+                $data['banner_thumb'] = $stored['thumb'];
             } else {
                 Flash::error($error);
             }
         } elseif ($existing && $request->input('remove_banner_image')) {
             Upload::delete($existing['banner_image']);
+            Upload::delete($existing['banner_thumb'] ?? null);
             $data['banner_image'] = null;
+            $data['banner_thumb'] = null;
+        }
+
+        $posterFile = $request->file('poster_image');
+        if ($posterFile) {
+            $error = null;
+            $stored = GalleryImageService::store($posterFile, 'events', $error, GalleryImageService::POSTER_SIZE, false);
+            if ($stored) {
+                if ($existing) {
+                    Upload::delete($existing['poster_image'] ?? null);
+                }
+                $data['poster_image'] = $stored['path'];
+            } else {
+                Flash::error($error);
+            }
+        } elseif ($existing && $request->input('remove_poster_image')) {
+            Upload::delete($existing['poster_image'] ?? null);
+            $data['poster_image'] = null;
         }
 
         $floorplanFile = $request->file('floorplan_image');

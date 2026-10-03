@@ -7,11 +7,12 @@ if (\App\Core\Lang::locale() === 'en') {
     $eventName = $event['name_en'] ?: $event['name_th'];
     $description = $event['description_en'] ?: $event['description_th'];
 }
+$eventImages = event_images($event);
 ?>
 
-<?php if (!empty($event['banner_image'])): ?>
-  <div class="event-hero-media" style="background-image:url('<?= upload_url($event['banner_image']) ?>')">
-    <img src="<?= upload_url($event['banner_image']) ?>" alt="<?= e($eventName) ?>">
+<?php if ($eventImages['hero']): ?>
+  <div class="event-hero-media" style="background-image:url('<?= upload_url($eventImages['hero']) ?>')">
+    <img src="<?= upload_url($eventImages['hero']) ?>" alt="<?= e($eventName) ?>">
   </div>
 <?php endif; ?>
 
@@ -198,6 +199,16 @@ if (\App\Core\Lang::locale() === 'en') {
   </div>
 
   <div>
+    <?php if ($eventImages['poster']): ?>
+      <div class="card mb-6 poster-card">
+        <a href="#" class="poster-thumb" data-lightbox-src="<?= e(upload_url($eventImages['poster'])) ?>" data-caption="<?= e($eventName) ?>">
+          <img src="<?= e(upload_url($eventImages['poster'])) ?>" alt="<?= e($eventName) ?>">
+          <span class="zoom-hint">🔍 <?= __('public.poster_zoom_hint') ?></span>
+        </a>
+        <a href="<?= e(upload_url($eventImages['poster'])) ?>" download class="btn btn-secondary btn-block mt-2">⬇ <?= __('public.poster_download') ?></a>
+      </div>
+    <?php endif; ?>
+
     <div class="card mb-6">
       <div class="info-row"><span class="info-label"><?= __('public.event_dates') ?></span><span class="info-value"><?= e(date('d/m/Y', strtotime($event['start_date']))) ?> – <?= e(date('d/m/Y', strtotime($event['end_date']))) ?></span></div>
       <?php if (!empty($event['venue_name'])): ?>

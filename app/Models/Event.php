@@ -59,11 +59,11 @@ class Event extends Model
             'INSERT INTO events
                 (slug, name_th, name_en, description_th, description_en, venue_name,
                  start_date, end_date, booking_open_at, booking_close_at,
-                 banner_image, floorplan_image, layout_mode, is_published, created_by)
+                 banner_image, banner_thumb, poster_image, floorplan_image, layout_mode, is_published, created_by)
              VALUES
                 (:slug, :name_th, :name_en, :description_th, :description_en, :venue_name,
                  :start_date, :end_date, :booking_open_at, :booking_close_at,
-                 :banner_image, :floorplan_image, :layout_mode, :is_published, :created_by)'
+                 :banner_image, :banner_thumb, :poster_image, :floorplan_image, :layout_mode, :is_published, :created_by)'
         );
         $stmt->execute([
             'slug' => $data['slug'],
@@ -77,6 +77,8 @@ class Event extends Model
             'booking_open_at' => $data['booking_open_at'],
             'booking_close_at' => $data['booking_close_at'],
             'banner_image' => $data['banner_image'] ?? null,
+            'banner_thumb' => $data['banner_thumb'] ?? null,
+            'poster_image' => $data['poster_image'] ?? null,
             'floorplan_image' => $data['floorplan_image'] ?? null,
             'layout_mode' => $data['layout_mode'] ?? 'grid',
             'is_published' => $data['is_published'] ?? 0,
@@ -99,9 +101,11 @@ class Event extends Model
                 $params[$field] = $data[$field];
             }
         }
-        if (array_key_exists('banner_image', $data)) {
-            $set[] = 'banner_image = :banner_image';
-            $params['banner_image'] = $data['banner_image'];
+        foreach (['banner_image', 'banner_thumb', 'poster_image'] as $imageField) {
+            if (array_key_exists($imageField, $data)) {
+                $set[] = "$imageField = :$imageField";
+                $params[$imageField] = $data[$imageField];
+            }
         }
         if (array_key_exists('floorplan_image', $data)) {
             $set[] = 'floorplan_image = :floorplan_image';

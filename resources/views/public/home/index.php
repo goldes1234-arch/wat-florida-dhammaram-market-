@@ -68,11 +68,12 @@ $heroBannerUrl = !empty($settings['hero_banner_image']) ? upload_url($settings['
   }
   $flc = $lotCounts[$featuredEvent['id']] ?? null;
   ?>
+  <?php $featuredImg = event_images($featuredEvent)['card']; ?>
   <a href="<?= base_url('events/' . $featuredEvent['slug']) ?>" class="featured-event">
-    <div class="featured-event-media<?= !empty($featuredEvent['banner_image']) ? ' has-image' : '' ?>"
-         <?= !empty($featuredEvent['banner_image']) ? 'style="background-image:url(\'' . upload_url($featuredEvent['banner_image']) . '\')"' : '' ?>>
-      <?php if (!empty($featuredEvent['banner_image'])): ?>
-        <img src="<?= upload_url($featuredEvent['banner_image']) ?>" alt="<?= e($featuredEvent['name_th']) ?>">
+    <div class="featured-event-media<?= $featuredImg ? ' has-image' : '' ?><?= $featuredImg && $featuredImg['cover'] ? ' is-cover' : '' ?>"
+         <?= $featuredImg ? 'style="background-image:url(\'' . upload_url($featuredImg['thumb']) . '\')"' : '' ?>>
+      <?php if ($featuredImg): ?>
+        <img src="<?= upload_url($featuredImg['full']) ?>" alt="<?= e($featuredEvent['name_th']) ?>">
       <?php else: ?>
         <div class="media-placeholder"><?= icon('store') ?> <?= e($featuredEvent['name_th']) ?></div>
       <?php endif; ?>
@@ -105,11 +106,12 @@ $heroBannerUrl = !empty($settings['hero_banner_image']) ? upload_url($settings['
       $status = EventStatusService::compute($event);
       $lc = $lotCounts[$event['id']] ?? null;
       ?>
+      <?php $cardImg = event_images($event)['card']; ?>
       <a href="<?= base_url('events/' . $event['slug']) ?>" class="event-card" style="text-decoration:none;color:inherit;">
-        <div class="event-card-media<?= !empty($event['banner_image']) ? ' has-image' : '' ?>"
-             <?= !empty($event['banner_image']) ? 'style="background-image:url(\'' . upload_url($event['banner_image']) . '\')"' : '' ?>>
-          <?php if (!empty($event['banner_image'])): ?>
-            <img src="<?= upload_url($event['banner_image']) ?>" alt="<?= e($event['name_th']) ?>">
+        <div class="event-card-media<?= $cardImg ? ' has-image' : '' ?><?= $cardImg && $cardImg['cover'] ? ' is-cover' : '' ?>"
+             <?= $cardImg ? 'style="background-image:url(\'' . upload_url($cardImg['thumb']) . '\')"' : '' ?>>
+          <?php if ($cardImg): ?>
+            <img src="<?= upload_url($cardImg['thumb']) ?>" alt="<?= e($event['name_th']) ?>" loading="lazy">
           <?php else: ?>
             <div class="media-placeholder"><?= icon('store') ?> <?= e($event['name_th']) ?></div>
           <?php endif; ?>

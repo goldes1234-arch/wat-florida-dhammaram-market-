@@ -257,7 +257,7 @@ $lightboxAttrs = static fn (array $gp): string => 'data-lightbox-src="' . e(uplo
       <div class="mosaic-tile is-rotating" id="mosaicRotator">
         <?php foreach ($bigPhotos as $k => $gp): ?>
           <a href="#" class="mosaic-slide<?= $k === 0 ? ' is-active' : '' ?>" <?= $lightboxAttrs($gp) ?>>
-            <img src="<?= e(upload_url($k === 0 ? $gp['image_path'] : $thumbOf($gp))) ?>" alt="<?= e($gp['caption'] ?: __('public.gallery_title')) ?>" loading="<?= $k === 0 ? 'eager' : 'lazy' ?>">
+            <img src="<?= e(upload_url($gp['image_path'])) ?>" alt="<?= e($gp['caption'] ?: __('public.gallery_title')) ?>" loading="<?= $k === 0 ? 'eager' : 'lazy' ?>">
             <?php if (!empty($gp['caption'])): ?><span class="mosaic-caption"><?= e($gp['caption']) ?></span><?php endif; ?>
           </a>
         <?php endforeach; ?>

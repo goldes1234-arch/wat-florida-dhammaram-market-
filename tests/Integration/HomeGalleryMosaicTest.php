@@ -32,11 +32,17 @@ class HomeGalleryMosaicTest extends TestCase
         return (string) ob_get_clean();
     }
 
-    public function testNoImageUrlOnTheHomePageHasADoubledUploadsSegment(): void
+    public function testNoImageUrlOnTheHomePageContainsTheUploadsFolderTwice(): void
     {
         $html = $this->homeHtml();
 
-        $this->assertFalse(str_contains($html, '/uploads/uploads/'), 'every upload URL must be built exactly once');
+        preg_match_all('#(?:src|href|data-lightbox-src|data-thumb)="([^"]*uploads/[^"]*)"#', $html, $urls);
+        $this->assertTrue(count($urls[1]) > 0, 'the home page should reference uploaded images');
+        foreach ($urls[1] as $url) {
+            // base_url() differs between a web request ("/uploads/x") and the CLI test run ("tests/uploads/x"),
+            // so "built once" means the folder name appears once, not that a particular prefix is used.
+            $this->assertSame(1, substr_count($url, 'uploads/'), "upload URL built twice: $url");
+        }
     }
 
     public function testEveryRotatingSlideHasItsOwnWellFormedImageUrl(): void

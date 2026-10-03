@@ -846,7 +846,7 @@ return [
     'line.confirm_multiple' => "You have :count lots waiting — please confirm each with its own link:\n:links",
     'line.confirm_failed' => 'Could not confirm: :error',
     'line.reservations_expired_alert' => "⏰ Released :count lot(s) back to the public — the reserved vendor(s) didn't confirm in time.",
-    'line.link_prompt' => 'Hi! Please type the phone number you registered with the temple to link this LINE account to your vendor profile.',
+    'line.link_prompt' => 'Hi! If you are a regular vendor, send the phone number you registered with the temple to request linking this LINE account to your vendor profile (the temple verifies it before approving). Or just type your question and our team will reply as soon as they can.',
     'line.link_success' => 'Linked this LINE account to vendor ":name". The temple can now send you messages here. Type "status" any time to see your booking history.',
     'line.link_not_found' => "That phone number isn't in our regular-vendor list. Please double-check it, or contact the temple directly.",
     'vendor.line_link_pending_badge' => 'Pending',

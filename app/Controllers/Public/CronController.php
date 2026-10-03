@@ -6,6 +6,7 @@ use App\Core\App;
 use App\Core\Request;
 use App\Services\BackupService;
 use App\Services\EventReminderService;
+use App\Services\GoogleDriveService;
 use App\Services\MigrationService;
 use App\Services\NotificationService;
 use App\Services\ReservationService;
@@ -35,7 +36,16 @@ class CronController
 
         [$ok, $result] = BackupService::create();
         if ($ok) {
-            echo 'OK: ' . $result . ' | reservations released: ' . $released . ' | events reminded: ' . $reminded;
+            // Off-server copy. A Drive problem must not fail the (successful) local backup, but the admin is told.
+            $driveNote = '';
+            if (GoogleDriveService::isConnected()) {
+                [$driveOk, $driveMessage] = GoogleDriveService::uploadBackup(BackupService::dir() . '/' . $result, $result);
+                $driveNote = $driveOk ? ' | drive: uploaded' : ' | drive: FAILED (' . $driveMessage . ')';
+                if (!$driveOk) {
+                    NotificationService::sendAdminErrorAlert('Backup was saved on the server but the Google Drive copy failed: ' . $driveMessage);
+                }
+            }
+            echo 'OK: ' . $result . $driveNote . ' | reservations released: ' . $released . ' | events reminded: ' . $reminded;
         } else {
             http_response_code(500);
             echo 'FAILED: ' . $result . ' | reservations released: ' . $released . ' | events reminded: ' . $reminded;

@@ -180,6 +180,10 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->get('/admin/activity-log', [Admin\ActivityLogController::class, 'index']);
 
             $router->get('/admin/backups', [Admin\BackupController::class, 'index']);
+            $router->get('/admin/backups/google/connect', [Admin\GoogleDriveController::class, 'connect']);
+            $router->get('/admin/backups/google/callback', [Admin\GoogleDriveController::class, 'callback']);
+            $router->post('/admin/backups/google/disconnect', [Admin\GoogleDriveController::class, 'disconnect']);
+            $router->post('/admin/backups/google/upload-latest', [Admin\GoogleDriveController::class, 'uploadLatest']);
             $router->post('/admin/backups', [Admin\BackupController::class, 'store']);
             $router->get('/admin/backups/{filename}/download', [Admin\BackupController::class, 'download']);
             $router->post('/admin/backups/{filename}/delete', [Admin\BackupController::class, 'destroy']);

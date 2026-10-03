@@ -28,6 +28,7 @@ class Setting extends Model
             'line_oa_channel_access_token', 'line_channel_secret',
             'smtp_host', 'smtp_port', 'smtp_encryption', 'smtp_username', 'smtp_password',
             'smtp_from_email', 'smtp_from_name',
+            'gdrive_refresh_token', 'gdrive_folder_id', 'gdrive_account', 'gdrive_last_upload_at', 'gdrive_last_error',
         ];
 
         $set = [];

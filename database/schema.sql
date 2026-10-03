@@ -70,6 +70,13 @@ CREATE TABLE settings (
   smtp_password VARCHAR(255) NULL,
   smtp_from_email VARCHAR(150) NULL,
   smtp_from_name VARCHAR(150) NULL,
+  -- Off-server backup copies in the temple's Google Drive (see GoogleDriveService). The refresh
+  -- token only grants access to files this app created (scope drive.file), never the rest of the Drive.
+  gdrive_refresh_token TEXT NULL,
+  gdrive_folder_id VARCHAR(100) NULL,
+  gdrive_account VARCHAR(190) NULL,
+  gdrive_last_upload_at DATETIME NULL,
+  gdrive_last_error VARCHAR(255) NULL,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   CONSTRAINT chk_settings_singleton CHECK (id = 1)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

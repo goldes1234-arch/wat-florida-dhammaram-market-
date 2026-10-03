@@ -20,6 +20,45 @@
   <?php endif; ?>
 </div>
 
+<?php
+use App\Services\GoogleDriveService;
+$drive = \App\Models\Setting::get(true);
+$driveConfigured = GoogleDriveService::isConfigured();
+$driveConnected = GoogleDriveService::isConnected();
+?>
+<div class="card mb-6">
+  <div class="card-header"><h3>☁️ <?= __('gdrive.title') ?></h3></div>
+  <?php if (!$driveConfigured): ?>
+    <p class="text-sm mb-2"><?= __('gdrive.not_configured') ?></p>
+    <p class="text-sm mb-2"><?= __('gdrive.redirect_uri_label') ?></p>
+    <code style="display:block;background:#fff;padding:8px 12px;border-radius:6px;font-size:12px;word-break:break-all;"><?= e(GoogleDriveService::redirectUri()) ?></code>
+  <?php elseif (!$driveConnected): ?>
+    <p class="text-sm mb-4"><?= __('gdrive.not_connected') ?></p>
+    <a href="<?= base_url('admin/backups/google/connect') ?>" class="btn btn-primary"><?= __('gdrive.connect_button') ?></a>
+  <?php else: ?>
+    <p class="text-sm mb-2">✅ <?= __('gdrive.connected_as', ['account' => $drive['gdrive_account'] ?: '—']) ?></p>
+    <p class="text-sm text-muted mb-2">
+      <?= !empty($drive['gdrive_last_upload_at'])
+          ? __('gdrive.last_upload', ['date' => date('d/m/Y H:i', strtotime($drive['gdrive_last_upload_at']))])
+          : __('gdrive.never_uploaded') ?>
+      · <?= __('gdrive.keep_note', ['keep' => (string) (int) \App\Core\App::config('google.keep')]) ?>
+    </p>
+    <?php if (!empty($drive['gdrive_last_error'])): ?>
+      <div class="alert alert-error mb-4"><?= __('gdrive.last_error', ['error' => $drive['gdrive_last_error']]) ?></div>
+    <?php endif; ?>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <form method="post" action="<?= base_url('admin/backups/google/upload-latest') ?>" style="margin:0;">
+        <?= csrf_field() ?>
+        <button type="submit" class="btn btn-secondary btn-sm"><?= __('gdrive.upload_now_button') ?></button>
+      </form>
+      <form method="post" action="<?= base_url('admin/backups/google/disconnect') ?>" style="margin:0;" data-confirm="<?= e(__('gdrive.disconnect_confirm')) ?>">
+        <?= csrf_field() ?>
+        <button type="submit" class="btn btn-danger btn-sm"><?= __('gdrive.disconnect_button') ?></button>
+      </form>
+    </div>
+  <?php endif; ?>
+</div>
+
 <?php if (!$backups): ?>
   <div class="empty-state"><div class="empty-icon"><?= icon('download') ?></div><?= __('backup.none') ?></div>
 <?php else: ?>

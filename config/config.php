@@ -20,6 +20,12 @@ return [
         'from_address' => Env::get('MAIL_FROM_ADDRESS', 'no-reply@example.com'),
         'from_name' => Env::get('MAIL_FROM_NAME', 'Temple Market'),
     ],
+    'google' => [
+        'client_id' => Env::get('GOOGLE_DRIVE_CLIENT_ID', ''),
+        'client_secret' => Env::get('GOOGLE_DRIVE_CLIENT_SECRET', ''),
+        // How many backup copies to keep in Drive before the oldest are deleted.
+        'keep' => (int) Env::get('GOOGLE_DRIVE_KEEP', 30),
+    ],
     'backup' => [
         'mysqldump_path' => Env::get('MYSQLDUMP_PATH', ''),
         'mysql_path' => Env::get('MYSQL_PATH', ''),

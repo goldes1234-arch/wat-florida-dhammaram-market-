@@ -115,6 +115,19 @@
 }
 .hero-banner-media img { position: relative; z-index: 1; display: block; width: 100%; height: 100%; object-fit: contain; }
 
+/* Home hero: value proposition on the left, the next bookable event on the right. */
+.hero-grid { display: grid; grid-template-columns: 1fr; gap: 32px; align-items: center; }
+.hero-grid.has-event { grid-template-columns: 1.1fr .9fr; gap: 44px; }
+.hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
+.hero-trust { list-style: none; display: flex; flex-wrap: wrap; gap: 8px 18px; padding: 0; margin: 18px 0 0; font-size: 13.5px; font-weight: 600; color: var(--color-text-muted); }
+.hero-trust li { white-space: nowrap; }
+.hero-event-card {
+  display: block; overflow: hidden; text-decoration: none; color: inherit;
+  background: #fff; border: 1px solid var(--color-border); border-radius: var(--radius-lg); box-shadow: var(--shadow-md);
+  transition: box-shadow .2s ease, transform .2s ease;
+}
+.hero-event-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-3px); text-decoration: none; }
+@media (max-width: 860px) { .hero-grid.has-event { grid-template-columns: 1fr; gap: 28px; } .hero-trust li { white-space: normal; } }
 .hero-stats { display: flex; flex-wrap: wrap; gap: 28px; margin-top: 22px; }
 .hero-stat { display: flex; flex-direction: column; }
 .hero-stat .hero-stat-value { font-size: 26px; font-weight: 800; color: var(--color-primary); letter-spacing: -.02em; }
@@ -151,21 +164,17 @@
   }
 }
 
-/* Featured (closing-soon) event */
-.featured-event {
-  display: flex; gap: 0; background: #fff; border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md);
-  margin-bottom: 40px; text-decoration: none; color: inherit;
+/* Slim strip under the hero for visitors/merit-makers (the hero itself speaks to stall vendors). */
+.visitor-strip {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 24px;
+  padding: 14px 20px; margin-bottom: 36px; border-radius: var(--radius-md);
+  background: var(--glass-bg); border: 1px solid var(--glass-border); box-shadow: var(--shadow-sm);
 }
-.featured-event:hover { box-shadow: var(--shadow-lg); text-decoration: none; }
-.featured-event-media { position: relative; flex: 0 0 42%; min-height: 220px; background: var(--color-slate-light); background-size: cover; background-position: center; overflow: hidden; }
-.featured-event-media.has-image::before { content: ''; position: absolute; inset: -12px; background: inherit; background-size: cover; background-position: center; filter: blur(18px) brightness(.92); }
-.featured-event-media img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; }
-/* A tall poster must not stretch the whole box to its own height: cap it and let the blurred backdrop fill the sides. */
-.featured-event-media { height: 400px; }
-.featured-event-media.is-cover::before { display: none; }
-.featured-event-media.is-cover img { object-fit: cover; }
-.featured-event-body { flex: 1; padding: 26px 30px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
+.visitor-strip strong { font-size: 15px; }
+.visitor-links { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 14px; font-weight: 700; }
+
+/* Featured (closing-soon) event — shown as the card in the home hero */
+.featured-event-body { flex: 1; padding: 20px 22px 22px; display: flex; flex-direction: column; justify-content: center; gap: 10px; }
 .featured-badge {
   align-self: flex-start; display: inline-flex; align-items: center; gap: 6px;
   background: var(--color-danger-light); color: var(--color-danger-dark);
@@ -176,7 +185,6 @@
 .featured-event-body h3 { margin: 0; font-size: 22px; }
 .featured-event-body .featured-meta { font-size: 13.5px; color: var(--color-text-muted); display: flex; flex-wrap: wrap; gap: 14px; }
 .featured-event-body .featured-closing { font-weight: 700; color: var(--color-danger-dark); font-size: 14px; }
-@media (max-width: 768px) { .featured-event { flex-direction: column; } .featured-event-media { flex-basis: auto; aspect-ratio: 16/9; height: auto; } }
 
 /* Follow-us banner */
 .follow-banner {

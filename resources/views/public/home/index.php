@@ -8,30 +8,123 @@ $heroBannerUrl = !empty($settings['hero_banner_image']) ? upload_url($settings['
     <img src="<?= e($heroBannerUrl) ?>" alt="">
   </div>
 <?php endif; ?>
+<?php
+$orgName = $settings['org_name'] ?: __('common.app_name');
+$cancelDays = (int) \App\Services\BookingService::policyDays()['days'];
+
+// Third stat: real booking numbers only once they are impressive; before that, the date of the next event is more useful.
+$nextEventDate = null;
+$nextEvent = null;
+foreach ($events as $ev) {
+    $start = strtotime($ev['start_date']);
+    if ($start >= strtotime('today') && ($nextEventDate === null || $start < $nextEventDate)) {
+        $nextEventDate = $start;
+        $nextEvent = $ev;
+    }
+}
+$visitorEvent = $featuredEvent ?: $nextEvent;
+$showBooked = $statBookedCount >= 10;
+
+if ($featuredEvent) {
+    $closesAt = strtotime($featuredEvent['booking_close_at']);
+    $daysLeft = (int) ceil(($closesAt - time()) / 86400);
+    if ($daysLeft <= 0) {
+        $closingText = __('public.featured_closing_today');
+    } elseif ($daysLeft === 1) {
+        $closingText = __('public.featured_closing_tomorrow');
+    } else {
+        $closingText = __('public.featured_closing_days', ['days' => $daysLeft]);
+    }
+    $flc = $lotCounts[$featuredEvent['id']] ?? null;
+    $featuredImg = event_images($featuredEvent)['card'];
+}
+$primaryCtaUrl = $featuredEvent ? base_url('events/' . $featuredEvent['slug']) : '#events';
+?>
 <div class="hero-band" style="margin:<?= $heroBannerUrl ? '0' : '-36px' ?> -20px 32px;padding-left:20px;padding-right:20px;">
   <div class="container" style="padding:0;">
-    <span class="hero-eyebrow"><?= icon('sparkle') ?> <?= e(__('common.app_name')) ?></span>
-    <h1><?= __('public.upcoming_events') ?></h1>
-    <p><?= __('public.tagline') ?></p>
+    <div class="hero-grid<?= $featuredEvent ? ' has-event' : '' ?>">
+      <div class="hero-copy">
+        <span class="hero-eyebrow"><?= icon('sparkle') ?> <?= e(__('common.app_name')) ?></span>
+        <h1><?= __('public.hero_title', ['org' => $orgName]) ?></h1>
+        <p><?= __('public.tagline') ?></p>
 
-    <div class="hero-stats">
-      <div class="hero-stat">
-        <span class="hero-stat-value"><?= (int) $statEventsCount ?></span>
-        <span class="hero-stat-label"><?= __('public.stat_events') ?></span>
-      </div>
-      <div class="hero-stat">
-        <span class="hero-stat-value"><?= (int) $statAvailableLots ?></span>
-        <span class="hero-stat-label"><?= __('public.stat_available_lots') ?></span>
-      </div>
-      <?php if ($statBookedCount > 0): ?>
-        <div class="hero-stat">
-          <span class="hero-stat-value"><?= (int) $statBookedCount ?></span>
-          <span class="hero-stat-label"><?= __('public.stat_booked') ?></span>
+        <div class="hero-actions">
+          <a href="<?= $primaryCtaUrl ?>" class="btn btn-primary btn-lg"><?= __('public.hero_cta_book') ?></a>
+          <a href="<?= base_url('my-booking') ?>" class="btn btn-secondary btn-lg"><?= __('public.hero_cta_lookup') ?></a>
         </div>
+
+        <ul class="hero-trust">
+          <li>✓ <?= __('public.hero_trust_no_signup') ?></li>
+          <li>✓ <?= $stripeEnabled ? __('public.hero_trust_pay_card') : __('public.hero_trust_pay_cash') ?></li>
+          <li>✓ <?= __('public.hero_trust_cancel', ['days' => $cancelDays]) ?></li>
+        </ul>
+
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-value"><?= (int) $statEventsCount ?></span>
+            <span class="hero-stat-label"><?= __('public.stat_events') ?></span>
+          </div>
+          <div class="hero-stat">
+            <span class="hero-stat-value"><?= (int) $statAvailableLots ?></span>
+            <span class="hero-stat-label"><?= __('public.stat_available_lots') ?></span>
+          </div>
+          <?php if ($showBooked): ?>
+            <div class="hero-stat">
+              <span class="hero-stat-value"><?= (int) $statBookedCount ?></span>
+              <span class="hero-stat-label"><?= __('public.stat_booked') ?></span>
+            </div>
+          <?php elseif ($nextEventDate !== null): ?>
+            <div class="hero-stat">
+              <span class="hero-stat-value"><?= e(date('d/m', $nextEventDate)) ?></span>
+              <span class="hero-stat-label"><?= __('public.stat_next_event') ?></span>
+            </div>
+          <?php endif; ?>
+        </div>
+      </div>
+
+      <?php if ($featuredEvent): ?>
+        <a href="<?= base_url('events/' . $featuredEvent['slug']) ?>" class="hero-event-card">
+          <div class="event-card-media<?= $featuredImg ? ' has-image' : '' ?><?= $featuredImg && $featuredImg['cover'] ? ' is-cover' : '' ?>"
+               <?= $featuredImg ? 'style="background-image:url(\'' . upload_url($featuredImg['thumb']) . '\')"' : '' ?>>
+            <?php if ($featuredImg): ?>
+              <img src="<?= upload_url($featuredImg['full']) ?>" alt="<?= e($featuredEvent['name_th']) ?>">
+            <?php else: ?>
+              <div class="media-placeholder"><?= icon('store') ?> <?= e($featuredEvent['name_th']) ?></div>
+            <?php endif; ?>
+          </div>
+          <div class="featured-event-body">
+            <span class="featured-badge"><?= icon('clock') ?> <?= __('public.featured_badge') ?></span>
+            <h3><?= e($featuredEvent['name_th']) ?></h3>
+            <div class="featured-meta">
+              <span><?= icon('calendar') ?> <?= e(date('d/m/Y', strtotime($featuredEvent['start_date']))) ?></span>
+              <?php if (!empty($featuredEvent['venue_name'])): ?><span><?= icon('map-pin') ?> <?= e($featuredEvent['venue_name']) ?></span><?php endif; ?>
+              <?php if ($flc && $flc['total'] > 0): ?><span><?= icon('ticket') ?> <?= __('public.lots_left', ['count' => $flc['available']]) ?></span><?php endif; ?>
+            </div>
+            <div class="featured-closing"><?= $closingText ?></div>
+            <div><span class="btn btn-primary"><?= __('public.featured_cta') ?></span></div>
+          </div>
+        </a>
       <?php endif; ?>
     </div>
   </div>
 </div>
+
+<?php if ($visitorEvent || $galleryPhotos || !empty($settings['line_oa_id'])): ?>
+  <div class="visitor-strip">
+    <strong><?= __('public.visitor_title') ?></strong>
+    <div class="visitor-links">
+      <?php if ($visitorEvent): ?>
+        <a href="<?= base_url('events/' . $visitorEvent['slug']) ?>"><?= __('public.visitor_event') ?></a>
+      <?php endif; ?>
+      <?php if ($galleryPhotos): ?>
+        <a href="<?= base_url('gallery') ?>"><?= __('public.visitor_gallery') ?></a>
+      <?php endif; ?>
+      <?php if (!empty($settings['line_oa_id'])): ?>
+        <a href="https://line.me/R/ti/p/<?= rawurlencode($settings['line_oa_id']) ?>" target="_blank" rel="noopener noreferrer"><?= __('public.visitor_line') ?></a>
+      <?php endif; ?>
+    </div>
+  </div>
+<?php endif; ?>
 
 <h2 class="section-title"><?= __('public.how_it_works_title') ?></h2>
 <div class="how-it-works">
@@ -55,43 +148,7 @@ $heroBannerUrl = !empty($settings['hero_banner_image']) ? upload_url($settings['
   </div>
 </div>
 
-<?php if ($featuredEvent): ?>
-  <?php
-  $closesAt = strtotime($featuredEvent['booking_close_at']);
-  $daysLeft = (int) ceil(($closesAt - time()) / 86400);
-  if ($daysLeft <= 0) {
-      $closingText = __('public.featured_closing_today');
-  } elseif ($daysLeft === 1) {
-      $closingText = __('public.featured_closing_tomorrow');
-  } else {
-      $closingText = __('public.featured_closing_days', ['days' => $daysLeft]);
-  }
-  $flc = $lotCounts[$featuredEvent['id']] ?? null;
-  ?>
-  <?php $featuredImg = event_images($featuredEvent)['card']; ?>
-  <a href="<?= base_url('events/' . $featuredEvent['slug']) ?>" class="featured-event">
-    <div class="featured-event-media<?= $featuredImg ? ' has-image' : '' ?><?= $featuredImg && $featuredImg['cover'] ? ' is-cover' : '' ?>"
-         <?= $featuredImg ? 'style="background-image:url(\'' . upload_url($featuredImg['thumb']) . '\')"' : '' ?>>
-      <?php if ($featuredImg): ?>
-        <img src="<?= upload_url($featuredImg['full']) ?>" alt="<?= e($featuredEvent['name_th']) ?>">
-      <?php else: ?>
-        <div class="media-placeholder"><?= icon('store') ?> <?= e($featuredEvent['name_th']) ?></div>
-      <?php endif; ?>
-    </div>
-    <div class="featured-event-body">
-      <span class="featured-badge"><?= icon('clock') ?> <?= __('public.featured_badge') ?></span>
-      <h3><?= e($featuredEvent['name_th']) ?></h3>
-      <div class="featured-meta">
-        <span><?= icon('calendar') ?> <?= e(date('d/m/Y', strtotime($featuredEvent['start_date']))) ?></span>
-        <?php if (!empty($featuredEvent['venue_name'])): ?><span><?= icon('map-pin') ?> <?= e($featuredEvent['venue_name']) ?></span><?php endif; ?>
-        <?php if ($flc && $flc['total'] > 0): ?><span><?= icon('ticket') ?> <?= __('public.lots_left', ['count' => $flc['available']]) ?></span><?php endif; ?>
-      </div>
-      <div class="featured-closing"><?= $closingText ?></div>
-      <div><span class="btn btn-primary"><?= __('public.featured_cta') ?></span></div>
-    </div>
-  </a>
-<?php endif; ?>
-
+<div id="events"></div>
 <?php if (!$gridEvents): ?>
   <?php if (!$featuredEvent): ?>
     <div class="empty-state">

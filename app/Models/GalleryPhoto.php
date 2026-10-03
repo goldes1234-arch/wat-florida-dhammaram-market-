@@ -9,6 +9,20 @@ class GalleryPhoto extends Model
         return self::db()->query('SELECT * FROM gallery_photos ORDER BY sort_order, id')->fetchAll();
     }
 
+    public static function count(): int
+    {
+        return (int) self::db()->query('SELECT COUNT(*) FROM gallery_photos')->fetchColumn();
+    }
+
+    /** One page of photos, in the same order as all() — drives the public /gallery page. */
+    public static function page(int $page, int $perPage): array
+    {
+        $perPage = max(1, $perPage);
+        return self::db()->query(
+            'SELECT * FROM gallery_photos ORDER BY sort_order, id LIMIT ' . $perPage . ' OFFSET ' . ((max(1, $page) - 1) * $perPage)
+        )->fetchAll();
+    }
+
     public static function find(int $id): ?array
     {
         $stmt = self::db()->prepare('SELECT * FROM gallery_photos WHERE id = :id');

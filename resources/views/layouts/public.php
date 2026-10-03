@@ -115,8 +115,13 @@ foreach (\App\Models\SocialLink::all() as $extraLink) {
 </footer>
 
 <div class="lightbox-overlay" id="lightbox">
-  <button class="lightbox-close" type="button">&times;</button>
-  <img src="" alt="">
+  <button class="lightbox-close" type="button" aria-label="Close">&times;</button>
+  <button class="lightbox-nav lightbox-prev" type="button" aria-label="Previous">&lsaquo;</button>
+  <figure class="lightbox-figure">
+    <img src="" alt="">
+    <figcaption class="lightbox-caption"></figcaption>
+  </figure>
+  <button class="lightbox-nav lightbox-next" type="button" aria-label="Next">&rsaquo;</button>
 </div>
 
 <script src="<?= asset('js/app.js') ?>"></script>

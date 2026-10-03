@@ -40,9 +40,9 @@ class SeoControllerTest extends TestCase
             $all[] = (string) $url->loc;
         }
 
-        $this->assertSame(7, count($all));
-        $this->assertTrue(str_contains($all[5], 'events/spring-market'));
-        $this->assertTrue(str_contains($all[6], 'events/a%26b%20market'), 'slug must be URL-encoded');
+        $this->assertSame(8, count($all));
+        $this->assertTrue(str_contains($all[6], 'events/spring-market'));
+        $this->assertTrue(str_contains($all[7], 'events/a%26b%20market'), 'slug must be URL-encoded');
         $this->assertTrue(str_contains($xml, '<lastmod>2026-10-01T12:00:00+00:00</lastmod>'));
     }
 
@@ -50,6 +50,6 @@ class SeoControllerTest extends TestCase
     {
         $doc = simplexml_load_string(SeoController::sitemapXml([]));
 
-        $this->assertSame(5, count($doc->url));
+        $this->assertSame(6, count($doc->url));
     }
 }

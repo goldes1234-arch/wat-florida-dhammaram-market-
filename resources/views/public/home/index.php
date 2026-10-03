@@ -163,45 +163,32 @@ $heroBannerUrl = !empty($settings['hero_banner_image']) ? upload_url($settings['
 <?= partial('ads_section', ['advertisements' => $advertisements]) ?>
 
 <?php
-$galleryItems = [];
-foreach ($galleryPhotos as $gp) {
-    $galleryItems[] = ['src' => upload_url($gp['image_path']), 'caption' => $gp['caption'] ?: '', 'url' => null];
-}
-foreach ($events as $ge) {
-    if (!empty($ge['banner_image'])) {
-        $galleryItems[] = ['src' => upload_url($ge['banner_image']), 'caption' => $ge['name_th'], 'url' => base_url('events/' . $ge['slug'])];
-    }
-}
-$galleryItems = array_slice($galleryItems, 0, 12);
+// Atmosphere photos only (event posters live on their own event cards). The first five fill the
+// mosaic; the rest stay in the page as hidden lightbox entries so the viewer can step through all.
+$mosaicShown = array_slice($galleryPhotos, 0, 5);
+$mosaicRest = array_slice($galleryPhotos, 5);
+$galleryTotal = count($galleryPhotos);
 ?>
-<?php if ($galleryItems): ?>
-  <h2 class="section-title"><?= __('public.gallery_title') ?></h2>
-  <div class="gallery-carousel" id="galleryCarousel">
-    <div class="gallery-carousel-viewport">
-      <div class="gallery-carousel-track">
-        <?php foreach ($galleryItems as $gi): ?>
-          <div class="gallery-carousel-slide">
-            <a href="#" class="gallery-carousel-media" data-lightbox-src="<?= e($gi['src']) ?>">
-              <img src="<?= e($gi['src']) ?>" alt="<?= e($gi['caption']) ?>" loading="lazy">
-            </a>
-            <?php if ($gi['caption']): ?>
-              <?php if ($gi['url']): ?>
-                <a href="<?= e($gi['url']) ?>" class="gallery-caption"><?= e($gi['caption']) ?></a>
-              <?php else: ?>
-                <span class="gallery-caption"><?= e($gi['caption']) ?></span>
-              <?php endif; ?>
-            <?php endif; ?>
-          </div>
-        <?php endforeach; ?>
-      </div>
-    </div>
-    <?php if (count($galleryItems) > 1): ?>
-      <div class="gallery-carousel-dots">
-        <?php foreach ($galleryItems as $i => $gi): ?>
-          <button type="button" class="gallery-carousel-dot<?= $i === 0 ? ' is-active' : '' ?>" data-index="<?= $i ?>" aria-label="<?= (int) $i + 1 ?>"></button>
-        <?php endforeach; ?>
-      </div>
+<?php if ($galleryTotal): ?>
+  <div class="ads-section-header">
+    <h2 class="section-title" style="margin-bottom:0;"><?= __('public.gallery_title') ?></h2>
+    <?php if ($galleryTotal > 5): ?>
+      <a href="<?= base_url('gallery') ?>" class="ads-list-shop-link"><?= __('public.gallery_view_all', ['count' => (string) $galleryTotal]) ?> &rarr;</a>
     <?php endif; ?>
+  </div>
+  <div class="photo-mosaic mosaic-n-<?= count($mosaicShown) ?>">
+    <?php foreach ($mosaicShown as $i => $gp): ?>
+      <?php $isLastWithMore = ($i === 4 && $mosaicRest); ?>
+      <a href="<?= $isLastWithMore ? e(base_url('gallery')) : '#' ?>" class="mosaic-tile"
+         <?php if (!$isLastWithMore): ?>data-lightbox-src="<?= e(upload_url($gp['image_path'])) ?>" data-lightbox-group="home-gallery" data-caption="<?= e($gp['caption'] ?? '') ?>"<?php endif; ?>>
+        <img src="<?= e(upload_url($gp['image_path'])) ?>" alt="<?= e($gp['caption'] ?: __('public.gallery_title')) ?>" loading="lazy">
+        <?php if (!empty($gp['caption']) && !$isLastWithMore): ?><span class="mosaic-caption"><?= e($gp['caption']) ?></span><?php endif; ?>
+        <?php if ($isLastWithMore): ?><span class="mosaic-more">+<?= count($mosaicRest) ?><small><?= __('public.gallery_see_all') ?></small></span><?php endif; ?>
+      </a>
+    <?php endforeach; ?>
+    <?php foreach (($mosaicRest ? array_slice($galleryPhotos, 4) : []) as $gp): ?>
+      <a href="#" hidden data-lightbox-src="<?= e(upload_url($gp['image_path'])) ?>" data-lightbox-group="home-gallery" data-caption="<?= e($gp['caption'] ?? '') ?>"></a>
+    <?php endforeach; ?>
   </div>
 <?php endif; ?>
 

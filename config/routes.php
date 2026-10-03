@@ -36,6 +36,7 @@ $router->post('/vendor/portal/{token}/request-deletion', [Public\VendorPortalCon
 $router->get('/checkin-link/{token}', [Public\CheckinLinkController::class, 'show']);
 $router->get('/reserve/{token}', [Public\ReservationController::class, 'show']);
 $router->post('/reserve/{token}/confirm', [Public\ReservationController::class, 'confirm']);
+$router->get('/gallery', [Public\GalleryController::class, 'index']);
 $router->get('/privacy', [Public\LegalController::class, 'privacy']);
 $router->get('/terms', [Public\LegalController::class, 'terms']);
 $router->get('/robots.txt', [Public\SeoController::class, 'robots']);

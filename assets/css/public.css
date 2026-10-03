@@ -425,13 +425,73 @@
   display: none; align-items: center; justify-content: center; z-index: 100; padding: 24px;
 }
 .lightbox-overlay.is-open { display: flex; }
-.lightbox-overlay img { max-width: 92vw; max-height: 88vh; border-radius: var(--radius-md); }
+.lightbox-overlay img { max-width: 92vw; max-height: 82vh; border-radius: var(--radius-md); display: block; margin: 0 auto; }
+.lightbox-figure { margin: 0; max-width: 92vw; }
+.lightbox-caption { margin-top: 10px; text-align: center; color: #fff; font-size: 14px; min-height: 1.2em; }
+.lightbox-nav {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 44px; height: 44px; border-radius: 50%; border: none; cursor: pointer;
+  background: rgba(255,255,255,.18); color: #fff; font-size: 30px; line-height: 1;
+}
+.lightbox-nav:hover { background: rgba(255,255,255,.32); }
+.lightbox-prev { left: 16px; }
+.lightbox-next { right: 16px; }
+.lightbox-nav[hidden] { display: none; }
 .lightbox-close {
   position: absolute; top: 20px; right: 24px;
   width: 40px; height: 40px; border-radius: 50%;
   background: rgba(255,255,255,.15); color: #fff; border: none; font-size: 20px; cursor: pointer;
 }
 .lightbox-close:hover { background: rgba(255,255,255,.3); }
+
+/* Home page photo mosaic: one big tile plus up to four small ones (fewer photos, simpler shapes). */
+.photo-mosaic {
+  display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 170px;
+  gap: 10px; margin-bottom: 40px;
+}
+.mosaic-tile {
+  position: relative; display: block; overflow: hidden; border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border); box-shadow: var(--shadow-sm); background: var(--color-slate-light);
+}
+.mosaic-tile img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+.mosaic-tile:hover img { transform: scale(1.05); }
+.mosaic-caption {
+  position: absolute; inset: auto 0 0 0; padding: 22px 12px 10px; color: #fff; font-size: 12.5px; font-weight: 700;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.6));
+}
+.mosaic-more {
+  position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  background: rgba(15, 23, 42, .55); color: #fff; font-size: 30px; font-weight: 800;
+}
+.mosaic-more small { font-size: 13px; font-weight: 600; }
+.mosaic-n-1 .mosaic-tile { grid-column: span 4; grid-row: span 2; }
+.mosaic-n-2 .mosaic-tile { grid-column: span 2; grid-row: span 2; }
+.mosaic-n-3 .mosaic-tile:first-child { grid-column: span 2; grid-row: span 2; }
+.mosaic-n-3 .mosaic-tile:not(:first-child) { grid-column: span 2; }
+.mosaic-n-4 .mosaic-tile { grid-column: span 2; }
+.mosaic-n-5 .mosaic-tile:first-child { grid-column: span 2; grid-row: span 2; }
+@media (max-width: 640px) {
+  .photo-mosaic { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 120px; gap: 8px; }
+  .photo-mosaic .mosaic-tile { grid-column: span 1 !important; grid-row: span 1 !important; }
+  .photo-mosaic .mosaic-tile:first-child { grid-column: span 2 !important; grid-row: span 2 !important; }
+  .mosaic-n-2 .mosaic-tile { grid-row: span 2 !important; }
+  .mosaic-n-2 .mosaic-tile:first-child { grid-column: span 1 !important; }
+}
+
+/* Full gallery page */
+.photo-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.photo-grid-item {
+  position: relative; display: block; overflow: hidden; aspect-ratio: 4/3; border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border); box-shadow: var(--shadow-sm); background: var(--color-slate-light);
+}
+.photo-grid-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .35s ease; }
+.photo-grid-item:hover img { transform: scale(1.05); }
+.photo-grid-caption {
+  position: absolute; inset: auto 0 0 0; padding: 20px 10px 8px; color: #fff; font-size: 12px; font-weight: 700;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,.6));
+}
+@media (max-width: 900px) { .photo-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 560px) { .photo-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; } }
 
 /* Lot grid */
 .lot-zone-group { margin-bottom: 20px; }

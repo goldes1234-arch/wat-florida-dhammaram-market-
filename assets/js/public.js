@@ -22,31 +22,74 @@
     }
   });
 
-  // Lightbox for the floor-plan / banner preview images.
+  // Lightbox for the floor-plan / banner / shop / gallery photos. Triggers that share a
+  // data-lightbox-group form a set the viewer can step through (arrows, keyboard, swipe).
   var lightbox = document.getElementById('lightbox');
   var lightboxImg = lightbox ? lightbox.querySelector('img') : null;
+  var lightboxCaption = lightbox ? lightbox.querySelector('.lightbox-caption') : null;
+  var lightboxPrev = lightbox ? lightbox.querySelector('.lightbox-prev') : null;
+  var lightboxNext = lightbox ? lightbox.querySelector('.lightbox-next') : null;
+  var lightboxItems = [];
+  var lightboxIndex = 0;
+
+  function lightboxShow() {
+    var item = lightboxItems[lightboxIndex];
+    lightboxImg.src = item.getAttribute('data-lightbox-src');
+    var caption = item.getAttribute('data-caption') || '';
+    var counter = lightboxItems.length > 1 ? (lightboxIndex + 1) + ' / ' + lightboxItems.length : '';
+    lightboxCaption.textContent = [caption, counter].filter(Boolean).join('  ·  ');
+    var multiple = lightboxItems.length > 1;
+    lightboxPrev.hidden = !multiple;
+    lightboxNext.hidden = !multiple;
+  }
+
+  function lightboxStep(delta) {
+    if (lightboxItems.length < 2) return;
+    lightboxIndex = (lightboxIndex + delta + lightboxItems.length) % lightboxItems.length;
+    lightboxShow();
+  }
+
+  function lightboxClose() {
+    lightbox.classList.remove('is-open');
+    lightboxImg.src = '';
+  }
 
   document.querySelectorAll('[data-lightbox-src]').forEach(function (trigger) {
     trigger.addEventListener('click', function (e) {
       e.preventDefault();
       if (!lightbox || !lightboxImg) return;
-      lightboxImg.src = trigger.getAttribute('data-lightbox-src');
+      var group = trigger.getAttribute('data-lightbox-group');
+      lightboxItems = group
+        ? Array.prototype.slice.call(document.querySelectorAll('[data-lightbox-group="' + group + '"]'))
+        : [trigger];
+      lightboxIndex = Math.max(0, lightboxItems.indexOf(trigger));
+      lightboxShow();
       lightbox.classList.add('is-open');
     });
   });
 
   if (lightbox) {
     lightbox.addEventListener('click', function (e) {
+      if (e.target.closest('.lightbox-prev')) { lightboxStep(-1); return; }
+      if (e.target.closest('.lightbox-next')) { lightboxStep(1); return; }
       if (e.target === lightbox || e.target.closest('.lightbox-close')) {
-        lightbox.classList.remove('is-open');
-        lightboxImg.src = '';
+        lightboxClose();
       }
     });
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') {
-        lightbox.classList.remove('is-open');
-      }
+      if (!lightbox.classList.contains('is-open')) return;
+      if (e.key === 'Escape') lightboxClose();
+      if (e.key === 'ArrowLeft') lightboxStep(-1);
+      if (e.key === 'ArrowRight') lightboxStep(1);
     });
+    var lightboxTouchX = null;
+    lightbox.addEventListener('touchstart', function (e) { lightboxTouchX = e.changedTouches[0].clientX; }, { passive: true });
+    lightbox.addEventListener('touchend', function (e) {
+      if (lightboxTouchX === null) return;
+      var dx = e.changedTouches[0].clientX - lightboxTouchX;
+      lightboxTouchX = null;
+      if (Math.abs(dx) > 50) lightboxStep(dx < 0 ? 1 : -1);
+    }, { passive: true });
   }
 
   // Home page "our event atmosphere" carousel: auto-advancing slides + dot navigation.

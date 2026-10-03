@@ -47,6 +47,7 @@ class SeoController
             ['loc' => full_url(''), 'priority' => '1.0'],
             ['loc' => full_url('contact'), 'priority' => '0.4'],
             ['loc' => full_url('advertise'), 'priority' => '0.3'],
+            ['loc' => full_url('gallery'), 'priority' => '0.5'],
             ['loc' => full_url('privacy'), 'priority' => '0.1'],
             ['loc' => full_url('terms'), 'priority' => '0.1'],
         ];

@@ -149,6 +149,49 @@
     }
   }
 
+  // Featured-shops carousel: arrows + gentle auto-advance (paused on hover/touch, off for reduced motion).
+  var adsCarousel = document.getElementById('adsCarousel');
+  if (adsCarousel) {
+    var adsTrack = adsCarousel.querySelector('.ads-grid');
+    var adsStep = function () {
+      var card = adsTrack.querySelector('.ad-card');
+      return card ? card.getBoundingClientRect().width + 16 : adsTrack.clientWidth;
+    };
+    var adsMove = function (dir) {
+      var atEnd = adsTrack.scrollLeft + adsTrack.clientWidth >= adsTrack.scrollWidth - 4;
+      if (dir > 0 && atEnd) {
+        adsTrack.scrollTo({ left: 0 });
+      } else if (dir < 0 && adsTrack.scrollLeft <= 4) {
+        adsTrack.scrollTo({ left: adsTrack.scrollWidth });
+      } else {
+        adsTrack.scrollBy({ left: dir * adsStep() });
+      }
+    };
+    var adsPrev = adsCarousel.querySelector('.ads-nav-prev');
+    var adsNext = adsCarousel.querySelector('.ads-nav-next');
+    if (adsPrev) adsPrev.addEventListener('click', function () { adsMove(-1); });
+    if (adsNext) adsNext.addEventListener('click', function () { adsMove(1); });
+
+    var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (!reduceMotion) {
+      var adsPaused = false;
+      ['mouseenter', 'touchstart', 'focusin'].forEach(function (ev) {
+        adsCarousel.addEventListener(ev, function () { adsPaused = true; }, { passive: true });
+      });
+      ['mouseleave', 'touchend', 'focusout'].forEach(function (ev) {
+        adsCarousel.addEventListener(ev, function () { adsPaused = false; }, { passive: true });
+      });
+      setInterval(function () { if (!adsPaused && !document.hidden) adsMove(1); }, 4500);
+    }
+  }
+
+  // Cards without a link open their photo in the lightbox; make them keyboard-activatable too.
+  document.querySelectorAll('.ad-card[data-lightbox-src]').forEach(function (card) {
+    card.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
+    });
+  });
+
   // Payment method cards: clicking anywhere on the card selects its radio.
   document.querySelectorAll('.payment-option').forEach(function (option) {
     var radio = option.querySelector('input[type="radio"]');

@@ -48,6 +48,21 @@ function upload_url(?string $path): string
     return base_url('uploads/' . ltrim($path, '/'));
 }
 
+/** Width / height of an uploaded image, or null if it can't be read (missing file, not an image). */
+function upload_aspect_ratio(?string $path): ?float
+{
+    if (!$path) {
+        return null;
+    }
+    $root = realpath(BASE_PATH . '/uploads');
+    $file = $root ? realpath($root . '/' . ltrim($path, '/')) : false;
+    if (!$file || !str_starts_with($file, $root . DIRECTORY_SEPARATOR)) {
+        return null;
+    }
+    $size = @getimagesize($file);
+    return ($size && $size[1] > 0) ? $size[0] / $size[1] : null;
+}
+
 function full_upload_url(?string $path): string
 {
     if (!$path) {

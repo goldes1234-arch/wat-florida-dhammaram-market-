@@ -7,6 +7,21 @@ RewriteRule "(^|/)\." - [F]
     Require all denied
 </FilesMatch>
 
+# Browser caching for static files. CSS/JS are requested with ?v=<file mtime> (see asset()), so a
+# changed file gets a new URL and a long lifetime is safe; uploaded images get a random file name on
+# every upload, so they never change under the same URL either.
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType text/javascript "access plus 1 year"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/svg+xml "access plus 1 month"
+    ExpiresByType image/x-icon "access plus 1 month"
+</IfModule>
+
 # Let real files/directories through untouched (assets/, uploads/, this file's
 # own siblings). Non-public folders each carry their own Require-all-denied.
 RewriteCond %{REQUEST_FILENAME} -f [OR]

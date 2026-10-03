@@ -12,7 +12,7 @@ use App\Core\Lang;
 class GalleryImageService
 {
     public const MAX_SOURCE_BYTES = 12 * 1024 * 1024;
-    public const MAX_SOURCE_PIXELS = 40_000_000;
+    public const MAX_SOURCE_PIXELS = 30_000_000;
     public const FULL_SIZE = 1600;
     public const THUMB_SIZE = 600;
     public const POSTER_SIZE = 2000; // posters carry small print, so they keep more resolution
@@ -33,21 +33,38 @@ class GalleryImageService
             return null;
         }
 
-        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($file['tmp_name']);
-        $info = @getimagesize($file['tmp_name']);
+        return self::process($file['tmp_name'], $subdir, $error, $fullSize, $withThumb, false);
+    }
+
+    /**
+     * Re-encodes an image that is already on disk (used to slim down photos uploaded before
+     * resizing existed). $keepFormat keeps PNG/JPEG/WEBP as they are — needed for the logo, which
+     * the PDF receipt can only embed as PNG or JPEG.
+     *
+     * @return array{path: string, thumb: ?string}|null
+     */
+    public static function optimizeFile(string $absPath, string $subdir, ?string &$error, int $fullSize, bool $withThumb, bool $keepFormat = false): ?array
+    {
+        return self::process($absPath, $subdir, $error, $fullSize, $withThumb, $keepFormat);
+    }
+
+    private static function process(string $path, string $subdir, ?string &$error, int $fullSize, bool $withThumb, bool $keepFormat): ?array
+    {
+        $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($path);
+        $info = @getimagesize($path);
         if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true) || $info === false) {
             $error = Lang::get('upload.bad_type');
             return null;
         }
-        if ($info[0] * $info[1] > self::MAX_SOURCE_PIXELS) {
+        if ($info[0] * $info[1] > self::MAX_SOURCE_PIXELS || !self::fitsInMemory($info[0] * $info[1])) {
             $error = Lang::get('upload.too_many_pixels');
             return null;
         }
 
         $source = match ($mime) {
-            'image/jpeg' => @imagecreatefromjpeg($file['tmp_name']),
-            'image/png' => @imagecreatefrompng($file['tmp_name']),
-            default => @imagecreatefromwebp($file['tmp_name']),
+            'image/jpeg' => @imagecreatefromjpeg($path),
+            'image/png' => @imagecreatefrompng($path),
+            default => @imagecreatefromwebp($path),
         };
         if ($source === false) {
             $error = Lang::get('upload.bad_type');
@@ -55,11 +72,11 @@ class GalleryImageService
         }
 
         if ($mime === 'image/jpeg') {
-            $source = self::applyExifOrientation($source, $file['tmp_name']);
+            $source = self::applyExifOrientation($source, $path);
         }
 
-        $useWebp = function_exists('imagewebp');
-        $ext = $useWebp ? 'webp' : 'jpg';
+        $format = $keepFormat ? $mime : (function_exists('imagewebp') ? 'image/webp' : 'image/jpeg');
+        $ext = ['image/webp' => 'webp', 'image/png' => 'png', 'image/jpeg' => 'jpg'][$format];
         $name = bin2hex(random_bytes(16)) . '.' . $ext;
         $dir = BASE_PATH . '/uploads/' . trim($subdir, '/');
         if (!is_dir($dir)) {
@@ -70,13 +87,13 @@ class GalleryImageService
         }
 
         $full = self::resized($source, $fullSize);
-        $okFull = self::write($full, $dir . '/' . $name, $useWebp);
+        $okFull = self::write($full, $dir . '/' . $name, $format);
         imagedestroy($full);
 
         $okThumb = true;
         if ($withThumb) {
             $thumb = self::resized($source, self::THUMB_SIZE);
-            $okThumb = self::write($thumb, $dir . '/thumbs/' . $name, $useWebp);
+            $okThumb = self::write($thumb, $dir . '/thumbs/' . $name, $format);
             imagedestroy($thumb);
         }
         imagedestroy($source);
@@ -90,6 +107,19 @@ class GalleryImageService
 
         $rel = trim($subdir, '/');
         return ['path' => $rel . '/' . $name, 'thumb' => $withThumb ? $rel . '/thumbs/' . $name : null];
+    }
+
+    /** GD holds ~4 bytes per pixel plus working copies; a decode that would blow PHP's memory limit is a fatal error that cannot be caught, so refuse up front. */
+    private static function fitsInMemory(int $pixels): bool
+    {
+        $limit = ini_get('memory_limit');
+        if ($limit === '-1' || $limit === false || $limit === '') {
+            return true;
+        }
+        $bytes = (int) $limit;
+        $unit = strtolower(substr(trim($limit), -1));
+        $bytes *= match ($unit) { 'g' => 1024 ** 3, 'm' => 1024 ** 2, 'k' => 1024, default => 1 };
+        return $pixels * 6 < $bytes * 0.8;
     }
 
     /** Scales down so the longest side is at most $max (never enlarges), always returning a new image. */
@@ -110,11 +140,17 @@ class GalleryImageService
         return $dst;
     }
 
-    private static function write(\GdImage $img, string $path, bool $webp): bool
+    private static function write(\GdImage $img, string $path, string $format): bool
     {
-        if ($webp) {
+        if ($format === 'image/webp') {
             return imagewebp($img, $path, 82);
         }
+        if ($format === 'image/png') {
+            imagealphablending($img, false);
+            imagesavealpha($img, true);
+            return imagepng($img, $path, 7);
+        }
+        // JPEG has no transparency: flatten onto white.
         $flat = imagecreatetruecolor(imagesx($img), imagesy($img));
         imagefill($flat, 0, 0, imagecolorallocate($flat, 255, 255, 255));
         imagecopy($flat, $img, 0, 0, 0, 0, imagesx($img), imagesy($img));

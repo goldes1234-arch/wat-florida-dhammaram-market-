@@ -16,3 +16,4 @@ storage/tmp/*
 
 # OS/editor cruft
 .DS_Store
+storage/originals/

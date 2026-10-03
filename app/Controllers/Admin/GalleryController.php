@@ -9,6 +9,7 @@ use App\Core\View;
 use App\Models\Event;
 use App\Models\GalleryPhoto;
 use App\Services\GalleryImageService;
+use App\Services\ImageOptimizerService;
 
 /** The "atmosphere photos" gallery: add many at once, caption/album them, and put them in order. */
 class GalleryController
@@ -20,6 +21,7 @@ class GalleryController
             'active' => 'gallery',
             'galleryPhotos' => GalleryPhoto::all(),
             'events' => Event::allForAdmin(),
+            'pendingImages' => ImageOptimizerService::pendingCounts(),
         ], 'admin');
     }
 

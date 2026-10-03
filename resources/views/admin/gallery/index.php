@@ -1,11 +1,28 @@
 <?php
 /** @var array $galleryPhotos */
 /** @var array $events */
+/** @var array<string,int> $pendingImages */
 $total = count($galleryPhotos);
 ?>
 <div class="page-header">
   <h1><?= __('nav.gallery') ?></h1>
 </div>
+
+<?php if (!empty($pendingImages)): ?>
+  <div class="alert alert-warning mb-6">
+    <strong><?= __('images.pending_title', ['count' => (string) array_sum($pendingImages)]) ?></strong>
+    <p class="text-sm mb-4"><?= __('images.pending_body') ?></p>
+    <p class="text-sm mb-4">
+      <?php foreach ($pendingImages as $kind => $n): ?>
+        <span class="badge badge-indigo"><?= __('images.kind_' . $kind) ?>: <?= (int) $n ?></span>
+      <?php endforeach; ?>
+    </p>
+    <form method="post" action="<?= base_url('admin/images/optimize') ?>" style="margin:0;">
+      <?= csrf_field() ?>
+      <button type="submit" class="btn btn-primary btn-sm"><?= __('images.optimize_button') ?></button>
+    </form>
+  </div>
+<?php endif; ?>
 
 <div class="card mb-6">
   <div class="card-header"><h3><?= __('gallery.upload_title') ?></h3></div>

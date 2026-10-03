@@ -113,4 +113,31 @@ class ImageOptimizerServiceTest extends TestCase
         @unlink($src);
         @unlink(BASE_PATH . '/uploads/' . $out['path']);
     }
+
+    public function testALogoAlreadyAtItsTargetSizeIsNotFlaggedAgainEvenIfTheFileIsAFewHundredKb(): void
+    {
+        $settings = \App\Models\Setting::get(true);
+        $original = $settings['logo_path'] ?? null;
+
+        $img = imagecreatetruecolor(600, 600);
+        for ($i = 0; $i < 110000; $i++) {
+            imagesetpixel($img, random_int(0, 599), random_int(0, 599), random_int(0, 0xFFFFFF)); // heavy-ish PNG
+        }
+        $rel = self::DIR . '/logo600.png';
+        imagepng($img, BASE_PATH . '/uploads/' . $rel);
+        $bytes = filesize(BASE_PATH . '/uploads/' . $rel);
+
+        try {
+            \App\Models\Setting::update(['logo_path' => $rel]);
+            $this->assertTrue($bytes > 300 * 1024 && $bytes < 1024 * 1024, "fixture size $bytes should be in the old false-positive band");
+            $this->assertTrue(!isset(ImageOptimizerService::pendingCounts()['logo']), 'a 600px logo must not be queued again');
+
+            $big = imagecreatetruecolor(1800, 1800);
+            imagepng($big, BASE_PATH . '/uploads/' . $rel);
+            $this->assertTrue(isset(ImageOptimizerService::pendingCounts()['logo']), 'an oversized logo must still be queued');
+        } finally {
+            \App\Models\Setting::update(['logo_path' => $original]);
+            @unlink(BASE_PATH . '/uploads/' . $rel);
+        }
+    }
 }

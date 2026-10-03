@@ -14,7 +14,8 @@ use App\Models\Setting;
 class ImageOptimizerService
 {
     private const BIG_FILE_BYTES = 700 * 1024;
-    private const LOGO_BIG_BYTES = 300 * 1024;
+    // A logo already at its target size can still be a few hundred KB as a PNG; only a really heavy one is worth re-encoding.
+    private const LOGO_BIG_BYTES = 1024 * 1024;
 
     /** @return array<string,int> pending image count per kind, only non-zero kinds */
     public static function pendingCounts(): array
@@ -55,6 +56,9 @@ class ImageOptimizerService
             $before = (int) @filesize(BASE_PATH . '/uploads/' . $item['path']);
             $error = null;
             $result = self::optimize($item, $error, $subdirOverride);
+            if ($result === null && $error === 'already small') {
+                continue; // re-encoding would not help; not worth reporting as a failure
+            }
             if ($result === null) {
                 $failed[] = $item['path'] . ($error ? ' — ' . $error : '');
                 continue;
@@ -105,7 +109,12 @@ class ImageOptimizerService
         if ($info === false) {
             return false;
         }
-        return filesize($abs) > $bigBytes || max($info[0], $info[1]) > $maxSide * 1.05;
+        $tooWide = max($info[0], $info[1]) > $maxSide * 1.05;
+        // WebP is what this pipeline writes, so a WebP at the right dimensions is already done however big it is.
+        if (str_ends_with(strtolower($abs), '.webp')) {
+            return $tooWide;
+        }
+        return $tooWide || filesize($abs) > $bigBytes;
     }
 
     /** uploads/-relative path to a real file inside uploads/, or null (also blocks any ../ trick). */

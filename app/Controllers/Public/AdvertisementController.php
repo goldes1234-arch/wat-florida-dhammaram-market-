@@ -5,10 +5,10 @@ namespace App\Controllers\Public;
 use App\Core\Flash;
 use App\Core\RateLimiter;
 use App\Core\Request;
-use App\Core\Upload;
 use App\Core\View;
 use App\Models\Advertisement;
 use App\Models\Setting;
+use App\Services\AdvertisementImageService;
 use App\Services\NotificationService;
 use App\Support\Validator;
 
@@ -39,7 +39,7 @@ class AdvertisementController
         $contactName = $request->trimmed('contact_name');
         $contactPhone = $request->trimmed('contact_phone');
         $linkUrl = $request->trimmed('link_url');
-        $photoFile = $request->file('image');
+        $files = AdvertisementImageService::normalize($request->files['images'] ?? $request->files['image'] ?? null);
 
         $errors = [];
         if (!Validator::required($businessName)) {
@@ -54,7 +54,7 @@ class AdvertisementController
         if (!Validator::required($contactPhone)) {
             $errors[] = __('validation.required', ['field' => __('ads.public_form_contact_phone')]);
         }
-        if (!$photoFile) {
+        if (!$files) {
             $errors[] = __('validation.required', ['field' => __('settings.ads_image')]);
         }
         if ($linkUrl !== '' && !filter_var($linkUrl, FILTER_VALIDATE_URL)) {
@@ -68,13 +68,18 @@ class AdvertisementController
         }
 
         $error = null;
-        $path = Upload::storeImage($photoFile, 'ads', $error);
-        if (!$path) {
+        $stored = AdvertisementImageService::storeAll($files, Advertisement::MAX_IMAGES, $error);
+        if ($stored === null) {
             Flash::error($error);
+            Flash::setOld($request->post);
             redirect('advertise');
         }
 
-        $id = Advertisement::create($businessName, $path, $linkUrl ?: null, $description, 'pending', $contactName, $contactPhone);
+        $cover = array_shift($stored);
+        $id = Advertisement::create($businessName, $cover['path'], $linkUrl ?: null, $description, 'pending', $contactName, $contactPhone, $cover['thumb']);
+        foreach ($stored as $extra) {
+            Advertisement::addImage($id, $extra['path'], $extra['thumb']);
+        }
         NotificationService::sendAdminAdSubmissionAlert(Advertisement::find($id));
 
         Flash::success(__('ads.public_form_success'));

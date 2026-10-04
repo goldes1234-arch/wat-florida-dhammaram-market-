@@ -146,6 +146,9 @@
 
   document.querySelectorAll('[data-lightbox-src]').forEach(function (trigger) {
     trigger.addEventListener('click', function (e) {
+      // A real link inside the trigger (e.g. a shop card's "visit" button) keeps working.
+      var inner = e.target.closest('a');
+      if (inner && inner !== trigger && trigger.contains(inner)) return;
       e.preventDefault();
       if (!lightbox || !lightboxImg) return;
       var group = trigger.getAttribute('data-lightbox-group');

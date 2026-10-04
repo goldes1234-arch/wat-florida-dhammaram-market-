@@ -39,7 +39,7 @@
 
       <div class="form-group">
         <label><?= __('settings.ads_image') ?></label>
-        <input type="file" name="image" class="form-control" accept="image/jpeg,image/png,image/webp" required>
+        <input type="file" name="images[]" class="form-control" accept="image/jpeg,image/png,image/webp" multiple required data-shrink-max="1800">
         <p class="form-hint"><?= __('settings.ads_size_hint') ?></p>
       </div>
 

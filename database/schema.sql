@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS admin_users;
 DROP TABLE IF EXISTS contact_messages;
 DROP TABLE IF EXISTS booking_rate_limits;
 DROP TABLE IF EXISTS gallery_photos;
+DROP TABLE IF EXISTS advertisement_images;
 DROP TABLE IF EXISTS advertisements;
 DROP TABLE IF EXISTS social_links;
 DROP TABLE IF EXISTS settings;
@@ -113,12 +114,26 @@ CREATE TABLE advertisements (
   business_name VARCHAR(150) NOT NULL,
   description TEXT NULL,
   image_path VARCHAR(255) NOT NULL,
+  -- ~600px preview of the cover for the cards; NULL for older ads (the full image is used).
+  thumb_path VARCHAR(255) NULL,
   link_url VARCHAR(255) NULL,
   status ENUM('pending','approved') NOT NULL DEFAULT 'approved',
   contact_name VARCHAR(150) NULL,
   contact_phone VARCHAR(30) NULL,
   sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Extra photos of a shop (menu, storefront, dishes). The cover stays in advertisements.image_path.
+CREATE TABLE advertisement_images (
+  id INT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  advertisement_id INT UNSIGNED NOT NULL,
+  image_path VARCHAR(255) NOT NULL,
+  thumb_path VARCHAR(255) NULL,
+  sort_order SMALLINT UNSIGNED NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_advertisement_images_ad (advertisement_id),
+  CONSTRAINT fk_advertisement_images_ad FOREIGN KEY (advertisement_id) REFERENCES advertisements(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Downloadable resources ("ดาวน์โหลด" nav dropdown) — admin creates categories

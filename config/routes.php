@@ -141,6 +141,8 @@ $router->group(['middleware' => ['auth']], function ($router) {
             $router->get('/admin/advertisements', [Admin\AdvertisementController::class, 'index']);
             $router->post('/admin/advertisements', [Admin\AdvertisementController::class, 'store']);
             $router->post('/admin/advertisements/{id}/approve', [Admin\AdvertisementController::class, 'approve']);
+            $router->post('/admin/advertisements/{id}/images', [Admin\AdvertisementController::class, 'addImages']);
+            $router->post('/admin/advertisements/{id}/images/{imageId}/delete', [Admin\AdvertisementController::class, 'destroyImage']);
             $router->post('/admin/advertisements/{id}/delete', [Admin\AdvertisementController::class, 'destroy']);
 
             $router->get('/admin/vendors', [Admin\VendorController::class, 'index']);

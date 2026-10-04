@@ -4,9 +4,9 @@ namespace App\Controllers\Admin;
 
 use App\Core\Flash;
 use App\Core\Request;
-use App\Core\Upload;
 use App\Core\View;
 use App\Models\Advertisement;
+use App\Services\AdvertisementImageService;
 
 class AdvertisementController
 {
@@ -25,9 +25,9 @@ class AdvertisementController
         $businessName = $request->trimmed('business_name');
         $description = $request->trimmed('description');
         $linkUrl = $request->trimmed('link_url');
-        $photoFile = $request->file('image');
+        $files = AdvertisementImageService::normalize($request->files['images'] ?? $request->files['image'] ?? null);
 
-        if ($businessName === '' || !$photoFile) {
+        if ($businessName === '' || !$files) {
             Flash::error(__('validation.generic_error'));
             redirect('admin/advertisements');
         }
@@ -38,14 +38,58 @@ class AdvertisementController
         }
 
         $error = null;
-        $path = Upload::storeImage($photoFile, 'ads', $error);
-        if (!$path) {
+        $stored = AdvertisementImageService::storeAll($files, Advertisement::MAX_IMAGES, $error);
+        if ($stored === null) {
             Flash::error($error);
             redirect('admin/advertisements');
         }
 
-        Advertisement::create($businessName, $path, $linkUrl ?: null, $description ?: null, 'approved');
+        $cover = array_shift($stored);
+        $id = Advertisement::create($businessName, $cover['path'], $linkUrl ?: null, $description ?: null, 'approved', null, null, $cover['thumb']);
+        foreach ($stored as $extra) {
+            Advertisement::addImage($id, $extra['path'], $extra['thumb']);
+        }
         Flash::success(__('settings.ads_added'));
+        redirect('admin/advertisements');
+    }
+
+    /** Adds more photos to an existing shop, up to the per-shop maximum. */
+    public function addImages(Request $request, string $id): void
+    {
+        $ad = Advertisement::find((int) $id);
+        if (!$ad) {
+            redirect('admin/advertisements');
+        }
+
+        $room = Advertisement::roomForImages((int) $id);
+        $files = AdvertisementImageService::normalize($request->files['images'] ?? null);
+        if (!$files || $room < 1) {
+            Flash::error($room < 1 ? __('ads.images_full', ['max' => (string) Advertisement::MAX_IMAGES]) : __('ads.images_required'));
+            redirect('admin/advertisements');
+        }
+
+        $error = null;
+        $stored = AdvertisementImageService::storeAll($files, $room, $error);
+        if ($stored === null) {
+            Flash::error($error);
+            redirect('admin/advertisements');
+        }
+
+        foreach ($stored as $extra) {
+            Advertisement::addImage((int) $id, $extra['path'], $extra['thumb']);
+        }
+        Flash::success(__('ads.images_added', ['count' => (string) count($stored)]));
+        redirect('admin/advertisements');
+    }
+
+    public function destroyImage(Request $request, string $id, string $imageId): void
+    {
+        $image = Advertisement::findImage((int) $imageId);
+        if ($image && (int) $image['advertisement_id'] === (int) $id) {
+            AdvertisementImageService::deleteFiles($image['image_path'], $image['thumb_path']);
+            Advertisement::deleteImage((int) $imageId);
+            Flash::success(__('ads.image_removed'));
+        }
         redirect('admin/advertisements');
     }
 
@@ -63,7 +107,9 @@ class AdvertisementController
     {
         $ad = Advertisement::find((int) $id);
         if ($ad) {
-            Upload::delete($ad['image_path']);
+            foreach (Advertisement::withImages([$ad])[0]['images'] as $image) {
+                AdvertisementImageService::deleteFiles($image['path'], $image['thumb'] === $image['path'] ? null : $image['thumb']);
+            }
             Advertisement::delete((int) $id);
             Flash::success(__('settings.ads_removed'));
         }

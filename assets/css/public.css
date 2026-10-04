@@ -329,6 +329,8 @@
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden; padding: 2px 14px 6px; font-size: 12.5px; color: var(--color-text-muted); line-height: 1.45;
 }
+.ad-card-count { position: absolute; z-index: 2; right: 8px; bottom: 8px; padding: 2px 8px; border-radius: 999px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; font-weight: 700; }
+.ad-card-visit { margin-left: 8px; color: var(--color-primary); text-decoration: underline; }
 .ad-card-cta { display: block; margin-top: auto; padding: 6px 14px 14px; font-size: 12.5px; font-weight: 700; color: var(--color-primary); }
 
 /* More than four shops: one scrolling row with arrows, advanced automatically by public.js. */

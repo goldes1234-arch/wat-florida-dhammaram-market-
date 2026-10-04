@@ -79,6 +79,13 @@ class ImageOptimizerService
         foreach ($pdo->query('SELECT id, image_path FROM gallery_photos WHERE thumb_path IS NULL ORDER BY id')->fetchAll() as $r) {
             $items[] = ['kind' => 'gallery', 'id' => (int) $r['id'], 'path' => $r['image_path']];
         }
+        try {
+            foreach ($pdo->query('SELECT id, image_path FROM advertisements WHERE thumb_path IS NULL ORDER BY id')->fetchAll() as $r) {
+                $items[] = ['kind' => 'ad', 'id' => (int) $r['id'], 'path' => $r['image_path']];
+            }
+        } catch (\PDOException $e) {
+            // thumb_path arrives with a migration; until it has run (a few minutes after a deploy) the admin pages must still load.
+        }
         foreach ($pdo->query('SELECT id, banner_image FROM events WHERE banner_image IS NOT NULL AND banner_thumb IS NULL AND deleted_at IS NULL ORDER BY id')->fetchAll() as $r) {
             $items[] = ['kind' => 'event_banner', 'id' => (int) $r['id'], 'path' => $r['banner_image']];
         }
@@ -139,6 +146,7 @@ class ImageOptimizerService
             'logo' => ['branding', 600, false, true],
             'event_photo' => ['events', GalleryImageService::FULL_SIZE, false, false],
             'event_banner' => ['events', GalleryImageService::FULL_SIZE, true, false],
+            'ad' => ['ads', GalleryImageService::FULL_SIZE, true, false],
             default => ['gallery', GalleryImageService::FULL_SIZE, true, false],
         };
 
@@ -175,6 +183,10 @@ class ImageOptimizerService
         switch ($item['kind']) {
             case 'gallery':
                 $pdo->prepare('UPDATE gallery_photos SET image_path = :p, thumb_path = :t WHERE id = :id')
+                    ->execute(['p' => $new['path'], 't' => $new['thumb'], 'id' => $item['id']]);
+                break;
+            case 'ad':
+                $pdo->prepare('UPDATE advertisements SET image_path = :p, thumb_path = :t WHERE id = :id')
                     ->execute(['p' => $new['path'], 't' => $new['thumb'], 'id' => $item['id']]);
                 break;
             case 'event_banner':

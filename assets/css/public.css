@@ -339,7 +339,6 @@
   margin-top: 2px; padding: 4px 0; border: 0; background: none; cursor: pointer;
   font: inherit; font-size: 12.5px; font-weight: 700; color: var(--color-primary);
 }
-.ad-card-count { position: absolute; z-index: 2; right: 8px; bottom: 8px; padding: 2px 8px; border-radius: 999px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; font-weight: 700; }
 /* Ribbon in the corner: new / popular / promo / featured */
 .ad-badge {
   position: absolute; z-index: 3; left: 8px; top: 8px; padding: 3px 10px; border-radius: 999px;

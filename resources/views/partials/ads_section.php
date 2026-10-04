@@ -50,7 +50,6 @@ $onEventPage = !empty($onEventPage);
             <?php endforeach; ?>
             <?php if ($badge): ?><span class="ad-badge ad-badge-<?= $badge ?>"><?= $badge === 'featured' ? '★ ' : '' ?><?= __('ads.badge_' . $badge) ?></span><?php endif; ?>
             <?php if ($photoCount > 1): ?>
-              <span class="ad-card-count">🖼 <?= $photoCount ?></span>
               <span class="ad-dots" aria-hidden="true"><?php for ($i = 0; $i < $photoCount; $i++): ?><i<?= $i === 0 ? ' class="is-active"' : '' ?>></i><?php endfor; ?></span>
             <?php endif; ?>
           </div>

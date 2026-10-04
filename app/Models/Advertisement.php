@@ -7,6 +7,9 @@ class Advertisement extends Model
     /** Photos per shop, cover included. */
     public const MAX_IMAGES = 5;
 
+    /** Card ribbons an admin can pick; the label of each is the lang key ads.badge_<key>. */
+    public const BADGES = ['new', 'popular', 'promo', 'featured'];
+
     /** Approved ads shown on the public site. */
     public static function approved(): array
     {
@@ -112,11 +115,12 @@ class Advertisement extends Model
         string $status = 'approved',
         ?string $contactName = null,
         ?string $contactPhone = null,
-        ?string $thumbPath = null
+        ?string $thumbPath = null,
+        array $extra = []
     ): int {
         $stmt = self::db()->prepare(
-            'INSERT INTO advertisements (business_name, description, image_path, thumb_path, link_url, status, contact_name, contact_phone)
-             VALUES (:business_name, :description, :image_path, :thumb_path, :link_url, :status, :contact_name, :contact_phone)'
+            'INSERT INTO advertisements (business_name, description, image_path, thumb_path, link_url, badge, phone, map_url, line_url, vendor_id, status, contact_name, contact_phone)
+             VALUES (:business_name, :description, :image_path, :thumb_path, :link_url, :badge, :phone, :map_url, :line_url, :vendor_id, :status, :contact_name, :contact_phone)'
         );
         $stmt->execute([
             'business_name' => $businessName,
@@ -124,11 +128,88 @@ class Advertisement extends Model
             'image_path' => $imagePath,
             'thumb_path' => $thumbPath,
             'link_url' => $linkUrl ?: null,
+            'badge' => self::cleanBadge($extra['badge'] ?? null),
+            'phone' => ($extra['phone'] ?? '') ?: null,
+            'map_url' => ($extra['map_url'] ?? '') ?: null,
+            'line_url' => ($extra['line_url'] ?? '') ?: null,
+            'vendor_id' => ($extra['vendor_id'] ?? 0) ?: null,
             'status' => $status,
             'contact_name' => $contactName ?: null,
             'contact_phone' => $contactPhone ?: null,
         ]);
         return (int) self::db()->lastInsertId();
+    }
+
+    /** Edits what a card says and offers; the photos have their own add/remove actions. */
+    public static function updateDetails(int $id, array $d): void
+    {
+        self::db()->prepare(
+            'UPDATE advertisements SET business_name = :business_name, description = :description, link_url = :link_url,
+                    badge = :badge, phone = :phone, map_url = :map_url, line_url = :line_url, vendor_id = :vendor_id
+             WHERE id = :id'
+        )->execute([
+            'business_name' => $d['business_name'],
+            'description' => ($d['description'] ?? '') ?: null,
+            'link_url' => ($d['link_url'] ?? '') ?: null,
+            'badge' => self::cleanBadge($d['badge'] ?? null),
+            'phone' => ($d['phone'] ?? '') ?: null,
+            'map_url' => ($d['map_url'] ?? '') ?: null,
+            'line_url' => ($d['line_url'] ?? '') ?: null,
+            'vendor_id' => ($d['vendor_id'] ?? 0) ?: null,
+            'id' => $id,
+        ]);
+    }
+
+    private static function cleanBadge(?string $badge): ?string
+    {
+        return in_array($badge, self::BADGES, true) ? $badge : null;
+    }
+
+    /**
+     * Adds a 'selling' list to ads that are tied to a vendor: the upcoming published events where that vendor
+     * holds a confirmed booking, with the lot codes — ['name', 'slug', 'lots' => [...]] per event, soonest first.
+     * Pass $eventId on an event page to keep only that event.
+     */
+    public static function withSellingAt(array $ads, ?int $eventId = null): array
+    {
+        $vendorIds = array_values(array_unique(array_filter(array_map(static fn ($a) => (int) ($a['vendor_id'] ?? 0), $ads))));
+        $byVendor = [];
+
+        if ($vendorIds) {
+            $marks = implode(',', array_fill(0, count($vendorIds), '?'));
+            $sql = "SELECT b.vendor_id, l.code, e.id AS event_id, e.slug, e.name_th, e.name_en
+                    FROM bookings b
+                    JOIN lots l ON l.id = b.lot_id
+                    JOIN events e ON e.id = b.event_id
+                    WHERE b.status = 'booked' AND b.vendor_id IN ($marks)
+                      AND e.deleted_at IS NULL AND e.is_published = 1 AND e.end_date >= ?";
+            $params = array_merge($vendorIds, [date('Y-m-d')]);
+            if ($eventId !== null) {
+                $sql .= ' AND e.id = ?';
+                $params[] = $eventId;
+            }
+            $stmt = self::db()->prepare($sql . ' ORDER BY e.start_date, e.id, l.code');
+            $stmt->execute($params);
+
+            $en = \App\Core\Lang::locale() === 'en';
+            foreach ($stmt->fetchAll() as $row) {
+                $v = (int) $row['vendor_id'];
+                $e = (int) $row['event_id'];
+                $byVendor[$v][$e] ??= [
+                    'name' => $en ? ($row['name_en'] ?: $row['name_th']) : $row['name_th'],
+                    'slug' => $row['slug'],
+                    'lots' => [],
+                ];
+                $byVendor[$v][$e]['lots'][] = $row['code'];
+            }
+        }
+
+        foreach ($ads as &$ad) {
+            $ad['selling'] = array_values($byVendor[(int) ($ad['vendor_id'] ?? 0)] ?? []);
+        }
+        unset($ad);
+
+        return $ads;
     }
 
     public static function approve(int $id): void

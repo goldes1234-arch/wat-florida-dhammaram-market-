@@ -446,3 +446,9 @@
   position: absolute; top: -6px; right: -6px; width: 20px; height: 20px; padding: 0; line-height: 18px;
   border-radius: 50%; border: 0; background: #b91c1c; color: #fff; font-size: 14px; cursor: pointer;
 }
+/* "Edit details" form inside a narrow shop card: one field per row */
+.ad-admin-edit summary { cursor: pointer; list-style: none; }
+.ad-admin-edit summary::-webkit-details-marker { display: none; }
+.ad-admin-edit .form-row { display: block; }
+.ad-admin-edit .form-group { margin-bottom: 10px; }
+.ad-admin-edit .form-hint { font-size: 11px; }

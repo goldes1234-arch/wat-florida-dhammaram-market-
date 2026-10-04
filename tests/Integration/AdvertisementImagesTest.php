@@ -141,17 +141,19 @@ class AdvertisementImagesTest extends TestCase
         $html = $this->sectionHtml([$this->find($this->makeAd('multi', 2, 'https://example.com/shop'))]);
 
         $this->assertSame(3, substr_count($html, 'data-lightbox-group="ad-'), 'cover + 2 extras share one group');
-        $this->assertTrue(str_contains($html, 'class="ad-card-visit"'), 'the shop link stays reachable as a button');
-        $this->assertFalse(str_contains($html, '<a href="https://example.com/shop" target="_blank" rel="noopener" class="ad-card"'), 'the card itself is no longer the link');
+        $this->assertSame(3, substr_count($html, 'class="ad-slide'), 'one slide per photo');
+        $this->assertTrue(str_contains($html, 'ad-action-web'), 'the shop link stays reachable as a button');
+        $this->assertTrue(str_contains($html, 'data-ad-slides="3"'));
     }
 
-    public function testASinglePhotoShopWithALinkStillUsesTheWholeCardAsTheLink(): void
+    public function testASinglePhotoShopHasNoSlideshowAndTheLinkIsAButtonNotTheWholeCard(): void
     {
         $html = $this->sectionHtml([$this->find($this->makeAd('single', 0, 'https://example.com/shop'))]);
 
         $this->assertTrue(str_contains($html, 'href="https://example.com/shop"'));
         $this->assertFalse(str_contains($html, 'data-lightbox-group'));
-        $this->assertFalse(str_contains($html, 'ad-card-visit'));
+        $this->assertFalse(str_contains($html, 'data-ad-slides'));
+        $this->assertFalse(str_contains($html, '<a href="https://example.com/shop" target="_blank" rel="noopener" class="ad-card"'));
     }
 
     public function testAnOldAdPhotoGetsAThumbnailFromTheOptimizerAndIsThenNotQueuedAgain(): void

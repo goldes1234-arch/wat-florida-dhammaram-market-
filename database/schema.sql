@@ -117,6 +117,14 @@ CREATE TABLE advertisements (
   -- ~600px preview of the cover for the cards; NULL for older ads (the full image is used).
   thumb_path VARCHAR(255) NULL,
   link_url VARCHAR(255) NULL,
+  -- Eye-catcher on the card: new / popular / promo / featured (labels live in the lang files).
+  badge VARCHAR(20) NULL,
+  -- Shown to visitors as one-tap buttons: call, directions, LINE (link_url stays the website/Facebook).
+  phone VARCHAR(30) NULL,
+  map_url VARCHAR(255) NULL,
+  line_url VARCHAR(255) NULL,
+  -- Optional link to a vendors row: lets the card say "selling at event X, lot A3" from the bookings.
+  vendor_id INT UNSIGNED NULL,
   status ENUM('pending','approved') NOT NULL DEFAULT 'approved',
   contact_name VARCHAR(150) NULL,
   contact_phone VARCHAR(30) NULL,

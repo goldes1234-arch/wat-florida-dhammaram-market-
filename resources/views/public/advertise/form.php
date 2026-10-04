@@ -37,6 +37,25 @@
         <p class="form-hint"><?= __('settings.ads_link_url_hint') ?></p>
       </div>
 
+      <div class="form-row">
+        <div class="form-group">
+          <label><?= __('ads.field_phone') ?> <span class="optional-tag">(<?= __('common.optional') ?>)</span></label>
+          <input type="tel" name="phone" class="form-control" value="<?= e(old('phone')) ?>" placeholder="+1 407 555 0123">
+          <p class="form-hint"><?= __('ads.field_phone_hint') ?></p>
+        </div>
+        <div class="form-group">
+          <label><?= __('ads.field_line') ?> <span class="optional-tag">(<?= __('common.optional') ?>)</span></label>
+          <input type="url" name="line_url" class="form-control" value="<?= e(old('line_url')) ?>" placeholder="https://line.me/ti/p/...">
+          <p class="form-hint"><?= __('ads.field_line_hint') ?></p>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label><?= __('ads.field_map') ?> <span class="optional-tag">(<?= __('common.optional') ?>)</span></label>
+        <input type="url" name="map_url" class="form-control" value="<?= e(old('map_url')) ?>" placeholder="https://maps.app.goo.gl/...">
+        <p class="form-hint"><?= __('ads.field_map_hint') ?></p>
+      </div>
+
       <div class="form-group">
         <label><?= __('settings.ads_image') ?></label>
         <input type="file" name="images[]" class="form-control" accept="image/jpeg,image/png,image/webp" multiple required data-shrink-max="1800">

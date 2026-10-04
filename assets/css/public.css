@@ -309,29 +309,55 @@
   transition: transform .15s ease, box-shadow .15s ease, background-color .15s ease;
 }
 .ad-card:hover, .ad-card:focus-visible { text-decoration: none; transform: translateY(-3px); box-shadow: var(--shadow-md); }
-.ad-card-media {
-  position: relative; display: block; aspect-ratio: 4/3; overflow: hidden;
-  background-size: cover; background-position: center;
+.ad-card-media { position: relative; display: block; aspect-ratio: 4/3; overflow: hidden; }
+/* One slide per photo, stacked; a card with several photos cross-fades through them (public.js). */
+.ad-slide {
+  position: absolute; inset: 0; display: block; background-size: cover; background-position: center;
+  opacity: 0; transition: opacity .9s ease;
 }
+.ad-slide.is-active { opacity: 1; }
 /* Default (logos, tall or very wide images): whole image on a blurred copy of itself. */
-.ad-card-media::before {
+.ad-slide::before {
   content: ''; position: absolute; inset: -12px;
   background: inherit; background-size: cover; background-position: center;
   filter: blur(18px) brightness(.85);
 }
-.ad-card-media img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; transition: transform .3s ease; }
+.ad-slide img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; transition: transform .3s ease; }
 /* Photos shaped like the card fill it edge to edge. */
-.ad-card-media.is-cover::before { display: none; }
-.ad-card-media.is-cover img { object-fit: cover; }
-.ad-card:hover .ad-card-media.is-cover img { transform: scale(1.05); }
+.ad-slide.is-cover::before { display: none; }
+.ad-slide.is-cover img { object-fit: cover; }
+.ad-card:hover .ad-slide.is-cover img { transform: scale(1.05); }
 .ad-card-name { display: block; padding: 12px 14px 2px; font-size: 15px; font-weight: 700; }
 .ad-card-desc {
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden; padding: 2px 14px 6px; font-size: 12.5px; color: var(--color-text-muted); line-height: 1.45;
 }
 .ad-card-count { position: absolute; z-index: 2; right: 8px; bottom: 8px; padding: 2px 8px; border-radius: 999px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; font-weight: 700; }
-.ad-card-visit { margin-left: 8px; color: var(--color-primary); text-decoration: underline; }
-.ad-card-cta { display: block; margin-top: auto; padding: 6px 14px 14px; font-size: 12.5px; font-weight: 700; color: var(--color-primary); }
+/* Ribbon in the corner: new / popular / promo / featured */
+.ad-badge {
+  position: absolute; z-index: 3; left: 8px; top: 8px; padding: 3px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 800; color: #fff; box-shadow: 0 2px 6px rgba(0,0,0,.25);
+}
+.ad-badge-new { background: #16a34a; }
+.ad-badge-popular { background: #dc2626; }
+.ad-badge-promo { background: #9333ea; }
+.ad-badge-featured { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.ad-card.is-featured { border-color: #f59e0b; box-shadow: 0 0 0 2px rgba(245,158,11,.45), var(--shadow-sm); }
+.ad-dots { position: absolute; z-index: 3; left: 0; right: 0; bottom: 8px; display: flex; justify-content: center; gap: 5px; pointer-events: none; }
+.ad-dots i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.6); box-shadow: 0 0 2px rgba(0,0,0,.5); transition: background .3s, transform .3s; }
+.ad-dots i.is-active { background: #fff; transform: scale(1.35); }
+.ad-card-selling { display: block; margin: 2px 14px 4px; padding: 3px 8px; border-radius: 8px; background: rgba(34,197,94,.12); color: #166534; font-size: 12px; font-weight: 700; line-height: 1.4; }
+/* One-tap buttons: call, directions, LINE, website */
+.ad-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 14px 14px; }
+.ad-action {
+  display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; border-radius: 999px;
+  border: 1px solid var(--color-primary); color: var(--color-primary); background: #fff;
+  font-size: 12.5px; font-weight: 700; text-decoration: none; transition: background .15s, color .15s;
+}
+.ad-action:hover, .ad-action:focus-visible { background: var(--color-primary); color: #fff; text-decoration: none; }
+.ad-action-call { background: var(--color-primary); color: #fff; }
+.ad-action-call:hover { filter: brightness(1.08); }
+.ad-card-cta { display: block; margin-top: auto; padding: 6px 14px 10px; font-size: 12.5px; font-weight: 700; color: var(--color-primary); }
 
 /* More than four shops: one scrolling row with arrows, advanced automatically by public.js. */
 .ads-wrap.is-carousel .ads-grid {

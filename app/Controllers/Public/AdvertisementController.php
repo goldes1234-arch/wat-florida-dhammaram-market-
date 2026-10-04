@@ -8,6 +8,7 @@ use App\Core\Request;
 use App\Core\View;
 use App\Models\Advertisement;
 use App\Models\Setting;
+use App\Models\Vendor;
 use App\Services\AdvertisementImageService;
 use App\Services\NotificationService;
 use App\Support\Validator;
@@ -39,6 +40,9 @@ class AdvertisementController
         $contactName = $request->trimmed('contact_name');
         $contactPhone = $request->trimmed('contact_phone');
         $linkUrl = $request->trimmed('link_url');
+        $phone = $request->trimmed('phone');
+        $mapUrl = $request->trimmed('map_url');
+        $lineUrl = $request->trimmed('line_url');
         $files = AdvertisementImageService::normalize($request->files['images'] ?? $request->files['image'] ?? null);
 
         $errors = [];
@@ -57,8 +61,14 @@ class AdvertisementController
         if (!$files) {
             $errors[] = __('validation.required', ['field' => __('settings.ads_image')]);
         }
-        if ($linkUrl !== '' && !filter_var($linkUrl, FILTER_VALIDATE_URL)) {
-            $errors[] = __('settings.ads_invalid_link');
+        foreach ([$linkUrl, $mapUrl, $lineUrl] as $url) {
+            if (!Validator::httpUrl($url)) {
+                $errors[] = __('settings.ads_invalid_link');
+                break;
+            }
+        }
+        if (!Validator::dialable($phone)) {
+            $errors[] = __('ads.invalid_phone');
         }
 
         if ($errors) {
@@ -76,7 +86,14 @@ class AdvertisementController
         }
 
         $cover = array_shift($stored);
-        $id = Advertisement::create($businessName, $cover['path'], $linkUrl ?: null, $description, 'pending', $contactName, $contactPhone, $cover['thumb']);
+        // A submitter whose contact number is a registered vendor gets their upcoming lots shown on the card once approved.
+        $vendor = Vendor::findByDigitsOnlyPhone(preg_replace('/[^0-9]/', '', $contactPhone));
+        $id = Advertisement::create($businessName, $cover['path'], $linkUrl ?: null, $description, 'pending', $contactName, $contactPhone, $cover['thumb'], [
+            'phone' => $phone,
+            'map_url' => $mapUrl,
+            'line_url' => $lineUrl,
+            'vendor_id' => $vendor ? (int) $vendor['id'] : 0,
+        ]);
         foreach ($stored as $extra) {
             Advertisement::addImage($id, $extra['path'], $extra['thumb']);
         }

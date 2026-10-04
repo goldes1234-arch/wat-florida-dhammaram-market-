@@ -71,6 +71,12 @@ class Vendor extends Model
      * the stored phone number — used by the LINE webhook, which only has whatever
      * digit string a vendor happened to type into the chat.
      */
+    /** Id + name (+ phone) of every vendor, for pick lists. */
+    public static function options(): array
+    {
+        return self::db()->query('SELECT id, name, phone FROM vendors ORDER BY name LIMIT 1000')->fetchAll();
+    }
+
     public static function findByDigitsOnlyPhone(string $digits): ?array
     {
         $stmt = self::db()->prepare(

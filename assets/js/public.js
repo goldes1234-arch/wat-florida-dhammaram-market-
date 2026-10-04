@@ -494,12 +494,41 @@
     }
   }
 
-  // Cards without a link open their photo in the lightbox; make them keyboard-activatable too.
+  // Shop cards open their photos in the lightbox; make them keyboard-activatable too
+  // (only when the card itself has focus — Enter on a button inside it must keep working).
   document.querySelectorAll('.ad-card[data-lightbox-src]').forEach(function (card) {
     card.addEventListener('keydown', function (e) {
+      if (e.target !== card) return;
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
     });
   });
+
+  // A shop card with several photos cross-fades through them; paused while hovered/focused, hidden, or for reduced motion.
+  var adSlideMedia = document.querySelectorAll('.ad-card-media[data-ad-slides]');
+  if (adSlideMedia.length && !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches)) {
+    adSlideMedia.forEach(function (media, n) {
+      var slides = media.querySelectorAll('.ad-slide');
+      var dots = media.querySelectorAll('.ad-dots i');
+      var card = media.closest('.ad-card');
+      var current = 0;
+      var held = false;
+      card.addEventListener('mouseenter', function () { held = true; });
+      card.addEventListener('mouseleave', function () { held = false; });
+      card.addEventListener('focusin', function () { held = true; });
+      card.addEventListener('focusout', function () { held = false; });
+      // Offset each card's first tick so a row of shops does not flip in unison.
+      setTimeout(function () {
+        setInterval(function () {
+          if (held || document.hidden) return;
+          slides[current].classList.remove('is-active');
+          if (dots[current]) dots[current].classList.remove('is-active');
+          current = (current + 1) % slides.length;
+          slides[current].classList.add('is-active');
+          if (dots[current]) dots[current].classList.add('is-active');
+        }, 3200);
+      }, (n % 5) * 450);
+    });
+  }
 
   // Payment method cards: clicking anywhere on the card selects its radio.
   document.querySelectorAll('.payment-option').forEach(function (option) {

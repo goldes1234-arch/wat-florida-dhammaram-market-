@@ -58,7 +58,7 @@ class HomeController
             ] : null,
             'featuredEvent' => $featuredEvent,
             'galleryPhotos' => GalleryPhoto::all(),
-            'advertisements' => Advertisement::approved(),
+            'advertisements' => Advertisement::withSellingAt(Advertisement::approved()),
             'lotCounts' => $lotCounts,
             'statEventsCount' => count($events),
             'statAvailableLots' => array_sum(array_map(static fn (array $e) => (int) ($lotCounts[$e['id']]['available'] ?? 0), $events)),

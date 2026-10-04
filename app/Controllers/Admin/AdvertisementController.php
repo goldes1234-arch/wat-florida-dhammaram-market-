@@ -6,7 +6,9 @@ use App\Core\Flash;
 use App\Core\Request;
 use App\Core\View;
 use App\Models\Advertisement;
+use App\Models\Vendor;
 use App\Services\AdvertisementImageService;
+use App\Support\Validator;
 
 class AdvertisementController
 {
@@ -17,23 +19,75 @@ class AdvertisementController
             'active' => 'advertisements',
             'advertisements' => Advertisement::approved(),
             'pendingAdvertisements' => Advertisement::pending(),
+            'vendors' => Vendor::options(),
         ], 'admin');
+    }
+
+    /**
+     * Text fields shared by "add" and "edit". Returns the cleaned values, or null after flashing the first problem.
+     * Every link must be a real http(s) URL: it ends up in an href on the public site.
+     */
+    private function details(Request $request): ?array
+    {
+        $d = [
+            'business_name' => $request->trimmed('business_name'),
+            'description' => $request->trimmed('description'),
+            'link_url' => $request->trimmed('link_url'),
+            'badge' => $request->trimmed('badge'),
+            'phone' => $request->trimmed('phone'),
+            'map_url' => $request->trimmed('map_url'),
+            'line_url' => $request->trimmed('line_url'),
+            'vendor_id' => (int) $request->trimmed('vendor_id'),
+        ];
+
+        if ($d['business_name'] === '') {
+            Flash::error(__('validation.generic_error'));
+            return null;
+        }
+        foreach (['link_url', 'map_url', 'line_url'] as $field) {
+            if (!Validator::httpUrl($d[$field])) {
+                Flash::error(__('settings.ads_invalid_link'));
+                return null;
+            }
+        }
+        if (!Validator::dialable($d['phone'])) {
+            Flash::error(__('ads.invalid_phone'));
+            return null;
+        }
+        if ($d['badge'] !== '' && !Validator::inList($d['badge'], Advertisement::BADGES)) {
+            $d['badge'] = '';
+        }
+        if ($d['vendor_id'] > 0 && !Vendor::find($d['vendor_id'])) {
+            $d['vendor_id'] = 0;
+        }
+
+        return $d;
+    }
+
+    public function update(Request $request, string $id): void
+    {
+        if (!Advertisement::find((int) $id)) {
+            redirect('admin/advertisements');
+        }
+        $d = $this->details($request);
+        if ($d === null) {
+            redirect('admin/advertisements');
+        }
+
+        Advertisement::updateDetails((int) $id, $d);
+        Flash::success(__('ads.updated'));
+        redirect('admin/advertisements');
     }
 
     public function store(Request $request): void
     {
-        $businessName = $request->trimmed('business_name');
-        $description = $request->trimmed('description');
-        $linkUrl = $request->trimmed('link_url');
         $files = AdvertisementImageService::normalize($request->files['images'] ?? $request->files['image'] ?? null);
+        $d = $this->details($request);
 
-        if ($businessName === '' || !$files) {
-            Flash::error(__('validation.generic_error'));
-            redirect('admin/advertisements');
-        }
-
-        if ($linkUrl !== '' && !filter_var($linkUrl, FILTER_VALIDATE_URL)) {
-            Flash::error(__('settings.ads_invalid_link'));
+        if ($d === null || !$files) {
+            if ($d !== null) {
+                Flash::error(__('validation.generic_error'));
+            }
             redirect('admin/advertisements');
         }
 
@@ -45,7 +99,7 @@ class AdvertisementController
         }
 
         $cover = array_shift($stored);
-        $id = Advertisement::create($businessName, $cover['path'], $linkUrl ?: null, $description ?: null, 'approved', null, null, $cover['thumb']);
+        $id = Advertisement::create($d['business_name'], $cover['path'], $d['link_url'], $d['description'], 'approved', null, null, $cover['thumb'], $d);
         foreach ($stored as $extra) {
             Advertisement::addImage($id, $extra['path'], $extra['thumb']);
         }

@@ -1,6 +1,7 @@
 <?php
 /** @var array $advertisements */
 /** @var array $pendingAdvertisements */
+/** @var array $vendors */
 ?>
 <div class="page-header">
   <h1><?= __('nav.advertisements') ?></h1>
@@ -46,21 +47,7 @@
   <p class="form-hint mb-4"><?= __('settings.ads_hint') ?></p>
   <form method="post" action="<?= base_url('admin/advertisements') ?>" enctype="multipart/form-data">
     <?= csrf_field() ?>
-    <div class="form-row" style="align-items:flex-end;">
-      <div class="form-group">
-        <label><?= __('settings.ads_business_name') ?></label>
-        <input type="text" name="business_name" class="form-control" required>
-      </div>
-      <div class="form-group">
-        <label><?= __('settings.ads_link_url') ?></label>
-        <input type="url" name="link_url" class="form-control" placeholder="https://...">
-      </div>
-    </div>
-    <p class="form-hint mb-4"><?= __('settings.ads_link_url_hint') ?></p>
-    <div class="form-group">
-      <label><?= __('settings.ads_description') ?></label>
-      <textarea name="description" class="form-control" rows="2"></textarea>
-    </div>
+    <?= partial('ad_admin_fields', ['ad' => null, 'vendors' => $vendors]) ?>
     <div class="form-row" style="align-items:flex-end;">
       <div class="form-group">
         <label><?= __('settings.ads_image') ?></label>
@@ -81,7 +68,7 @@
     <?php foreach ($advertisements as $ad): ?>
       <div class="card" style="padding:10px;">
         <img src="<?= upload_url($ad['thumb_path'] ?: $ad['image_path']) ?>" class="thumb-sm mb-2" style="width:100%;height:120px;object-fit:contain;background:var(--color-slate-light);" alt="">
-        <div class="text-sm mb-2"><strong><?= e($ad['business_name']) ?></strong></div>
+        <div class="text-sm mb-2"><strong><?= e($ad['business_name']) ?></strong><?php if (!empty($ad['badge'])): ?> <span class="badge badge-indigo"><?= __('ads.badge_' . $ad['badge']) ?></span><?php endif; ?></div>
         <?php if (!empty($ad['description'])): ?><div class="text-sm text-muted mb-2"><?= e($ad['description']) ?></div><?php endif; ?>
         <?php if (!empty($ad['link_url'])): ?><div class="text-sm text-muted mb-2" style="word-break:break-all;"><?= e($ad['link_url']) ?></div><?php endif; ?>
         <?php $extras = array_slice($ad['images'], 1); $room = \App\Models\Advertisement::MAX_IMAGES - count($ad['images']); ?>
@@ -104,6 +91,14 @@
             <button type="submit" class="btn btn-secondary btn-sm" style="width:100%;"><?= __('ads.add_photos') ?></button>
           </form>
         <?php endif; ?>
+        <details class="ad-admin-edit mb-2">
+          <summary class="btn btn-secondary btn-sm" style="width:100%;text-align:center;"><?= __('ads.edit_details') ?></summary>
+          <form method="post" action="<?= base_url('admin/advertisements/' . $ad['id'] . '/update') ?>" class="mt-2">
+            <?= csrf_field() ?>
+            <?= partial('ad_admin_fields', ['ad' => $ad, 'vendors' => $vendors]) ?>
+            <button type="submit" class="btn btn-primary btn-sm" style="width:100%;"><?= __('ads.save_details') ?></button>
+          </form>
+        </details>
         <form method="post" action="<?= base_url('admin/advertisements/' . $ad['id'] . '/delete') ?>" data-confirm="<?= e(__('zone.delete_confirm')) ?>" style="margin:0;">
           <?= csrf_field() ?>
           <button type="submit" class="btn btn-danger btn-sm" style="width:100%;"><?= __('common.delete') ?></button>

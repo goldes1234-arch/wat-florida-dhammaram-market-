@@ -278,4 +278,4 @@ $eventImages = event_images($event);
   </div>
 </div>
 
-<?= partial('ads_section', ['advertisements' => $advertisements]) ?>
+<?= partial('ads_section', ['advertisements' => $advertisements, 'onEventPage' => true]) ?>

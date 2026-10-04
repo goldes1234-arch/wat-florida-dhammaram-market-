@@ -783,6 +783,8 @@ return [
     'public.ad_visit' => 'Visit shop',
     'public.ad_view_photo' => 'View photo',
     'public.ad_view_photos' => 'View :count photos',
+    'public.ad_read_more' => 'Read more ▾',
+    'public.ad_read_less' => 'Show less ▴',
     'public.ads_prev' => 'Previous shops',
     'public.ads_next' => 'Next shops',
     'public.ads_section_title' => 'Featured shops',

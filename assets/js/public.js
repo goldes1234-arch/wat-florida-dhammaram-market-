@@ -146,8 +146,8 @@
 
   document.querySelectorAll('[data-lightbox-src]').forEach(function (trigger) {
     trigger.addEventListener('click', function (e) {
-      // A real link inside the trigger (e.g. a shop card's "visit" button) keeps working.
-      var inner = e.target.closest('a');
+      // A real link or button inside the trigger (a shop card's call/map buttons, "read more") keeps working.
+      var inner = e.target.closest('a, button');
       if (inner && inner !== trigger && trigger.contains(inner)) return;
       e.preventDefault();
       if (!lightbox || !lightboxImg) return;
@@ -502,6 +502,28 @@
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); card.click(); }
     });
   });
+
+  // Long shop descriptions are clamped to 3 lines; "read more" appears only when something is actually cut off and expands the card in place.
+  var adDescWraps = document.querySelectorAll('.ad-card-desc-wrap');
+  function adCheckClamps() {
+    adDescWraps.forEach(function (wrap) {
+      var text = wrap.querySelector('.ad-card-desc');
+      var more = wrap.querySelector('.ad-more');
+      if (!text || !more || wrap.classList.contains('is-open')) return;
+      more.hidden = !(text.scrollHeight > text.clientHeight + 1);
+    });
+  }
+  adDescWraps.forEach(function (wrap) {
+    var more = wrap.querySelector('.ad-more');
+    if (!more) return;
+    more.addEventListener('click', function () {
+      var open = wrap.classList.toggle('is-open');
+      more.textContent = more.getAttribute(open ? 'data-less' : 'data-more');
+    });
+  });
+  adCheckClamps();
+  window.addEventListener('load', adCheckClamps);
+  window.addEventListener('resize', adCheckClamps);
 
   // A shop card with several photos cross-fades through them; paused while hovered/focused, hidden, or for reduced motion.
   var adSlideMedia = document.querySelectorAll('.ad-card-media[data-ad-slides]');

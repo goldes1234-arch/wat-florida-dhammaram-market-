@@ -328,9 +328,16 @@
 .ad-slide.is-cover img { object-fit: cover; }
 .ad-card:hover .ad-slide.is-cover img { transform: scale(1.05); }
 .ad-card-name { display: block; padding: 12px 14px 2px; font-size: 15px; font-weight: 700; }
+.ad-card-desc-wrap { display: block; padding: 2px 14px 6px; }
+/* Clamp on the inner text only (no padding on it), otherwise the next line peeks out under the ellipsis. */
 .ad-card-desc {
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-  overflow: hidden; padding: 2px 14px 6px; font-size: 12.5px; color: var(--color-text-muted); line-height: 1.45;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+  overflow: hidden; font-size: 12.5px; color: var(--color-text-muted); line-height: 1.5;
+}
+.ad-card-desc-wrap.is-open .ad-card-desc { display: block; overflow: visible; -webkit-line-clamp: unset; white-space: pre-line; }
+.ad-more {
+  margin-top: 2px; padding: 4px 0; border: 0; background: none; cursor: pointer;
+  font: inherit; font-size: 12.5px; font-weight: 700; color: var(--color-primary);
 }
 .ad-card-count { position: absolute; z-index: 2; right: 8px; bottom: 8px; padding: 2px 8px; border-radius: 999px; background: rgba(0,0,0,.65); color: #fff; font-size: 12px; font-weight: 700; }
 /* Ribbon in the corner: new / popular / promo / featured */

@@ -70,7 +70,10 @@ $onEventPage = !empty($onEventPage);
             </span>
           <?php endif; ?>
           <?php if (!empty($ad['description'])): ?>
-            <span class="ad-card-desc"><?= e($ad['description']) ?></span>
+            <span class="ad-card-desc-wrap">
+              <span class="ad-card-desc"><?= e($ad['description']) ?></span>
+              <button type="button" class="ad-more" hidden data-more="<?= e(__('public.ad_read_more')) ?>" data-less="<?= e(__('public.ad_read_less')) ?>"><?= __('public.ad_read_more') ?></button>
+            </span>
           <?php endif; ?>
           <span class="ad-card-cta">🔍 <?= $photoCount > 1 ? __('public.ad_view_photos', ['count' => (string) $photoCount]) : __('public.ad_view_photo') ?></span>
           <?php if ($actions): ?>

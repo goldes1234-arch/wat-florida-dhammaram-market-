@@ -783,6 +783,8 @@ return [
     'public.ad_visit' => 'ดูร้านค้า',
     'public.ad_view_photo' => 'ดูรูปใหญ่',
     'public.ad_view_photos' => 'ดูรูป :count รูป',
+    'public.ad_read_more' => 'อ่านเพิ่มเติม ▾',
+    'public.ad_read_less' => 'ย่อข้อความ ▴',
     'public.ads_prev' => 'ร้านก่อนหน้า',
     'public.ads_next' => 'ร้านถัดไป',
     'public.ads_section_title' => 'ร้านค้าแนะนำ',

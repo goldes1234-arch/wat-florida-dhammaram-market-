@@ -162,4 +162,17 @@ class AdvertisementCardsTest extends TestCase
         $this->assertFalse(Validator::dialable('12'));
         $this->assertFalse(Validator::dialable('+1 407 555 0123 <b>'));
     }
+
+    public function testALongDescriptionIsRenderedInFullWithAReadMoreButtonForTheCssClamp(): void
+    {
+        $long = str_repeat('Fresh chef-inspired dishes made with traditional Thai flavors. ', 12) . 'THE-END';
+        $id = Advertisement::create('[TEST] long', 'zz_ads/c.webp', null, $long);
+        $this->adIds[] = $id;
+
+        $html = $this->html(Advertisement::withImages([Advertisement::find($id)]));
+
+        $this->assertTrue(str_contains($html, 'THE-END'), 'the whole text must be in the page, the clamp is visual only');
+        $this->assertTrue(str_contains($html, 'class="ad-more"'));
+        $this->assertTrue(str_contains($html, 'data-less='));
+    }
 }

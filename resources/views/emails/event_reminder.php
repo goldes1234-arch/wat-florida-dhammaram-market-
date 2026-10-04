@@ -6,12 +6,12 @@
   </div>
   <div style="border:1px solid #E2E8F0;border-top:none;padding:24px;border-radius:0 0 12px 12px;">
     <p><?= __('email.greeting', ['name' => $booking['booker_name']]) ?></p>
-    <p><?= __('email.event_reminder_body', ['event' => e($eventName), 'date' => e(date('d/m/Y', strtotime((string) $event['start_date'])))]) ?></p>
+    <p><?= __('email.event_reminder_body', ['event' => e($eventName), 'date' => e(date('m/d/Y', strtotime((string) $event['start_date'])))]) ?></p>
 
     <table style="width:100%;font-size:14px;border-collapse:collapse;margin-top:14px;">
       <tr>
         <td style="padding:6px 0;color:#64748B;"><?= __('event.start_date') ?></td>
-        <td style="padding:6px 0;text-align:right;font-weight:600;"><?= e(date('d/m/Y', strtotime((string) $event['start_date']))) ?></td>
+        <td style="padding:6px 0;text-align:right;font-weight:600;"><?= e(date('m/d/Y', strtotime((string) $event['start_date']))) ?></td>
       </tr>
       <tr>
         <td style="padding:6px 0;color:#64748B;"><?= __('lot.singular') ?></td>

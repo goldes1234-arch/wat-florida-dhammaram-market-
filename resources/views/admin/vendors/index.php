@@ -61,7 +61,7 @@
             <td>
               <strong><?= e($vendor['name']) ?></strong>
               <?php if (!empty($vendor['deletion_requested_at'])): ?>
-                <span class="badge badge-red" title="<?= e(__('vendor.deletion_requested_at', ['date' => date('d/m/Y H:i', strtotime($vendor['deletion_requested_at']))])) ?>">🗑️ <?= __('vendor.deletion_requested_badge') ?></span>
+                <span class="badge badge-red" title="<?= e(__('vendor.deletion_requested_at', ['date' => date('m/d/Y H:i', strtotime($vendor['deletion_requested_at']))])) ?>">🗑️ <?= __('vendor.deletion_requested_badge') ?></span>
               <?php endif; ?>
             </td>
             <td><?= e($vendor['phone']) ?></td>

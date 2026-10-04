@@ -51,7 +51,7 @@ class ReceiptPdfService
             self::renderInfoRow($pdf, __('lot.price'), money((float) $booking['price_at_booking'], $booking['currency_code']));
             self::renderInfoRow($pdf, __('booking.payment_method'), payment_method_label($booking['payment_method']));
             self::renderInfoRow($pdf, __('public.receipt_status'), booking_status_label($booking['status']));
-            self::renderInfoRow($pdf, __('public.receipt_created_at'), date('d/m/Y H:i', strtotime($booking['created_at'])));
+            self::renderInfoRow($pdf, __('public.receipt_created_at'), date('m/d/Y H:i', strtotime($booking['created_at'])));
 
             self::renderSectionLabel($pdf, __('public.receipt_booker'));
             self::renderInfoRow($pdf, __('booking.booker_name'), $booking['booker_name']);
@@ -79,7 +79,7 @@ class ReceiptPdfService
             $pdf->Ln(4);
             $pdf->SetTextColor(140, 130, 110);
             $pdf->SetX(self::PAGE_MARGIN);
-            self::renderWrappedText($pdf, 210 - 2 * self::PAGE_MARGIN, 5, __('public.receipt_generated_note', ['datetime' => date('d/m/Y H:i')]));
+            self::renderWrappedText($pdf, 210 - 2 * self::PAGE_MARGIN, 5, __('public.receipt_generated_note', ['datetime' => date('m/d/Y H:i')]));
 
             return $pdf->Output('S');
         } finally {

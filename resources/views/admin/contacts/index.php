@@ -33,7 +33,7 @@
               <?php if (!empty($m['phone'])): ?><div><a href="tel:<?= e($m['phone']) ?>"><?= e($m['phone']) ?></a></div><?php endif; ?>
             </td>
             <td style="max-width:320px;white-space:pre-line;"><?= e($m['message']) ?></td>
-            <td class="text-sm text-muted"><?= e(date('d/m/Y H:i', strtotime($m['created_at']))) ?></td>
+            <td class="text-sm text-muted"><?= e(date('m/d/Y H:i', strtotime($m['created_at']))) ?></td>
             <td>
               <?php if (!$m['is_read']): ?>
                 <form method="post" action="<?= base_url('admin/contacts/' . $m['id'] . '/read') ?>" style="margin:0;">

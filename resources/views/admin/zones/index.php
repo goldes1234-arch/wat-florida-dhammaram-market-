@@ -13,7 +13,7 @@
         <select name="source_event_id" class="form-control">
           <option value=""><?= __('zone.copy_placeholder') ?></option>
           <?php foreach ($copyableEvents as $ce): ?>
-            <option value="<?= (int) $ce['id'] ?>"><?= e($ce['name_th']) ?> (<?= e(date('d/m/Y', strtotime($ce['start_date']))) ?>)</option>
+            <option value="<?= (int) $ce['id'] ?>"><?= e($ce['name_th']) ?> (<?= e(date('m/d/Y', strtotime($ce['start_date']))) ?>)</option>
           <?php endforeach; ?>
         </select>
       </div>

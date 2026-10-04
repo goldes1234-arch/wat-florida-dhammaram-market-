@@ -16,7 +16,7 @@
 
 <?php if (!empty($vendor['deletion_requested_at'])): ?>
   <div class="card mb-6" style="border-color:var(--color-danger-light);background:var(--color-danger-light);max-width:520px;">
-    <p class="text-sm mb-4"><?= __('vendor.deletion_requested_at', ['date' => date('d/m/Y H:i', strtotime($vendor['deletion_requested_at']))]) ?></p>
+    <p class="text-sm mb-4"><?= __('vendor.deletion_requested_at', ['date' => date('m/d/Y H:i', strtotime($vendor['deletion_requested_at']))]) ?></p>
     <form method="post" action="<?= base_url('admin/vendors/' . $vendor['id'] . '/dismiss-deletion-request') ?>" data-confirm="<?= e(__('vendor.dismiss_deletion_request_confirm')) ?>" style="margin:0;">
       <?= csrf_field() ?>
       <button type="submit" class="btn btn-secondary btn-sm"><?= __('vendor.dismiss_deletion_request_button') ?></button>
@@ -63,7 +63,7 @@
   <div class="card-header"><h3><?= __('vendor.line_title') ?></h3></div>
   <?php if (!empty($vendor['line_pending_user_id'])): ?>
     <div class="alert alert-warning mb-4">
-      <p class="text-sm mb-4"><?= __('vendor.line_link_pending', ['date' => date('d/m/Y H:i', strtotime($vendor['line_link_requested_at']))]) ?></p>
+      <p class="text-sm mb-4"><?= __('vendor.line_link_pending', ['date' => date('m/d/Y H:i', strtotime($vendor['line_link_requested_at']))]) ?></p>
       <?php if (!empty($vendor['line_user_id'])): ?>
         <p class="text-sm mb-4"><strong><?= __('vendor.line_link_replaces_warning') ?></strong></p>
       <?php endif; ?>
@@ -117,7 +117,7 @@
               <td><strong><?= e($booking['lot_code']) ?></strong></td>
               <td><?= e($booking['booking_code']) ?></td>
               <td><span class="<?= booking_status_badge_class($booking['status']) ?>"><?= booking_status_label($booking['status']) ?></span></td>
-              <td><?= date('d/m/Y', strtotime((string) $booking['event_start_date'])) ?></td>
+              <td><?= date('m/d/Y', strtotime((string) $booking['event_start_date'])) ?></td>
             </tr>
           <?php endforeach; ?>
         </tbody>

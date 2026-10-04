@@ -41,7 +41,7 @@
                   <td><strong><?= e($booking['lot_code']) ?></strong></td>
                   <td><?= e($booking['booking_code']) ?></td>
                   <td><span class="<?= booking_status_badge_class($booking['status']) ?>"><?= booking_status_label($booking['status']) ?></span></td>
-                  <td><?= e(date('d/m/Y', strtotime((string) $booking['event_start_date']))) ?></td>
+                  <td><?= e(date('m/d/Y', strtotime((string) $booking['event_start_date']))) ?></td>
                 </tr>
               <?php endforeach; ?>
             </tbody>
@@ -59,7 +59,7 @@
       <a href="<?= base_url('vendor/portal/' . $token . '/export') ?>" class="btn btn-secondary mb-4"><?= icon('download') ?> <?= __('vendor_portal.export_button') ?></a>
 
       <?php if (!empty($vendor['deletion_requested_at'])): ?>
-        <p class="text-sm" style="color:var(--color-warning-dark);">⏳ <?= __('vendor_portal.deletion_already_requested', ['date' => date('d/m/Y H:i', strtotime($vendor['deletion_requested_at']))]) ?></p>
+        <p class="text-sm" style="color:var(--color-warning-dark);">⏳ <?= __('vendor_portal.deletion_already_requested', ['date' => date('m/d/Y H:i', strtotime($vendor['deletion_requested_at']))]) ?></p>
       <?php else: ?>
         <form method="post" action="<?= base_url('vendor/portal/' . $token . '/request-deletion') ?>" data-confirm="<?= e(__('vendor_portal.request_deletion_confirm')) ?>">
           <?= csrf_field() ?>

@@ -75,7 +75,7 @@ $contactRows = $contacts ?? [];
           <select id="copyContactsSource" class="form-control">
             <option value=""><?= __('event.copy_contacts_placeholder') ?></option>
             <?php foreach ($copyableEvents as $ce): ?>
-              <option value="<?= (int) $ce['id'] ?>"><?= e($ce['name_th']) ?> (<?= e(date('d/m/Y', strtotime($ce['start_date']))) ?>)</option>
+              <option value="<?= (int) $ce['id'] ?>"><?= e($ce['name_th']) ?> (<?= e(date('m/d/Y', strtotime($ce['start_date']))) ?>)</option>
             <?php endforeach; ?>
           </select>
         </div>

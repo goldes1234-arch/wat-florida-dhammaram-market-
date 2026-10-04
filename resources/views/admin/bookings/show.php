@@ -19,12 +19,12 @@
       <div class="info-row"><span class="info-label"><?= __('booking.booker_email') ?></span><span class="info-value"><?= e($booking['booker_email'] ?: '—') ?></span></div>
       <div class="info-row"><span class="info-label"><?= __('booking.payment_method') ?></span><span class="info-value"><?= payment_method_label($booking['payment_method']) ?></span></div>
       <div class="info-row"><span class="info-label"><?= __('lot.price') ?></span><span class="info-value"><?= money((float) $booking['price_at_booking'], $booking['currency_code']) ?></span></div>
-      <div class="info-row"><span class="info-label"><?= __('common.date') ?></span><span class="info-value"><?= e(date('d/m/Y H:i', strtotime($booking['created_at']))) ?></span></div>
+      <div class="info-row"><span class="info-label"><?= __('common.date') ?></span><span class="info-value"><?= e(date('m/d/Y H:i', strtotime($booking['created_at']))) ?></span></div>
       <?php if (!empty($booking['admin_note'])): ?>
         <div class="info-row"><span class="info-label"><?= __('common.note') ?></span><span class="info-value"><?= e($booking['admin_note']) ?></span></div>
       <?php endif; ?>
       <?php if (!empty($booking['refunded_at'])): ?>
-        <div class="info-row"><span class="info-label"><?= __('booking.refunded_label') ?></span><span class="info-value">✅ <?= e(date('d/m/Y H:i', strtotime($booking['refunded_at']))) ?></span></div>
+        <div class="info-row"><span class="info-label"><?= __('booking.refunded_label') ?></span><span class="info-value">✅ <?= e(date('m/d/Y H:i', strtotime($booking['refunded_at']))) ?></span></div>
       <?php endif; ?>
     </div>
 
@@ -124,7 +124,7 @@
             </span>
           </div>
           <?php if (!empty($log['note'])): ?><div class="text-sm"><?= e($log['note']) ?></div><?php endif; ?>
-          <div class="status-log-meta"><?= e(date('d/m/Y H:i', strtotime($log['created_at']))) ?></div>
+          <div class="status-log-meta"><?= e(date('m/d/Y H:i', strtotime($log['created_at']))) ?></div>
         </div>
       </div>
     <?php endforeach; ?>

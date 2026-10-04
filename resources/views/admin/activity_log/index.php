@@ -20,7 +20,7 @@
       <tbody>
         <?php foreach ($logs as $log): ?>
           <tr>
-            <td class="text-sm text-muted" style="white-space:nowrap;"><?= e(date('d/m/Y H:i', strtotime($log['created_at']))) ?></td>
+            <td class="text-sm text-muted" style="white-space:nowrap;"><?= e(date('m/d/Y H:i', strtotime($log['created_at']))) ?></td>
             <td class="text-sm"><?= e($log['admin_name'] ?? __('activity.unknown_admin')) ?></td>
             <td class="text-sm"><?= e($log['description']) ?></td>
             <td class="text-sm text-muted"><?= e($log['ip_address'] ?? '—') ?></td>

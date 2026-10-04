@@ -24,7 +24,7 @@
             <input type="checkbox" name="event_ids[]" value="<?= (int) $ev['id'] ?>" id="ev<?= (int) $ev['id'] ?>"
                    <?= in_array((int) $ev['id'], $assignedEventIds, true) ? 'checked' : '' ?>>
             <label for="ev<?= (int) $ev['id'] ?>" style="margin:0;">
-              <?= e($ev['name_th']) ?> <span class="text-muted text-sm">(<?= e(date('d/m/Y', strtotime($ev['start_date']))) ?>)</span>
+              <?= e($ev['name_th']) ?> <span class="text-muted text-sm">(<?= e(date('m/d/Y', strtotime($ev['start_date']))) ?>)</span>
             </label>
           </div>
         <?php endforeach; ?>

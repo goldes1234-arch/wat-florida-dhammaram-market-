@@ -20,7 +20,7 @@
   <?php if ($booking['status'] !== 'booked'): ?>
     <div class="alert alert-error mt-4"><?= __('checkin.not_confirmed_yet') ?></div>
   <?php elseif ($booking['checked_in_at']): ?>
-    <div class="alert alert-success mt-4">✅ <?= __('checkin.checked_in_label') ?> <?= e(date('d/m/Y H:i', strtotime($booking['checked_in_at']))) ?></div>
+    <div class="alert alert-success mt-4">✅ <?= __('checkin.checked_in_label') ?> <?= e(date('m/d/Y H:i', strtotime($booking['checked_in_at']))) ?></div>
   <?php else: ?>
     <form method="post" action="<?= base_url('admin/checkin/' . $booking['booking_code'] . '/confirm') ?>" class="mt-4">
       <?= csrf_field() ?>

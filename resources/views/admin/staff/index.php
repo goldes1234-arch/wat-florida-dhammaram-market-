@@ -61,7 +61,7 @@
           <td><?= e($u['email']) ?></td>
           <td class="text-sm"><?= $u['phone'] ? e($u['phone']) : '<span class="text-muted">' . __('staff.phone_none') . '</span>' ?></td>
           <td><span class="badge badge-indigo"><?= __('staff.role_' . $u['role']) ?></span></td>
-          <td class="text-sm text-muted"><?= $u['last_login_at'] ? e(date('d/m/Y H:i', strtotime($u['last_login_at']))) : __('staff.never_logged_in') ?></td>
+          <td class="text-sm text-muted"><?= $u['last_login_at'] ? e(date('m/d/Y H:i', strtotime($u['last_login_at']))) : __('staff.never_logged_in') ?></td>
           <td>
             <?php if ($u['is_active']): ?>
               <span class="badge badge-green"><?= __('staff.active') ?></span>

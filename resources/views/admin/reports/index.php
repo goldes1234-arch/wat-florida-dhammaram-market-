@@ -36,7 +36,7 @@ foreach ($trend as $r) {
       <option value=""><?= __('report.all_events') ?></option>
       <?php foreach ($events as $ev): ?>
         <option value="<?= (int) $ev['id'] ?>" <?= $selectedEventId === (int) $ev['id'] ? 'selected' : '' ?>>
-          <?= e($ev['name_th']) ?> (<?= e(date('d/m/Y', strtotime($ev['start_date']))) ?>)
+          <?= e($ev['name_th']) ?> (<?= e(date('m/d/Y', strtotime($ev['start_date']))) ?>)
         </option>
       <?php endforeach; ?>
     </select>
@@ -137,7 +137,7 @@ foreach ($trend as $r) {
               ?>
               <tr onclick="location.href='<?= base_url('admin/reports?event_id=' . $ev['id']) ?>'" style="cursor:pointer;">
                 <td><strong><?= e($ev['name_th']) ?></strong></td>
-                <td><?= e(date('d/m/Y', strtotime($ev['start_date']))) ?></td>
+                <td><?= e(date('m/d/Y', strtotime($ev['start_date']))) ?></td>
                 <td><?= $booked ?> / <?= $total ?></td>
                 <td><?= e((string) $sellThrough) ?>%</td>
                 <td><?= money((float) $ev['revenue']) ?></td>

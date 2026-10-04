@@ -19,7 +19,7 @@ $renderRows = static function (array $list) use ($lotCounts): void {
               <div class="text-sm text-muted"><?= __('event.draft_badge') ?></div>
             <?php endif; ?>
           </td>
-          <td data-label="<?= e(__('event.start_date')) ?>"><?= e(date('d/m/Y', strtotime($event['start_date']))) ?><?= $event['end_date'] !== $event['start_date'] ? ' – ' . e(date('d/m/Y', strtotime($event['end_date']))) : '' ?></td>
+          <td data-label="<?= e(__('event.start_date')) ?>"><?= e(date('m/d/Y', strtotime($event['start_date']))) ?><?= $event['end_date'] !== $event['start_date'] ? ' – ' . e(date('m/d/Y', strtotime($event['end_date']))) : '' ?></td>
           <td data-label="<?= e(__('common.status')) ?>">
             <?php if ($event['is_published']): ?>
               <span class="<?= EventStatusService::badgeClass($status) ?>"><?= EventStatusService::label($status) ?></span>

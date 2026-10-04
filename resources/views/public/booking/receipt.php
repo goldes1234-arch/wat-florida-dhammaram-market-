@@ -62,7 +62,7 @@ if ($locale === 'en') {
     <div class="info-row"><span class="info-label"><?= __('lot.price') ?></span><span class="info-value"><?= money((float) $booking['price_at_booking'], $booking['currency_code']) ?></span></div>
     <div class="info-row"><span class="info-label"><?= __('booking.payment_method') ?></span><span class="info-value"><?= payment_method_label($booking['payment_method']) ?></span></div>
     <div class="info-row"><span class="info-label"><?= __('public.receipt_status') ?></span><span class="info-value"><span class="<?= booking_status_badge_class($booking['status']) ?>"><?= booking_status_label($booking['status']) ?></span></span></div>
-    <div class="info-row"><span class="info-label"><?= __('public.receipt_created_at') ?></span><span class="info-value"><?= e(date('d/m/Y H:i', strtotime($booking['created_at']))) ?></span></div>
+    <div class="info-row"><span class="info-label"><?= __('public.receipt_created_at') ?></span><span class="info-value"><?= e(date('m/d/Y H:i', strtotime($booking['created_at']))) ?></span></div>
 
     <div class="receipt-section-label"><?= __('public.receipt_booker') ?></div>
     <div class="info-row"><span class="info-label"><?= __('booking.booker_name') ?></span><span class="info-value"><?= e($booking['booker_name']) ?></span></div>
@@ -84,7 +84,7 @@ if ($locale === 'en') {
     <?php endif; ?>
 
     <p class="receipt-footer-note"><?= e(__('public.cancellation_policy', \App\Services\BookingService::policyDays())) ?></p>
-    <p class="receipt-footer-note"><?= __('public.receipt_generated_note', ['datetime' => date('d/m/Y H:i')]) ?></p>
+    <p class="receipt-footer-note"><?= __('public.receipt_generated_note', ['datetime' => date('m/d/Y H:i')]) ?></p>
   </div>
 </div>
 

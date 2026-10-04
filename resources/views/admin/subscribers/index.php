@@ -23,7 +23,7 @@
           <tr>
             <td><?= e($s['email'] ?: '—') ?></td>
             <td><?= e($s['phone'] ?: '—') ?></td>
-            <td><?= e(date('d/m/Y H:i', strtotime($s['created_at']))) ?></td>
+            <td><?= e(date('m/d/Y H:i', strtotime($s['created_at']))) ?></td>
             <td>
               <?php if ($s['notified_at']): ?>
                 <span class="badge badge-green"><?= __('subscriber.notified') ?></span>
@@ -59,7 +59,7 @@
             <td><?= e($w['name']) ?></td>
             <td><?= e($w['phone']) ?></td>
             <td><?= e($w['email'] ?: '—') ?></td>
-            <td><?= e(date('d/m/Y H:i', strtotime($w['created_at']))) ?></td>
+            <td><?= e(date('m/d/Y H:i', strtotime($w['created_at']))) ?></td>
             <td>
               <?php if ($w['notified_at']): ?>
                 <span class="badge badge-green"><?= __('subscriber.notified') ?></span>

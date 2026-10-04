@@ -45,7 +45,7 @@
       <?= csrf_field() ?>
       <button type="submit" class="btn btn-danger btn-block"><?= __('public.cancel_button') ?></button>
       <p class="form-hint text-center mt-2"><?= __('public.cancel_deadline_notice', [
-        'date' => date('d/m/Y', strtotime((string) $booking['event_start_date']) - $cutoffDays * 86400),
+        'date' => date('m/d/Y', strtotime((string) $booking['event_start_date']) - $cutoffDays * 86400),
         'days' => $cutoffDays,
       ]) ?></p>
     </form>

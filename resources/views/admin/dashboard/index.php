@@ -268,7 +268,7 @@ $revenueMethodTotal = array_sum($revenueMethodData);
             <?php else: ?>
               <a href="<?= base_url('admin/events/' . $ev['id'] . '/edit') ?>"><?= e($ev['name_th']) ?></a>
             <?php endif; ?>
-            <div class="status-log-meta"><?= e(date('d/m/Y', strtotime($ev['start_date']))) ?></div>
+            <div class="status-log-meta"><?= e(date('m/d/Y', strtotime($ev['start_date']))) ?></div>
           </div>
         </div>
       <?php endforeach; ?>

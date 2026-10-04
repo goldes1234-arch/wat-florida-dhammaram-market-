@@ -75,7 +75,7 @@ $primaryCtaUrl = $featuredEvent ? base_url('events/' . $featuredEvent['slug']) :
             </div>
           <?php elseif ($nextEventDate !== null): ?>
             <div class="hero-stat">
-              <span class="hero-stat-value"><?= e(date('d/m', $nextEventDate)) ?></span>
+              <span class="hero-stat-value"><?= e(date('m/d', $nextEventDate)) ?></span>
               <span class="hero-stat-label"><?= __('public.stat_next_event') ?></span>
             </div>
           <?php endif; ?>
@@ -96,7 +96,7 @@ $primaryCtaUrl = $featuredEvent ? base_url('events/' . $featuredEvent['slug']) :
             <span class="featured-badge"><?= icon('clock') ?> <?= __('public.featured_badge') ?></span>
             <h3><?= e($featuredEvent['name_th']) ?></h3>
             <div class="featured-meta">
-              <span><?= icon('calendar') ?> <?= e(date('d/m/Y', strtotime($featuredEvent['start_date']))) ?></span>
+              <span><?= icon('calendar') ?> <?= e(date('m/d/Y', strtotime($featuredEvent['start_date']))) ?></span>
               <?php if (!empty($featuredEvent['venue_name'])): ?><span><?= icon('map-pin') ?> <?= e($featuredEvent['venue_name']) ?></span><?php endif; ?>
               <?php if ($flc && $flc['total'] > 0): ?><span><?= icon('ticket') ?> <?= __('public.lots_left', ['count' => $flc['available']]) ?></span><?php endif; ?>
             </div>
@@ -152,7 +152,7 @@ $primaryCtaUrl = $featuredEvent ? base_url('events/' . $featuredEvent['slug']) :
         <div class="event-card-body">
           <h3><?= e($event['name_th']) ?></h3>
           <div class="event-card-meta">
-            <span><?= icon('calendar') ?> <?= e(date('d/m/Y', strtotime($event['start_date']))) ?> – <?= e(date('d/m/Y', strtotime($event['end_date']))) ?></span>
+            <span><?= icon('calendar') ?> <?= e(date('m/d/Y', strtotime($event['start_date']))) ?> – <?= e(date('m/d/Y', strtotime($event['end_date']))) ?></span>
             <?php if (!empty($event['venue_name'])): ?><span><?= icon('map-pin') ?> <?= e($event['venue_name']) ?></span><?php endif; ?>
           </div>
           <div class="event-card-footer">
@@ -169,7 +169,7 @@ $primaryCtaUrl = $featuredEvent ? base_url('events/' . $featuredEvent['slug']) :
     <summary><?= __('public.past_events_title', ['count' => (string) count($pastEvents)]) ?></summary>
     <ul>
       <?php foreach ($pastEvents as $pe): ?>
-        <li><a href="<?= base_url('events/' . $pe['slug']) ?>"><?= e($pe['name_th']) ?></a> <span class="text-muted"><?= e(date('d/m/Y', strtotime($pe['start_date']))) ?></span></li>
+        <li><a href="<?= base_url('events/' . $pe['slug']) ?>"><?= e($pe['name_th']) ?></a> <span class="text-muted"><?= e(date('m/d/Y', strtotime($pe['start_date']))) ?></span></li>
       <?php endforeach; ?>
     </ul>
   </details>

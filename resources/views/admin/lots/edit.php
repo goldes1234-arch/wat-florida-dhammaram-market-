@@ -126,7 +126,7 @@
     <div class="info-row"><span><?= __('lot.reserve_vendor_name') ?></span><strong><?= e($lot['reserved_vendor_name']) ?></strong></div>
     <div class="info-row"><span><?= __('lot.reserve_vendor_phone') ?></span><strong><?= e($lot['reserved_vendor_phone']) ?></strong></div>
     <div class="info-row"><span><?= __('lot.reserve_vendor_email') ?></span><strong><?= $lot['reserved_vendor_email'] ? e($lot['reserved_vendor_email']) : '—' ?></strong></div>
-    <div class="info-row"><span><?= __('lot.reserve_deadline_label') ?></span><strong><?= date('d/m/Y', $deadlineAt) ?></strong></div>
+    <div class="info-row"><span><?= __('lot.reserve_deadline_label') ?></span><strong><?= date('m/d/Y', $deadlineAt) ?></strong></div>
     <p class="form-hint mb-4"><?= empty($lot['reserved_vendor_email']) ? __('lot.reserve_link_hint_no_email') : __('lot.reserve_link_hint') ?></p>
     <div class="form-group">
       <input type="text" class="form-control" readonly value="<?= e(full_url('reserve/' . $lot['reserved_token'])) ?>" onclick="this.select()">
@@ -144,6 +144,6 @@
 
 <?php elseif ($lot['status'] === 'booked' && !empty($lot['reserved_confirmed_at'])): ?>
   <div class="card mt-6" style="max-width:520px;">
-    <p class="text-sm text-muted mb-0">✅ <?= __('lot.reserve_confirmed_note', ['date' => date('d/m/Y H:i', strtotime((string) $lot['reserved_confirmed_at']))]) ?></p>
+    <p class="text-sm text-muted mb-0">✅ <?= __('lot.reserve_confirmed_note', ['date' => date('m/d/Y H:i', strtotime((string) $lot['reserved_confirmed_at']))]) ?></p>
   </div>
 <?php endif; ?>

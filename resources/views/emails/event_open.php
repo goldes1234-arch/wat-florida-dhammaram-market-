@@ -7,8 +7,8 @@
   <div style="border:1px solid #E2E8F0;border-top:none;padding:24px;border-radius:0 0 12px 12px;">
     <p><?= e($eventName) ?> — <?= __('event.status_open') ?></p>
     <p style="font-size:13px;color:#64748B;">
-      <?= e($event['venue_name'] ?? '') ?> · <?= e(date('d/m/Y', strtotime($event['start_date']))) ?>
-      – <?= e(date('d/m/Y', strtotime($event['end_date']))) ?>
+      <?= e($event['venue_name'] ?? '') ?> · <?= e(date('m/d/Y', strtotime($event['start_date']))) ?>
+      – <?= e(date('m/d/Y', strtotime($event['end_date']))) ?>
     </p>
     <p style="margin-top:18px;">
       <a href="<?= full_url('events/' . $event['slug']) ?>"

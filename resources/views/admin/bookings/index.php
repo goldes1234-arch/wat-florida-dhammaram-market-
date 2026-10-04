@@ -110,7 +110,7 @@ $allCount = array_sum($statusCounts);
               <td data-label="<?= e(__('booking.items_for_sale_label')) ?>" class="text-sm"><?= e($b['items_for_sale'] ?? '') ?: '<span class="text-muted">—</span>' ?></td>
               <td data-label="<?= e(__('booking.payment_method')) ?>"><?= payment_method_label($b['payment_method']) ?></td>
               <td data-label="<?= e(__('common.status')) ?>"><span class="<?= booking_status_badge_class($b['status']) ?>"><?= booking_status_label($b['status']) ?></span></td>
-              <td data-label="<?= e(__('common.date')) ?>" class="text-sm text-muted"><?= e(date('d/m/Y H:i', strtotime($b['created_at']))) ?></td>
+              <td data-label="<?= e(__('common.date')) ?>" class="text-sm text-muted"><?= e(date('m/d/Y H:i', strtotime($b['created_at']))) ?></td>
               <td onclick="event.stopPropagation()" class="cell-actions cell-actions-stack">
                 <?php if ($b['status'] === 'pending_payment'): ?>
                   <button type="submit" form="qa-confirm-<?= (int) $b['id'] ?>" class="btn btn-success btn-sm"><?= __('booking.quick_confirm') ?></button>

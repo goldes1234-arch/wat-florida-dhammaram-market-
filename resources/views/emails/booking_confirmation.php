@@ -16,7 +16,7 @@
     <table style="width:100%;font-size:14px;border-collapse:collapse;">
       <tr>
         <td style="padding:6px 0;color:#64748B;"><?= __('event.start_date') ?></td>
-        <td style="padding:6px 0;text-align:right;font-weight:600;"><?= e(date('d/m/Y', strtotime($event['start_date']))) ?></td>
+        <td style="padding:6px 0;text-align:right;font-weight:600;"><?= e(date('m/d/Y', strtotime($event['start_date']))) ?></td>
       </tr>
       <tr>
         <td style="padding:6px 0;color:#64748B;"><?= __('lot.price') ?></td>

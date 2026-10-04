@@ -39,7 +39,7 @@ $driveConnected = GoogleDriveService::isConnected();
     <p class="text-sm mb-2">✅ <?= __('gdrive.connected_as', ['account' => $drive['gdrive_account'] ?: '—']) ?></p>
     <p class="text-sm text-muted mb-2">
       <?= !empty($drive['gdrive_last_upload_at'])
-          ? __('gdrive.last_upload', ['date' => date('d/m/Y H:i', strtotime($drive['gdrive_last_upload_at']))])
+          ? __('gdrive.last_upload', ['date' => date('m/d/Y H:i', strtotime($drive['gdrive_last_upload_at']))])
           : __('gdrive.never_uploaded') ?>
       · <?= __('gdrive.keep_note', ['keep' => (string) (int) \App\Core\App::config('google.keep')]) ?>
     </p>
@@ -77,7 +77,7 @@ $driveConnected = GoogleDriveService::isConnected();
           <tr>
             <td class="text-sm"><?= e($b['filename']) ?></td>
             <td class="text-sm text-muted"><?= e(number_format($b['size'] / 1024 / 1024, 2)) ?> MB</td>
-            <td class="text-sm text-muted"><?= e(date('d/m/Y H:i', $b['created_at'])) ?></td>
+            <td class="text-sm text-muted"><?= e(date('m/d/Y H:i', $b['created_at'])) ?></td>
             <td>
               <a href="<?= base_url('admin/backups/' . urlencode($b['filename']) . '/download') ?>" class="btn btn-secondary btn-sm"><?= __('backup.download') ?></a>
               <button type="submit" form="backup-verify-<?= e($b['filename']) ?>" class="btn btn-secondary btn-sm"><?= __('backup.verify_button') ?></button>
@@ -145,7 +145,7 @@ $driveConnected = GoogleDriveService::isConnected();
         <?php foreach ($migrations as $i => $m): ?>
           <tr>
             <td class="text-sm"><?= e($m['filename']) ?></td>
-            <td class="text-sm text-muted"><?= e(date('d/m/Y H:i', strtotime($m['applied_at']))) ?></td>
+            <td class="text-sm text-muted"><?= e(date('m/d/Y H:i', strtotime($m['applied_at']))) ?></td>
             <td>
               <?php if ($i === 0 && $m['rollback_available']): ?>
                 <button type="submit" form="migration-rollback-form" class="btn btn-danger btn-sm"><?= __('backup.rollback_button') ?></button>

@@ -210,11 +210,11 @@ $eventImages = event_images($event);
     <?php endif; ?>
 
     <div class="card mb-6">
-      <div class="info-row"><span class="info-label"><?= __('public.event_dates') ?></span><span class="info-value"><?= e(date('d/m/Y', strtotime($event['start_date']))) ?> – <?= e(date('d/m/Y', strtotime($event['end_date']))) ?></span></div>
+      <div class="info-row"><span class="info-label"><?= __('public.event_dates') ?></span><span class="info-value"><?= e(date('m/d/Y', strtotime($event['start_date']))) ?> – <?= e(date('m/d/Y', strtotime($event['end_date']))) ?></span></div>
       <?php if (!empty($event['venue_name'])): ?>
         <div class="info-row"><span class="info-label"><?= __('public.venue') ?></span><span class="info-value"><?= e($event['venue_name']) ?></span></div>
       <?php endif; ?>
-      <div class="info-row"><span class="info-label"><?= __('public.booking_window') ?></span><span class="info-value text-sm"><?= e(date('d/m/Y H:i', strtotime($event['booking_open_at']))) ?> – <?= e(date('d/m/Y H:i', strtotime($event['booking_close_at']))) ?></span></div>
+      <div class="info-row"><span class="info-label"><?= __('public.booking_window') ?></span><span class="info-value text-sm"><?= e(date('m/d/Y H:i', strtotime($event['booking_open_at']))) ?> – <?= e(date('m/d/Y H:i', strtotime($event['booking_close_at']))) ?></span></div>
     </div>
 
     <?php if ($eventContacts): ?>

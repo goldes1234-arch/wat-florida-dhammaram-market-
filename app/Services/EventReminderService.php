@@ -59,7 +59,7 @@ class EventReminderService
                     LineService::push($vendor['line_user_id'], __('line.event_reminder', [
                         'event' => $eventName,
                         'lot' => $booking['lot_code'],
-                        'date' => date('d/m/Y', strtotime((string) $event['start_date'])),
+                        'date' => date('m/d/Y', strtotime((string) $event['start_date'])),
                     ]));
                 }
             }
